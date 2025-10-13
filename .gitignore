@@ -1,0 +1,62 @@
+# Food & Ingredient Inventory - Git Ignore
+
+# Local configuration files
+config/local.php
+.env
+.env.local
+
+# Database backups
+backups/
+*.sql.gz
+*.sql.bz2
+
+# Upload directories
+uploads/
+images/
+
+# Log files
+logs/
+*.log
+
+# Cache and temporary files
+cache/
+tmp/
+temp/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.phpstorm.meta.php
+
+# Package managers
+composer.phar
+vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build files
+dist/
+build/
+
+# PHP specific
+.phpunit.result.cache
+
+# Sensitive data
+*.pem
+*.key
+*.crt
