@@ -2,6 +2,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize the application
     initializeApp();
+    
+    // Initialize theme toggle
+    initializeTheme();
 });
 
 function initializeApp() {
@@ -16,6 +19,11 @@ function initializeApp() {
     
     // Auto-hide alerts after 5 seconds
     autoHideAlerts();
+    
+    // Set up search functionality if search inputs exist
+    if (document.querySelectorAll('.search-input').length > 0) {
+        setupSearch();
+    }
 }
 
 function setupFormValidations() {
@@ -238,10 +246,231 @@ function setupSearch() {
     });
 }
 
+// Theme Management Functions
+function initializeTheme() {
+    // Check for saved theme preference or default to 'light'
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    
+    // Apply the theme
+    applyTheme(savedTheme);
+    
+    // Set up theme toggle event listener
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        // Set initial state
+        themeToggle.checked = savedTheme === 'dark';
+        
+        // Add event listener
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Add smooth transition for theme change
+            document.documentElement.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.documentElement.style.transition = '';
+            }, 300);
+        });
+    }
+    
+    // Listen for system theme changes
+    if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addListener(handleSystemThemeChange);
+    }
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    // Update meta theme-color for mobile browsers
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', theme === 'dark' ? '#121212' : '#ffffff');
+    }
+    
+    // Update favicon if different versions exist
+    updateFavicon(theme);
+}
+
+function handleSystemThemeChange(e) {
+    // Only apply system theme if no manual preference is saved
+    if (!localStorage.getItem('theme')) {
+        const systemTheme = e.matches ? 'dark' : 'light';
+        applyTheme(systemTheme);
+        
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.checked = systemTheme === 'dark';
+        }
+    }
+}
+
+function updateFavicon(theme) {
+    const favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) {
+        // You can add different favicons for light/dark themes here
+        // favicon.href = theme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
+    }
+}
+
+function getSystemTheme() {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    return 'light';
+}
+
+// Enhanced form validation with theme-aware styling
+function showFieldError(field, message) {
+    clearFieldError(field);
+    
+    const errorElement = document.createElement('div');
+    errorElement.className = 'field-error';
+    errorElement.textContent = message;
+    errorElement.style.color = 'var(--color-danger)';
+    errorElement.style.fontSize = '12px';
+    errorElement.style.marginTop = '5px';
+    errorElement.style.fontWeight = '500';
+    
+    field.style.borderColor = 'var(--color-danger)';
+    field.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+    field.parentNode.appendChild(errorElement);
+}
+
+function clearFieldError(field) {
+    field.style.borderColor = '';
+    field.style.boxShadow = '';
+    const existingError = field.parentNode.querySelector('.field-error');
+    if (existingError) {
+        existingError.remove();
+    }
+}
+
+// Enhanced alert auto-hide with better animations
+function autoHideAlerts() {
+    const alerts = document.querySelectorAll('.alert-success, .alert-error, .alert-warning');
+    alerts.forEach(alert => {
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.className = 'alert-close';
+        closeBtn.style.cssText = `
+            background: none;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            color: currentColor;
+            cursor: pointer;
+            opacity: 0.7;
+            margin-left: auto;
+            padding: 0;
+            line-height: 1;
+        `;
+        
+        closeBtn.addEventListener('click', () => {
+            hideAlert(alert);
+        });
+        
+        alert.appendChild(closeBtn);
+        
+        // Auto-hide after 7 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                hideAlert(alert);
+            }
+        }, 7000);
+    });
+}
+
+function hideAlert(alert) {
+    alert.style.transition = 'all 0.3s ease';
+    alert.style.opacity = '0';
+    alert.style.transform = 'translateY(-20px)';
+    alert.style.maxHeight = '0';
+    alert.style.marginBottom = '0';
+    alert.style.paddingTop = '0';
+    alert.style.paddingBottom = '0';
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 300);
+}
+
+// Enhanced table sorting with theme-aware indicators
+function sortTable(table, columnIndex) {
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const header = table.querySelectorAll('th')[columnIndex];
+    
+    // Skip if no data rows
+    if (rows.length === 0 || rows[0].cells[0].textContent.includes('No')) return;
+    
+    // Check current sort direction
+    const currentDirection = header.getAttribute('data-sort-direction') || 'asc';
+    const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+    
+    // Clear all sort indicators
+    table.querySelectorAll('th').forEach(th => {
+        th.removeAttribute('data-sort-direction');
+        th.style.position = 'relative';
+        const indicator = th.querySelector('.sort-indicator');
+        if (indicator) indicator.remove();
+    });
+    
+    // Add sort indicator
+    const indicator = document.createElement('span');
+    indicator.className = 'sort-indicator';
+    indicator.innerHTML = newDirection === 'asc' ? ' ↑' : ' ↓';
+    indicator.style.cssText = `
+        color: var(--color-primary);
+        font-weight: bold;
+        margin-left: 4px;
+    `;
+    header.appendChild(indicator);
+    header.setAttribute('data-sort-direction', newDirection);
+    
+    const isNumeric = isColumnNumeric(rows, columnIndex);
+    const isDate = isColumnDate(rows, columnIndex);
+    
+    rows.sort((a, b) => {
+        let aVal = a.cells[columnIndex].textContent.trim();
+        let bVal = b.cells[columnIndex].textContent.trim();
+        
+        let comparison = 0;
+        
+        if (isNumeric) {
+            aVal = parseFloat(aVal.replace(/[^0-9.-]/g, '')) || 0;
+            bVal = parseFloat(bVal.replace(/[^0-9.-]/g, '')) || 0;
+            comparison = aVal - bVal;
+        } else if (isDate) {
+            aVal = new Date(aVal === 'N/A' ? '1900-01-01' : aVal);
+            bVal = new Date(bVal === 'N/A' ? '1900-01-01' : bVal);
+            comparison = aVal - bVal;
+        } else {
+            comparison = aVal.localeCompare(bVal);
+        }
+        
+        return newDirection === 'desc' ? -comparison : comparison;
+    });
+    
+    // Re-append sorted rows with animation
+    rows.forEach((row, index) => {
+        setTimeout(() => {
+            tbody.appendChild(row);
+        }, index * 10);
+    });
+}
+
 // Export functions for potential use in other scripts
 window.InventoryApp = {
     fetchData,
     postData,
     setupSearch,
-    sortTable
+    sortTable,
+    applyTheme,
+    initializeTheme
 };

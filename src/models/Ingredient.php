@@ -2,60 +2,105 @@
 class Ingredient {
     private $conn;
     private $table_name = "ingredients";
+    private $locations_table = "ingredient_locations";
 
     public $id;
     public $name;
     public $category;
-    public $quantity;
     public $unit;
     public $cost_per_unit;
     public $supplier;
     public $purchase_date;
+    public $purchase_location;
     public $expiry_date;
-    public $location;
     public $notes;
+    public $user_id;
     public $created_at;
     public $updated_at;
+    
+    // For handling locations
+    public $locations = []; // Array of location data
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . "
-                 SET name=:name, category=:category, quantity=:quantity,
-                     unit=:unit, cost_per_unit=:cost_per_unit, supplier=:supplier,
-                     purchase_date=:purchase_date, expiry_date=:expiry_date,
-                     location=:location, notes=:notes, created_at=NOW()";
+        try {
+            $this->conn->beginTransaction();
+            
+            // Insert into ingredients table (without quantity/location)
+            $query = "INSERT INTO " . $this->table_name . "
+                     (name, category, unit, cost_per_unit, supplier, purchase_date, 
+                      purchase_location, expiry_date, notes, user_id, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":category", $this->category);
-        $stmt->bindParam(":quantity", $this->quantity);
-        $stmt->bindParam(":unit", $this->unit);
-        $stmt->bindParam(":cost_per_unit", $this->cost_per_unit);
-        $stmt->bindParam(":supplier", $this->supplier);
-        $stmt->bindParam(":purchase_date", $this->purchase_date);
-        $stmt->bindParam(":expiry_date", $this->expiry_date);
-        $stmt->bindParam(":location", $this->location);
-        $stmt->bindParam(":notes", $this->notes);
+            // Clean data
+            $this->name = htmlspecialchars(strip_tags($this->name));
+            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'oz'));
+            $this->cost_per_unit = $this->cost_per_unit ?: null;
+            $this->supplier = htmlspecialchars(strip_tags($this->supplier ?? ''));
+            $this->purchase_date = $this->purchase_date ?: null;
+            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+            $this->expiry_date = $this->expiry_date ?: null;
+            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->user_id = $this->user_id ?? null;
 
-        if($stmt->execute()) {
+            $stmt->execute([
+                $this->name,
+                $this->category,
+                $this->unit,
+                $this->cost_per_unit,
+                $this->supplier,
+                $this->purchase_date,
+                $this->purchase_location,
+                $this->expiry_date,
+                $this->notes,
+                $this->user_id
+            ]);
+
+            if(!$stmt->rowCount()) {
+                $this->conn->rollBack();
+                return false;
+            }
+            
+            $ingredient_id = $this->conn->lastInsertId();
+            $this->id = $ingredient_id;
+            
+            // Insert location data if provided
+            if (!empty($this->locations)) {
+                foreach ($this->locations as $location_data) {
+                    $this->addLocation($location_data['location'], $location_data['quantity'], $location_data['notes'] ?? '');
+                }
+            }
+            
+            $this->conn->commit();
             return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
         }
-        return false;
     }
 
     public function read() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
+        $query = "SELECT * FROM ingredient_totals ORDER BY name";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+    
+    public function readWithLocations() {
+        $query = "SELECT * FROM ingredient_location_details ORDER BY ingredient_name, location";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
     }
 
     public function readOne() {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
         $stmt->execute();
@@ -65,45 +110,86 @@ class Ingredient {
         if($row) {
             $this->name = $row['name'];
             $this->category = $row['category'];
-            $this->quantity = $row['quantity'];
             $this->unit = $row['unit'];
             $this->cost_per_unit = $row['cost_per_unit'];
             $this->supplier = $row['supplier'];
             $this->purchase_date = $row['purchase_date'];
+            $this->purchase_location = $row['purchase_location'];
             $this->expiry_date = $row['expiry_date'];
-            $this->location = $row['location'];
             $this->notes = $row['notes'];
+            $this->user_id = $row['user_id'];
+            $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
+            
+            // Load location data
+            $this->loadLocations();
+            
             return true;
         }
         return false;
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table_name . "
-                 SET name=:name, category=:category, quantity=:quantity,
-                     unit=:unit, cost_per_unit=:cost_per_unit, supplier=:supplier,
-                     purchase_date=:purchase_date, expiry_date=:expiry_date,
-                     location=:location, notes=:notes, updated_at=NOW()
-                 WHERE id=:id";
+        try {
+            $this->conn->beginTransaction();
+            
+            // Update ingredients table (without quantity/location)
+            $query = "UPDATE " . $this->table_name . "
+                     SET name = ?, category = ?, unit = ?, cost_per_unit = ?, 
+                         supplier = ?, purchase_date = ?, purchase_location = ?,
+                         expiry_date = ?, notes = ?, user_id = ?, updated_at = CURRENT_TIMESTAMP
+                     WHERE id = ?";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":category", $this->category);
-        $stmt->bindParam(":quantity", $this->quantity);
-        $stmt->bindParam(":unit", $this->unit);
-        $stmt->bindParam(":cost_per_unit", $this->cost_per_unit);
-        $stmt->bindParam(":supplier", $this->supplier);
-        $stmt->bindParam(":purchase_date", $this->purchase_date);
-        $stmt->bindParam(":expiry_date", $this->expiry_date);
-        $stmt->bindParam(":location", $this->location);
-        $stmt->bindParam(":notes", $this->notes);
-        $stmt->bindParam(":id", $this->id);
+            // Clean data
+            $this->name = htmlspecialchars(strip_tags($this->name));
+            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'oz'));
+            $this->cost_per_unit = $this->cost_per_unit ?: null;
+            $this->supplier = htmlspecialchars(strip_tags($this->supplier ?? ''));
+            $this->purchase_date = $this->purchase_date ?: null;
+            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+            $this->expiry_date = $this->expiry_date ?: null;
+            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->user_id = $this->user_id ?? null;
 
-        if($stmt->execute()) {
+            $stmt->execute([
+                $this->name,
+                $this->category,
+                $this->unit,
+                $this->cost_per_unit,
+                $this->supplier,
+                $this->purchase_date,
+                $this->purchase_location,
+                $this->expiry_date,
+                $this->notes,
+                $this->user_id,
+                $this->id
+            ]);
+
+            if(!$stmt->rowCount()) {
+                $this->conn->rollBack();
+                return false;
+            }
+            
+            // Update location data if provided
+            if (!empty($this->locations)) {
+                // Clear existing locations
+                $this->clearLocations();
+                
+                // Add new locations
+                foreach ($this->locations as $location_data) {
+                    $this->addLocation($location_data['location'], $location_data['quantity'], $location_data['notes'] ?? '');
+                }
+            }
+            
+            $this->conn->commit();
             return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
         }
-        return false;
     }
 
     public function delete() {
@@ -118,13 +204,96 @@ class Ingredient {
     }
 
     public function getLowStockItems($threshold = 10) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE quantity <= :threshold
-                 ORDER BY quantity ASC";
+        $query = "SELECT * FROM low_stock_ingredients WHERE total_quantity <= :threshold ORDER BY total_quantity ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":threshold", $threshold);
         $stmt->execute();
+        return $stmt;
+    }
+    
+    // New methods for handling locations
+    public function addLocation($location, $quantity, $notes = '') {
+        $query = "INSERT OR REPLACE INTO " . $this->locations_table . "
+                 (ingredient_id, location, quantity, notes, created_at, updated_at)
+                 VALUES (:ingredient_id, :location, :quantity, :notes, datetime('now'), datetime('now'))";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ingredient_id", $this->id);
+        $stmt->bindParam(":location", $location);
+        $stmt->bindParam(":quantity", $quantity);
+        $stmt->bindParam(":notes", $notes);
+        
+        return $stmt->execute();
+    }
+    
+    public function updateLocationQuantity($location, $quantity) {
+        $query = "UPDATE " . $this->locations_table . "
+                 SET quantity=:quantity, updated_at=datetime('now')
+                 WHERE ingredient_id=:ingredient_id AND location=:location";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ingredient_id", $this->id);
+        $stmt->bindParam(":location", $location);
+        $stmt->bindParam(":quantity", $quantity);
+        
+        return $stmt->execute();
+    }
+    
+    public function removeLocation($location) {
+        $query = "DELETE FROM " . $this->locations_table . "
+                 WHERE ingredient_id=:ingredient_id AND location=:location";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ingredient_id", $this->id);
+        $stmt->bindParam(":location", $location);
+        
+        return $stmt->execute();
+    }
+    
+    public function loadLocations() {
+        $query = "SELECT location, quantity, notes FROM " . $this->locations_table . "
+                 WHERE ingredient_id=:ingredient_id ORDER BY location";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ingredient_id", $this->id);
+        $stmt->execute();
+        
+        $this->locations = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->locations[] = $row;
+        }
+        
+        return $this->locations;
+    }
+    
+    public function clearLocations() {
+        $query = "DELETE FROM " . $this->locations_table . " WHERE ingredient_id=:ingredient_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ingredient_id", $this->id);
+        return $stmt->execute();
+    }
+    
+    public function getTotalQuantity() {
+        $query = "SELECT COALESCE(SUM(quantity), 0) as total FROM " . $this->locations_table . "
+                 WHERE ingredient_id = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$this->id]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['total'] : 0;
+    }
+
+    // Search ingredients
+    public function search($keywords) {
+        $query = "SELECT * FROM ingredient_totals 
+                 WHERE name LIKE ? OR category LIKE ? OR supplier LIKE ?
+                 ORDER BY name ASC";
+        
+        $keywords = "%{$keywords}%";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$keywords, $keywords, $keywords]);
         return $stmt;
     }
 }

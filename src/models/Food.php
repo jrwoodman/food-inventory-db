@@ -10,8 +10,10 @@ class Food {
     public $unit;
     public $expiry_date;
     public $purchase_date;
+    public $purchase_location;
     public $location;
     public $notes;
+    public $user_id;
     public $created_at;
     public $updated_at;
 
@@ -21,22 +23,39 @@ class Food {
 
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                 SET name=:name, category=:category, quantity=:quantity, 
-                     unit=:unit, expiry_date=:expiry_date, purchase_date=:purchase_date,
-                     location=:location, notes=:notes, created_at=NOW()";
+                 (name, category, quantity, unit, expiry_date, purchase_date, 
+                  purchase_location, location, notes, user_id, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
         $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":category", $this->category);
-        $stmt->bindParam(":quantity", $this->quantity);
-        $stmt->bindParam(":unit", $this->unit);
-        $stmt->bindParam(":expiry_date", $this->expiry_date);
-        $stmt->bindParam(":purchase_date", $this->purchase_date);
-        $stmt->bindParam(":location", $this->location);
-        $stmt->bindParam(":notes", $this->notes);
+        // Clean data
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+        $this->quantity = $this->quantity ?? 0;
+        $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+        $this->expiry_date = $this->expiry_date ?: null;
+        $this->purchase_date = $this->purchase_date ?: null;
+        $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+        $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
+        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+        $this->user_id = $this->user_id ?? null;
 
-        if($stmt->execute()) {
+        $stmt->execute([
+            $this->name,
+            $this->category,
+            $this->quantity,
+            $this->unit,
+            $this->expiry_date,
+            $this->purchase_date,
+            $this->purchase_location,
+            $this->location,
+            $this->notes,
+            $this->user_id
+        ]);
+
+        if($stmt->rowCount()) {
+            $this->id = $this->conn->lastInsertId();
             return true;
         }
         return false;
@@ -64,8 +83,12 @@ class Food {
             $this->unit = $row['unit'];
             $this->expiry_date = $row['expiry_date'];
             $this->purchase_date = $row['purchase_date'];
+            $this->purchase_location = $row['purchase_location'];
             $this->location = $row['location'];
             $this->notes = $row['notes'];
+            $this->user_id = $row['user_id'];
+            $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
             return true;
         }
         return false;
@@ -73,27 +96,40 @@ class Food {
 
     public function update() {
         $query = "UPDATE " . $this->table_name . "
-                 SET name=:name, category=:category, quantity=:quantity,
-                     unit=:unit, expiry_date=:expiry_date, purchase_date=:purchase_date,
-                     location=:location, notes=:notes, updated_at=NOW()
-                 WHERE id=:id";
+                 SET name = ?, category = ?, quantity = ?, unit = ?, 
+                     expiry_date = ?, purchase_date = ?, purchase_location = ?,
+                     location = ?, notes = ?, user_id = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = ?";
 
         $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":category", $this->category);
-        $stmt->bindParam(":quantity", $this->quantity);
-        $stmt->bindParam(":unit", $this->unit);
-        $stmt->bindParam(":expiry_date", $this->expiry_date);
-        $stmt->bindParam(":purchase_date", $this->purchase_date);
-        $stmt->bindParam(":location", $this->location);
-        $stmt->bindParam(":notes", $this->notes);
-        $stmt->bindParam(":id", $this->id);
+        // Clean data
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+        $this->quantity = $this->quantity ?? 0;
+        $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+        $this->expiry_date = $this->expiry_date ?: null;
+        $this->purchase_date = $this->purchase_date ?: null;
+        $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+        $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
+        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+        $this->user_id = $this->user_id ?? null;
 
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        $stmt->execute([
+            $this->name,
+            $this->category,
+            $this->quantity,
+            $this->unit,
+            $this->expiry_date,
+            $this->purchase_date,
+            $this->purchase_location,
+            $this->location,
+            $this->notes,
+            $this->user_id,
+            $this->id
+        ]);
+
+        return $stmt->rowCount() > 0;
     }
 
     public function delete() {
@@ -109,13 +145,24 @@ class Food {
 
     public function getExpiringItems($days = 7) {
         $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE expiry_date <= DATE_ADD(NOW(), INTERVAL :days DAY) 
-                 AND expiry_date >= NOW()
+                 WHERE expiry_date <= date('now', '+' || ? || ' days')
+                 AND expiry_date >= date('now')
                  ORDER BY expiry_date ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":days", $days);
-        $stmt->execute();
+        $stmt->execute([$days]);
+        return $stmt;
+    }
+
+    // Search foods
+    public function search($keywords) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE name LIKE ? OR category LIKE ? OR notes LIKE ? OR purchase_location LIKE ?
+                 ORDER BY created_at DESC";
+        
+        $keywords = "%{$keywords}%";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$keywords, $keywords, $keywords, $keywords]);
         return $stmt;
     }
 }

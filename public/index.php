@@ -2,17 +2,79 @@
 require_once '../src/database/Database.php';
 require_once '../src/models/Food.php';
 require_once '../src/models/Ingredient.php';
+require_once '../src/models/User.php';
+require_once '../src/models/Store.php';
+require_once '../src/auth/Auth.php';
 require_once '../src/controllers/InventoryController.php';
+require_once '../src/controllers/UserController.php';
 require_once '../config/config.php';
 
 // Start session
 session_start();
 
+// Initialize database and auth
+$database = new Database();
+$db = $database->getConnection();
+$auth = new Auth($db);
+
+// Clean up expired sessions
+$auth->cleanupExpiredSessions();
+
 // Simple routing
 $action = $_GET['action'] ?? 'dashboard';
-$controller = new InventoryController();
+
+// Check if user exists - if not, redirect to setup
+$user_model = new User($db);
+if ($user_model->getUsersCount() == 0 && $action !== 'register') {
+    $action = 'register';
+}
+
+// Routes that don't require authentication
+$public_routes = ['login', 'register'];
+
+// Route to appropriate controller
+if (in_array($action, ['login', 'logout', 'register', 'users', 'edit_user', 'delete_user', 'profile', 'revoke_session', 'revoke_all_sessions', 'access_denied'])) {
+    $controller = new UserController();
+} else {
+    $controller = new InventoryController();
+}
 
 switch ($action) {
+    // Authentication routes
+    case 'login':
+        $controller->login();
+        break;
+    case 'logout':
+        $controller->logout();
+        break;
+    case 'register':
+        $controller->register();
+        break;
+    case 'access_denied':
+        $controller->accessDenied();
+        break;
+        
+    // User management routes
+    case 'users':
+        $controller->users();
+        break;
+    case 'edit_user':
+        $controller->editUser();
+        break;
+    case 'delete_user':
+        $controller->deleteUser();
+        break;
+    case 'profile':
+        $controller->profile();
+        break;
+    case 'revoke_session':
+        $controller->revokeSession();
+        break;
+    case 'revoke_all_sessions':
+        $controller->revokeAllSessions();
+        break;
+        
+    // Inventory routes
     case 'dashboard':
         $controller->dashboard();
         break;
@@ -28,13 +90,48 @@ switch ($action) {
     case 'add_ingredient':
         $controller->addIngredient();
         break;
+    case 'edit_ingredient':
+        $controller->editIngredient();
+        break;
+    case 'delete_ingredient':
+        $controller->deleteIngredient();
+        break;
+    case 'update_ingredient_location':
+        $controller->updateIngredientLocation();
+        break;
     case 'api_foods':
         $controller->getFoodsJson();
         break;
     case 'api_ingredients':
         $controller->getIngredientsJson();
         break;
+    case 'api_ingredient_locations':
+        $controller->getIngredientLocationsJson();
+        break;
+        
+    // Store management routes
+    case 'manage_stores':
+        $controller->manageStores();
+        break;
+    case 'add_store':
+        $controller->addStore();
+        break;
+    case 'edit_store':
+        $controller->editStore();
+        break;
+    case 'delete_store':
+        $controller->deleteStore();
+        break;
+    case 'toggle_store_status':
+        $controller->toggleStoreStatus();
+        break;
+        
     default:
+        // Check if user is logged in, otherwise redirect to login
+        if (!$auth->isLoggedIn()) {
+            header('Location: index.php?action=login');
+            exit();
+        }
         $controller->dashboard();
 }
 ?>

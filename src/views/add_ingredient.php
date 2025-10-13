@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Add Ingredient - Food & Ingredient Inventory Management">
     <title>Add Ingredient - Food & Ingredient Inventory</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Add Ingredient</h1>
-            <nav>
-                <a href="index.php?action=dashboard" class="btn btn-primary">Back to Dashboard</a>
-            </nav>
+            <div class="header-content">
+                <h1>🧄 Add Ingredient</h1>
+            </div>
+            <div class="nav-actions">
+                <nav>
+                    <a href="index.php?action=dashboard" class="btn btn-primary">← Back to Dashboard</a>
+                </nav>
+                <div class="theme-toggle">
+                    <span class="theme-toggle-label">Theme</span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="theme-slider"></span>
+                    </label>
+                </div>
+            </div>
         </header>
 
         <?php if(isset($error)): ?>
@@ -94,6 +107,22 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="purchase_location">Purchase Location</label>
+                    <select id="purchase_location" name="purchase_location">
+                        <option value="">Select Store</option>
+                        <?php if(isset($stores) && !empty($stores)): ?>
+                            <?php foreach($stores as $store): ?>
+                                <option value="<?php echo htmlspecialchars($store['name']); ?>">
+                                    <?php echo htmlspecialchars($store['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <option value="Other">Other</option>
+                    </select>
+                    <small class="form-help">Select where you purchased this ingredient</small>
+                </div>
+
+                <div class="form-group">
                     <label for="location">Storage Location</label>
                     <select id="location" name="location">
                         <option value="">Select Location</option>
@@ -113,8 +142,8 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-success">Add Ingredient</button>
-                    <a href="index.php?action=dashboard" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">✓ Add Ingredient</button>
+                    <a href="index.php?action=dashboard" class="btn btn-secondary">× Cancel</a>
                 </div>
             </form>
         </div>

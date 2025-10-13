@@ -17,13 +17,17 @@ class Database {
         $this->conn = null;
 
         try {
+            // Create database directory if it doesn't exist
+            $db_dir = dirname(__DIR__ . '/../database/food_inventory.db');
+            if (!is_dir($db_dir)) {
+                mkdir($db_dir, 0755, true);
+            }
+            
             $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
-                $this->username,
-                $this->password
+                "sqlite:" . __DIR__ . "/../../database/food_inventory.db"
             );
-            $this->conn->exec("set names utf8");
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->exec('PRAGMA foreign_keys = ON;');
         } catch(PDOException $exception) {
             echo "Connection error: " . $exception->getMessage();
         }

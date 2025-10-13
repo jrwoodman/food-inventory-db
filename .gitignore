@@ -5,6 +5,10 @@ config/local.php
 .env
 .env.local
 
+# Database files (exclude actual database but keep schema)
+database/*.db
+database/food_inventory_backup_*.db
+
 # Database backups
 backups/
 *.sql.gz
