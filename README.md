@@ -1,24 +1,81 @@
-# Food & Ingredient Inventory Database
+# 🍽️ Food & Ingredient Inventory Management System
 
-A comprehensive PHP-based web application for managing food and ingredient inventory with a graphical user interface.
+A comprehensive PHP-based web application for managing food and ingredient inventory with user authentication, expiry tracking, low stock alerts, purchase location management, and a responsive web interface.
 
-## Features
+## ✨ Features
 
-- **Food Inventory Management**: Track food items with expiry dates, quantities, and storage locations
-- **Ingredient Inventory Management**: Manage cooking ingredients with supplier information and cost tracking
-- **Expiry Alerts**: Visual warnings for items expiring within 7 days
-- **Low Stock Alerts**: Notifications when ingredient quantities fall below threshold
-- **Responsive Design**: Mobile-friendly interface that works on all devices
-- **Interactive Tables**: Sortable inventory tables with intuitive controls
-- **Form Validation**: Client-side validation for data integrity
-- **Sample Data**: Pre-populated with example items for immediate testing
+### 🔐 User Management
+- **User Authentication**: Secure login/logout with session management
+- **Role-based Access Control**: Admin, User, and Viewer roles
+- **User Registration**: Admin can create new user accounts
+- **Profile Management**: Users can update their profiles and passwords
+- **Session Security**: Automatic session cleanup and security features
+
+### 🏪 Store Management
+- **Purchase Location Tracking**: Track where items were purchased
+- **Store Database**: Pre-populated with common stores (Walmart, Target, Kroger, etc.)
+- **Store CRUD**: Admins can add, edit, activate/deactivate stores
+- **Dropdown Integration**: Stores populate purchase location dropdowns
+
+### 📦 Inventory Management
+- **Food Items**: Track food with expiry dates, quantities, and storage locations
+- **Ingredients**: Manage ingredients with multi-location storage support
+- **Purchase Tracking**: Record purchase date and location for all items
+- **Expiry Alerts**: Visual alerts for items expiring within 7 days
+- **Low Stock Alerts**: Automatic notifications for low inventory levels
+
+### 💻 User Interface
+- **Responsive Design**: Mobile-friendly interface
+- **Dark/Light Theme**: Toggle between themes with persistent preference
+- **Modern UI**: Clean, intuitive design with card-based layout
+- **Real-time Updates**: Dynamic content updates and alerts
+
+## 🚀 Quick Start
+
+### Requirements
+- PHP 7.4+ with SQLite extension
+- Web server (Apache, Nginx, or built-in PHP server)
+- SQLite 3.0+
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/jrwoodman/food-inventory-db.git
+   cd food-inventory-db
+   ```
+
+2. **Set up the database:**
+   ```bash
+   sqlite3 database/food_inventory.db < src/database/schema.sql
+   ```
+
+3. **Set file permissions:**
+   ```bash
+   chmod 755 database/ uploads/ backups/ logs/
+   chmod 664 database/food_inventory.db
+   ```
+
+4. **Start the development server:**
+   ```bash
+   ./start_server.sh
+   ```
+   Or manually:
+   ```bash
+   php -S localhost:8000 -t public/
+   ```
+
+5. **Access the application:**
+   - URL: `http://localhost:8000`
+   - Default credentials: `admin` / `admin123`
 
 ## Technology Stack
 
-- **Backend**: PHP 7.4+
-- **Database**: MySQL 5.7+ / MariaDB 10.3+
+- **Backend**: PHP 8.4+ (compatible with 7.4+)
+- **Database**: SQLite 3.0+ (file-based, portable)
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Modern CSS Grid and Flexbox
+- **Styling**: Modern CSS Grid and Flexbox with theme support
+- **Authentication**: Custom session-based authentication
 - **Database ORM**: Custom PDO-based models
 
 ## Project Structure
@@ -103,13 +160,34 @@ define('DB_PASS', 'your_password');
 4. **Manage Inventory**: Edit or delete items using table actions
 5. **Monitor Alerts**: Keep track of expiring foods and low stock ingredients
 
+## 👥 User Roles
+
+### Admin
+- Full system access
+- User management (create, edit, delete users)
+- Store management (add, edit, activate/deactivate stores)
+- All inventory operations
+- System configuration
+
+### User
+- Add, edit, and delete their own inventory items
+- View all inventory (if configured)
+- Profile management
+- Standard inventory operations
+
+### Viewer
+- Read-only access to inventory
+- Profile viewing only
+- No edit/delete permissions
+
 ### Key Features Usage
 
+- **Purchase Tracking**: Record where and when items were purchased
 - **Expiry Tracking**: Set expiry dates for foods to receive timely warnings
 - **Stock Management**: Monitor ingredient quantities with automatic low-stock alerts  
-- **Categories**: Organize items using predefined categories
-- **Locations**: Track where items are stored (Refrigerator, Pantry, etc.)
-- **Notes**: Add custom notes for any special information
+- **Multi-location Storage**: Track ingredients across multiple storage locations
+- **Store Management**: Maintain database of purchase locations
+- **User Authentication**: Secure access with role-based permissions
 
 ## Database Schema
 
@@ -129,8 +207,10 @@ define('DB_PASS', 'your_password');
 
 ## API Endpoints
 
-- `GET /public/index.php?action=api_foods` - Get all foods as JSON
-- `GET /public/index.php?action=api_ingredients` - Get all ingredients as JSON
+- `GET /public/index.php?action=api_foods` - Returns all foods as JSON
+- `GET /public/index.php?action=api_ingredients` - Returns ingredients with quantities
+- `GET /public/index.php?action=api_ingredient_locations` - Ingredient location breakdown
+- `POST /public/index.php?action=update_ingredient_location` - Update ingredient quantities
 
 ## Customization
 
