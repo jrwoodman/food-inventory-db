@@ -86,7 +86,7 @@
                     ?>
                         <div class="low-stock-item">
                             <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                            <span class="quantity"><?php echo $row['quantity'] . ' ' . $row['unit']; ?></span>
+                            <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></span>
                         </div>
                     <?php endwhile; ?>
                     <?php if ($low_stock_count == 0): ?>
@@ -154,10 +154,9 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Category</th>
-                                <th>Quantity</th>
+                                <th>Total Quantity</th>
                                 <th>Cost/Unit</th>
                                 <th>Supplier</th>
-                                <th>Location</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -169,11 +168,10 @@
                             ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['category']); ?></td>
-                                    <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
-                                    <td><?php echo $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
-                                    <td><?php echo htmlspecialchars($row['supplier']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['location']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
+                                    <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
+                                    <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
                                     <td class="table-actions">
                                         <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
                                            class="btn btn-sm btn-primary" 
@@ -190,7 +188,7 @@
                                 </tr>
                             <?php endwhile; ?>
                             <?php if ($ingredient_count == 0): ?>
-                                <tr><td colspan="7" class="no-items">No ingredients found. <a href="index.php?action=add_ingredient">Add your first ingredient!</a></td></tr>
+                                <tr><td colspan="6" class="no-items">No ingredients found. <a href="index.php?action=add_ingredient">Add your first ingredient!</a></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
