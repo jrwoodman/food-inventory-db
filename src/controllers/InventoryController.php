@@ -32,6 +32,7 @@ class InventoryController {
             $low_stock_ingredients = $ingredient->getLowStockItemsByUser($this->current_user->id, 10);
         }
 
+        $current_user = $this->current_user;
         include '../src/views/dashboard.php';
     }
 
@@ -66,6 +67,7 @@ class InventoryController {
                 $error = "Unable to add food item.";
             }
         }
+        $current_user = $this->current_user;
         include '../src/views/add_food.php';
     }
 
@@ -98,6 +100,7 @@ class InventoryController {
             $food->readOne();
         }
         
+        $current_user = $this->current_user;
         include '../src/views/edit_food.php';
     }
 
@@ -158,6 +161,7 @@ class InventoryController {
                 $error = "Unable to add ingredient.";
             }
         }
+        $current_user = $this->current_user;
         include '../src/views/add_ingredient.php';
     }
 
@@ -249,6 +253,7 @@ class InventoryController {
             $ingredient->readOne();
         }
         
+        $current_user = $this->current_user;
         include '../src/views/edit_ingredient.php';
     }
     
@@ -291,6 +296,7 @@ class InventoryController {
         $store = new Store($this->db);
         $stores = $store->read();
         
+        $current_user = $this->current_user;
         include '../src/views/manage_stores.php';
     }
     
@@ -321,6 +327,7 @@ class InventoryController {
             }
         }
         
+        $current_user = $this->current_user;
         include '../src/views/add_store.php';
     }
     
@@ -354,6 +361,7 @@ class InventoryController {
             $store->readOne();
         }
         
+        $current_user = $this->current_user;
         include '../src/views/edit_store.php';
     }
     
