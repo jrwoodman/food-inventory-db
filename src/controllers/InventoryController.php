@@ -400,5 +400,139 @@ class InventoryController {
         }
         exit();
     }
+    
+    // Location Management Methods
+    public function manageLocations() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $location = new Location($this->db);
+        $locations = $location->read();
+        
+        $current_user = $this->current_user;
+        include '../src/views/manage_locations.php';
+    }
+    
+    public function addLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $location = new Location($this->db);
+            
+            $location->name = $_POST['name'];
+            $location->description = $_POST['description'];
+            $location->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($location->nameExists()) {
+                $error = "A location with this name already exists.";
+            } else if ($location->create()) {
+                header('Location: index.php?action=manage_locations&message=Location added successfully');
+                exit();
+            } else {
+                $error = "Unable to add location.";
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/add_location.php';
+    }
+    
+    public function editLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $location = new Location($this->db);
+        $location->id = $_GET['id'] ?? 0;
+        
+        if ($_POST) {
+            $location->name = $_POST['name'];
+            $location->description = $_POST['description'];
+            $location->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($location->nameExists($location->id)) {
+                $error = "A location with this name already exists.";
+            } else if ($location->update()) {
+                header('Location: index.php?action=manage_locations&message=Location updated successfully');
+                exit();
+            } else {
+                $error = "Unable to update location.";
+            }
+        } else {
+            $location->readOne();
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/edit_location.php';
+    }
+    
+    public function deleteLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $location = new Location($this->db);
+        $location->id = $_GET['id'] ?? 0;
+        $location->readOne();
+        
+        // Check if location is in use
+        $food_count = $location->getFoodCount();
+        $ingredient_count = $location->getIngredientLocationCount();
+        
+        if ($food_count > 0 || $ingredient_count > 0) {
+            // Show migration form
+            if ($_POST && isset($_POST['migrate_to'])) {
+                if ($location->migrateToLocation($_POST['migrate_to'])) {
+                    if ($location->delete()) {
+                        header('Location: index.php?action=manage_locations&message=Location deleted and items migrated successfully');
+                        exit();
+                    }
+                }
+                $error = "Unable to migrate items and delete location.";
+            }
+            
+            // Get other locations for migration dropdown
+            $other_locations = Location::getLocationOptions($this->db);
+            $current_user = $this->current_user;
+            include '../src/views/delete_location.php';
+        } else {
+            // No items using this location, safe to delete
+            if ($location->delete()) {
+                header('Location: index.php?action=manage_locations&message=Location deleted successfully');
+            } else {
+                header('Location: index.php?action=manage_locations&error=Unable to delete location');
+            }
+            exit();
+        }
+    }
+    
+    public function toggleLocationStatus() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $location = new Location($this->db);
+        $location->id = $_GET['id'] ?? 0;
+        
+        if ($location->toggleActive()) {
+            header('Location: index.php?action=manage_locations&message=Location status updated successfully');
+        } else {
+            header('Location: index.php?action=manage_locations&error=Unable to update location status');
+        }
+        exit();
+    }
 }
 ?>

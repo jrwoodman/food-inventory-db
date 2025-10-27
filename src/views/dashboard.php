@@ -19,6 +19,7 @@
                 <?php endif; ?>
                 <?php if ($current_user->isAdmin()): ?>
                     <a href="index.php?action=users">👥 Users</a>
+                    <a href="index.php?action=manage_locations">📍 Locations</a>
                     <a href="index.php?action=manage_stores">🏪 Stores</a>
                 <?php endif; ?>
                 <a href="index.php?action=profile">👤 Profile</a>
