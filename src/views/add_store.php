@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="Add Store - Food & Ingredient Inventory Management">
     <title>Add Store - Food & Ingredient Inventory</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
     <div class="container">
