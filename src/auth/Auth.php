@@ -115,14 +115,12 @@ class Auth {
         
         // Store in database
         $query = "INSERT INTO user_sessions (id, user_id, expires_at, ip_address, user_agent, created_at)
-                 VALUES (:id, :user_id, :expires_at, :ip_address, :user_agent, datetime('now'))";
+                 VALUES (:id, :user_id, datetime('now', '+{$this->session_lifetime} seconds'), :ip_address, :user_agent, datetime('now'))";
         
         $stmt = $this->conn->prepare($query);
-        $expires_at = date('Y-m-d H:i:s', time() + $this->session_lifetime);
         
         $stmt->bindParam(':id', $session_id);
         $stmt->bindParam(':user_id', $user->id);
-        $stmt->bindParam(':expires_at', $expires_at);
         $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $stmt->bindParam(':ip_address', $ip_address);
