@@ -123,8 +123,10 @@ class Auth {
         $stmt->bindParam(':id', $session_id);
         $stmt->bindParam(':user_id', $user->id);
         $stmt->bindParam(':expires_at', $expires_at);
-        $stmt->bindParam(':ip_address', $_SERVER['REMOTE_ADDR'] ?? '');
-        $stmt->bindParam(':user_agent', $_SERVER['HTTP_USER_AGENT'] ?? '');
+        $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $stmt->bindParam(':ip_address', $ip_address);
+        $stmt->bindParam(':user_agent', $user_agent);
         
         if ($stmt->execute()) {
             // Set session variables
