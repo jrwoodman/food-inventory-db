@@ -1,12 +1,12 @@
 <?php
 // Direct login test
 ob_start();
-require_once 'config/config.php';
+require_once '../config/config.php';
 session_start();
 
-require_once 'src/database/Database.php';
-require_once 'src/models/User.php';
-require_once 'src/auth/Auth.php';
+require_once '../src/database/Database.php';
+require_once '../src/models/User.php';
+require_once '../src/auth/Auth.php';
 
 $database = new Database();
 $db = $database->getConnection();
