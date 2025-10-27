@@ -18,13 +18,6 @@
                 <nav>
                     <a href="index.php?action=manage_stores" class="btn btn-primary">← Back to Stores</a>
                 </nav>
-                <div class="theme-toggle">
-                    <span class="theme-toggle-label">Theme</span>
-                    <label class="theme-switch">
-                        <input type="checkbox" id="theme-toggle">
-                        <span class="theme-slider"></span>
-                    </label>
-                </div>
             </div>
         </header>
 
