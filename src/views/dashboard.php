@@ -37,6 +37,7 @@
             <div class="alert alert-error"><?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
 
+        <!-- Alert Cards Row -->
         <div class="dashboard-grid">
             <!-- Expiring Foods Alert -->
             <div class="card alert-card">
@@ -77,8 +78,59 @@
                     <?php endif; ?>
                 </div>
             </div>
+        </div>
 
-            <!-- Foods Inventory -->
+        <!-- Ingredients Section (Full Width) -->
+        <div class="card">
+            <h3><span class="card-icon">🧄</span> Ingredients</h3>
+            <div class="table-container">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Total Quantity</th>
+                            <th>Cost/Unit</th>
+                            <th>Supplier</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $ingredient_count = 0;
+                        while ($row = $ingredients->fetch(PDO::FETCH_ASSOC)): 
+                            $ingredient_count++;
+                        ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
+                                <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
+                                <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
+                                <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
+                                <td class="table-actions">
+                                    <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
+                                       class="btn btn-sm btn-primary" 
+                                       title="Edit <?php echo htmlspecialchars($row['name']); ?>">
+                                       ✏️ Edit
+                                    </a>
+                                    <a href="index.php?action=delete_ingredient&id=<?php echo $row['id']; ?>" 
+                                       class="btn btn-sm btn-danger" 
+                                       title="Delete <?php echo htmlspecialchars($row['name']); ?>"
+                                       onclick="return confirm('Are you sure you want to delete this item?')">
+                                       🗑️ Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                        <?php if ($ingredient_count == 0): ?>
+                            <tr><td colspan="6" class="no-items">No ingredients found. <a href="index.php?action=add_ingredient">Add your first ingredient!</a></td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Foods Section (Full Width) -->
             <div class="card">
                 <h3><span class="card-icon">🍎</span> Food Items</h3>
                 <div class="table-container">
@@ -128,56 +180,6 @@
                 </div>
             </div>
 
-            <!-- Ingredients Inventory -->
-            <div class="card">
-                <h3><span class="card-icon">🧄</span> Ingredients</h3>
-                <div class="table-container">
-                    <table class="inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Total Quantity</th>
-                                <th>Cost/Unit</th>
-                                <th>Supplier</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $ingredient_count = 0;
-                            while ($row = $ingredients->fetch(PDO::FETCH_ASSOC)): 
-                                $ingredient_count++;
-                            ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
-                                    <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
-                                    <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
-                                    <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
-                                    <td class="table-actions">
-                                        <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-primary" 
-                                           title="Edit <?php echo htmlspecialchars($row['name']); ?>">
-                                           ✏️ Edit
-                                        </a>
-                                        <a href="index.php?action=delete_ingredient&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-danger" 
-                                           title="Delete <?php echo htmlspecialchars($row['name']); ?>"
-                                           onclick="return confirm('Are you sure you want to delete this item?')">
-                                           🗑️ Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                            <?php if ($ingredient_count == 0): ?>
-                                <tr><td colspan="6" class="no-items">No ingredients found. <a href="index.php?action=add_ingredient">Add your first ingredient!</a></td></tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="../assets/js/app.js"></script>
