@@ -43,7 +43,7 @@ define('FROM_EMAIL', '');
 define('FROM_NAME', APP_NAME);
 
 // Backup Configuration
-define('BACKUP_DIR', '../backups/');
+define('BACKUP_DIR', 'backups/');
 define('BACKUP_RETENTION_DAYS', 30);
 
 // API Configuration
