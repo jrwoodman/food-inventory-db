@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS ingredient_locations;
 DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS foods;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS stores;
 DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS users;
@@ -40,6 +41,16 @@ CREATE TABLE user_sessions (
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create locations table for storage locations
+CREATE TABLE locations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create stores table for purchase locations
@@ -167,6 +178,18 @@ INSERT INTO categories (name, type, description) VALUES
 ('Baking', 'ingredient', 'Baking powder, soda, and baking ingredients'),
 ('Sauces', 'ingredient', 'Cooking sauces and liquid seasonings'),
 ('Extracts', 'ingredient', 'Vanilla and other flavor extracts');
+
+-- Insert default locations
+INSERT INTO locations (name, description, is_active) VALUES
+('Refrigerator', 'Main refrigerator for perishables', 1),
+('Freezer', 'Freezer for long-term frozen storage', 1),
+('Pantry', 'Dry goods and non-perishables', 1),
+('Counter', 'Kitchen counter and countertop storage', 1),
+('Cupboard', 'Kitchen cupboards and cabinets', 1),
+('Basement', 'Basement storage area', 1),
+('Spice Rack', 'Dedicated spice and herb storage', 1),
+('Wine Rack', 'Wine and beverage storage', 1),
+('Other', 'Miscellaneous storage locations', 1);
 
 -- Insert default stores
 INSERT INTO stores (name, address, phone, website, notes, is_active) VALUES
