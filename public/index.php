@@ -1,4 +1,14 @@
 <?php
+// Start output buffering to prevent any header issues
+ob_start();
+
+// Load configuration first
+require_once '../config/config.php';
+
+// Start session before any output
+session_start();
+
+// Load application files
 require_once '../src/database/Database.php';
 require_once '../src/models/Food.php';
 require_once '../src/models/Ingredient.php';
@@ -7,10 +17,6 @@ require_once '../src/models/Store.php';
 require_once '../src/auth/Auth.php';
 require_once '../src/controllers/InventoryController.php';
 require_once '../src/controllers/UserController.php';
-require_once '../config/config.php';
-
-// Start session
-session_start();
 
 // Initialize database and auth
 $database = new Database();
