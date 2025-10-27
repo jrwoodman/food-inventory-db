@@ -118,6 +118,7 @@ class UserController {
 
         $user = new User($this->db);
         $users = $user->read();
+        $current_user = $this->auth->getCurrentUser();
 
         include '../src/views/users/index.php';
     }
@@ -173,6 +174,7 @@ class UserController {
             }
         }
 
+        $current_user = $this->auth->getCurrentUser();
         include '../src/views/users/edit.php';
     }
 
