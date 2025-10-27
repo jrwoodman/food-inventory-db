@@ -6,45 +6,28 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="Food & Ingredient Inventory Management System">
     <title>Food & Ingredient Inventory</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <nav class="nav">
+                <?php if ($current_user->canEdit()): ?>
+                    <a href="index.php?action=add_food">🍎 Add Food</a>
+                    <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
+                <?php endif; ?>
+                <?php if ($current_user->isAdmin()): ?>
+                    <a href="index.php?action=users">👥 Users</a>
+                    <a href="index.php?action=manage_stores">🏪 Stores</a>
+                <?php endif; ?>
+                <a href="index.php?action=profile">👤 Profile</a>
+                <a href="index.php?action=logout">🚪 Logout</a>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>🍽️ Food & Ingredient Inventory</h1>
-            </div>
-            <div class="nav-actions">
-                <nav>
-                    <a href="index.php?action=dashboard" class="btn btn-primary">📊 Dashboard</a>
-                    <?php if ($current_user->canEdit()): ?>
-                        <a href="index.php?action=add_food" class="btn btn-success">🍎 Add Food</a>
-                        <a href="index.php?action=add_ingredient" class="btn btn-success">🧄 Add Ingredient</a>
-                    <?php endif; ?>
-                    <?php if ($current_user->isAdmin()): ?>
-                        <a href="index.php?action=users" class="btn btn-secondary">👥 Users</a>
-                        <a href="index.php?action=manage_stores" class="btn btn-secondary">🏪 Stores</a>
-                    <?php endif; ?>
-                </nav>
-                <div class="user-nav">
-                    <div class="user-info-nav">
-                        <span class="user-greeting">Welcome, <?php echo htmlspecialchars($current_user->first_name ?: $current_user->username); ?>!</span>
-                        <div class="user-dropdown">
-                            <a href="index.php?action=profile" class="btn btn-ghost btn-sm">👤 Profile</a>
-                            <a href="index.php?action=logout" class="btn btn-ghost btn-sm">🚪 Logout</a>
-                        </div>
-                    </div>
-                    <div class="theme-toggle">
-                        <span class="theme-toggle-label">Theme</span>
-                        <label class="theme-switch">
-                            <input type="checkbox" id="theme-toggle">
-                            <span class="theme-slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </header>
 
         <?php if(isset($_GET['message'])): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($_GET['message']); ?></div>
