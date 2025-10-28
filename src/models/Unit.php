@@ -124,6 +124,9 @@ class Unit {
         // Clean data the same way as in create/update
         $clean_name = htmlspecialchars(strip_tags($this->name));
         
+        error_log("nameExists query: {$query}");
+        error_log("nameExists checking for: '{$clean_name}'");
+        
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
             $stmt->execute([$clean_name, $exclude_id]);
@@ -131,7 +134,14 @@ class Unit {
             $stmt->execute([$clean_name]);
         }
         
-        return $stmt->rowCount() > 0;
+        $count = $stmt->rowCount();
+        error_log("nameExists found {$count} rows");
+        if ($count > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("nameExists found ID: " . ($row['id'] ?? 'none'));
+        }
+        
+        return $count > 0;
     }
     
     public function abbreviationExists($exclude_id = null) {
@@ -143,6 +153,9 @@ class Unit {
         // Clean data the same way as in create/update
         $clean_abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
         
+        error_log("abbreviationExists query: {$query}");
+        error_log("abbreviationExists checking for: '{$clean_abbreviation}'");
+        
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
             $stmt->execute([$clean_abbreviation, $exclude_id]);
@@ -150,7 +163,14 @@ class Unit {
             $stmt->execute([$clean_abbreviation]);
         }
         
-        return $stmt->rowCount() > 0;
+        $count = $stmt->rowCount();
+        error_log("abbreviationExists found {$count} rows");
+        if ($count > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("abbreviationExists found ID: " . ($row['id'] ?? 'none'));
+        }
+        
+        return $count > 0;
     }
 
     public static function getUnitOptions($db, $active_only = false) {
