@@ -691,6 +691,11 @@ class InventoryController {
             $unit->description = $_POST['description'];
             $unit->is_active = isset($_POST['is_active']) ? 1 : 0;
             
+            // Debug logging
+            error_log("Checking unit - Name: '{$unit->name}', Abbreviation: '{$unit->abbreviation}'");
+            error_log("Name exists: " . ($unit->nameExists() ? 'yes' : 'no'));
+            error_log("Abbreviation exists: " . ($unit->abbreviationExists() ? 'yes' : 'no'));
+            
             if ($unit->nameExists()) {
                 $error = "A unit with this name already exists.";
             } else if ($unit->abbreviationExists()) {
