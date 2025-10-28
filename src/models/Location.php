@@ -108,19 +108,17 @@ class Location {
 
     public function nameExists($exclude_id = null) {
         $query = "SELECT id FROM " . $this->table_name . " WHERE name = ?";
+        $params = [$this->name];
+        
         if ($exclude_id) {
             $query .= " AND id != ?";
+            $params[] = $exclude_id;
         }
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->name);
+        $stmt->execute($params);
         
-        if ($exclude_id) {
-            $stmt->bindParam(2, $exclude_id);
-        }
-        
-        $stmt->execute();
-        return $stmt->rowCount() > 0;
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
     
     // Get count of foods using this location
