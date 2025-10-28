@@ -66,7 +66,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="quantity">Quantity *</label>
-                        <input type="number" id="quantity" name="quantity" step="0.01" value="<?php echo htmlspecialchars($food->quantity ?? ''); ?>" required>
+                        <input type="number" id="quantity" name="quantity" step="0.1" value="<?php echo htmlspecialchars($food->quantity ?? ''); ?>" required>
                     </div>
 
                     <div class="form-group">

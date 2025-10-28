@@ -163,7 +163,7 @@
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
-                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required>
                             <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                         <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
                             ${optionsHtml}
                         </select>
-                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required>
                         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                     `;
                     container.appendChild(row);
@@ -252,7 +252,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bulk_quantity">Default Quantity</label>
-                            <input type="number" id="bulk_quantity" name="default_quantity" step="0.01" value="1">
+                            <input type="number" id="bulk_quantity" name="default_quantity" step="0.1" value="1">
                             <small class="form-help">Used when quantity not specified per item</small>
                         </div>
                         

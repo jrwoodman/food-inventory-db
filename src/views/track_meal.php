@@ -121,7 +121,7 @@
                                         <?php if ($item['type'] === 'food'): ?>
                                             <input type="number" 
                                                    name="food_updates[<?php echo $item['id']; ?>][decrement]" 
-                                                   step="0.01" 
+                                                   step="0.1" 
                                                    min="0"
                                                    max="<?php echo $item['quantity']; ?>"
                                                    placeholder="0"
@@ -129,7 +129,7 @@
                                         <?php else: ?>
                                             <input type="number" 
                                                    name="ingredient_updates[<?php echo $item['id']; ?>][decrement]" 
-                                                   step="0.01" 
+                                                   step="0.1" 
                                                    min="0"
                                                    placeholder="0"
                                                    style="width: 80px;">

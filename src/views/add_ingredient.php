@@ -124,7 +124,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="cost_per_unit">Cost per Unit ($)</label>
-                        <input type="number" id="cost_per_unit" name="cost_per_unit" step="0.01">
+                        <input type="number" id="cost_per_unit" name="cost_per_unit" step="0.1">
                     </div>
 
                     <div class="form-group">
@@ -175,7 +175,7 @@
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
-                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required value="<?php echo isset($_POST['quantity']) ? htmlspecialchars($_POST['quantity']) : ''; ?>">
+                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required value="<?php echo isset($_POST['quantity']) ? htmlspecialchars($_POST['quantity']) : ''; ?>">
                             <input type="text" name="locations[0][notes]" placeholder="Notes (optional)" style="flex: 1;">
                             <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                         </div>
@@ -202,7 +202,7 @@
                         <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
                             ${optionsHtml}
                         </select>
-                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required>
                         <input type="text" name="locations[${locationIndex}][notes]" placeholder="Notes (optional)" style="flex: 1;">
                         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                     `;
@@ -266,7 +266,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bulk_quantity">Default Quantity</label>
-                            <input type="number" id="bulk_quantity" name="default_quantity" step="0.01" value="1">
+                            <input type="number" id="bulk_quantity" name="default_quantity" step="0.1" value="1">
                             <small class="form-help">Used when quantity not specified per item</small>
                         </div>
                         

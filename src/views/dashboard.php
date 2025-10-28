@@ -82,7 +82,7 @@
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Quantity</label>
                                             <input type="number" 
-                                                   step="0.01"
+                                                   step="0.1"
                                                    name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][quantity]" 
                                                    value="<?php echo $result['quantity']; ?>"
                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
@@ -172,7 +172,7 @@
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Cost/Unit</label>
                                             <input type="number" 
-                                                   step="0.01"
+                                                   step="0.1"
                                                    name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][cost_per_unit]" 
                                                    value="<?php echo $result['cost_per_unit'] ?? ''; ?>"
                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">

@@ -84,7 +84,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="cost_per_unit">Cost per Unit ($)</label>
-                        <input type="number" id="cost_per_unit" name="cost_per_unit" step="0.01" value="<?php echo htmlspecialchars($ingredient->cost_per_unit ?? ''); ?>">
+                        <input type="number" id="cost_per_unit" name="cost_per_unit" step="0.1" value="<?php echo htmlspecialchars($ingredient->cost_per_unit ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
@@ -144,7 +144,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <input type="number" name="locations[<?php echo $idx; ?>][quantity]" placeholder="Quantity" step="0.01" value="<?php echo htmlspecialchars($loc['quantity']); ?>" style="width: 120px;" required>
+                                    <input type="number" name="locations[<?php echo $idx; ?>][quantity]" placeholder="Quantity" step="0.1" value="<?php echo htmlspecialchars($loc['quantity']); ?>" style="width: 120px;" required>
                                     <input type="text" name="locations[<?php echo $idx; ?>][notes]" placeholder="Notes (optional)" value="<?php echo htmlspecialchars($loc['notes'] ?? ''); ?>" style="flex: 1;">
                                     <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                                 </div>
@@ -161,7 +161,7 @@
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
-                                <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                                <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required>
                                 <input type="text" name="locations[0][notes]" placeholder="Notes (optional)" style="flex: 1;">
                                 <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                             </div>
@@ -189,7 +189,7 @@
                         <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
                             ${optionsHtml}
                         </select>
-                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" required>
                         <input type="text" name="locations[${locationIndex}][notes]" placeholder="Notes (optional)" style="flex: 1;">
                         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
                     `;
