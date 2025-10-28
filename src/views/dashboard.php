@@ -16,6 +16,7 @@
                 <?php if ($current_user->canEdit()): ?>
                     <a href="index.php?action=add_food">🍎 Add Food</a>
                     <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
+                    <a href="index.php?action=track_meal">🍴 Track Meal</a>
                 <?php endif; ?>
                 <?php if ($current_user->isAdmin()): ?>
                     <a href="index.php?action=users">👥 Users</a>

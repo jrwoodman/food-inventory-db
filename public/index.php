@@ -150,6 +150,14 @@ switch ($action) {
         $controller->toggleLocationStatus();
         break;
         
+    // Meal tracking routes
+    case 'track_meal':
+        $controller->trackMeal();
+        break;
+    case 'update_meal_items':
+        $controller->updateMealItems();
+        break;
+        
     default:
         // Check if user is logged in, otherwise redirect to login
         if (!$auth->isLoggedIn()) {

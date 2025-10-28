@@ -540,5 +540,165 @@ class InventoryController {
         }
         exit();
     }
+    
+    // Meal Tracking Methods
+    public function trackMeal() {
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $search_results = [];
+        $search_query = '';
+        
+        if ($_GET['search'] ?? '') {
+            $search_query = $_GET['search'];
+            $search_terms = array_map('trim', explode(',', $search_query));
+            
+            // Search foods
+            $food = new Food($this->db);
+            foreach ($search_terms as $term) {
+                if (!empty($term)) {
+                    $stmt = $food->search($term);
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $search_results[] = array_merge($row, ['type' => 'food']);
+                    }
+                }
+            }
+            
+            // Search ingredients
+            $ingredient = new Ingredient($this->db);
+            foreach ($search_terms as $term) {
+                if (!empty($term)) {
+                    $stmt = $ingredient->search($term);
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $search_results[] = array_merge($row, ['type' => 'ingredient']);
+                    }
+                }
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/track_meal.php';
+    }
+    
+    public function updateMealItems() {
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $success_count = 0;
+            $error_count = 0;
+            
+            // Process foods
+            if (isset($_POST['food_updates'])) {
+                foreach ($_POST['food_updates'] as $food_id => $data) {
+                    $food = new Food($this->db);
+                    $food->id = $food_id;
+                    
+                    if ($food->readOne()) {
+                        if (isset($data['delete'])) {
+                            // Delete item
+                            if ($food->delete()) {
+                                $success_count++;
+                            } else {
+                                $error_count++;
+                            }
+                        } else if (isset($data['decrement'])) {
+                            // Decrement quantity
+                            $decrement_by = floatval($data['decrement']);
+                            $new_quantity = max(0, $food->quantity - $decrement_by);
+                            $food->quantity = $new_quantity;
+                            
+                            if ($new_quantity == 0) {
+                                // Delete if quantity reaches 0
+                                if ($food->delete()) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
+                            } else {
+                                if ($food->update()) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Process ingredients
+            if (isset($_POST['ingredient_updates'])) {
+                foreach ($_POST['ingredient_updates'] as $ingredient_id => $data) {
+                    $ingredient = new Ingredient($this->db);
+                    $ingredient->id = $ingredient_id;
+                    
+                    if ($ingredient->readOne()) {
+                        if (isset($data['delete'])) {
+                            // Delete item
+                            if ($ingredient->delete()) {
+                                $success_count++;
+                            } else {
+                                $error_count++;
+                            }
+                        } else if (isset($data['decrement']) && isset($data['location'])) {
+                            // Decrement quantity at specific location
+                            $decrement_by = floatval($data['decrement']);
+                            $location = $data['location'];
+                            
+                            // Find current quantity at location
+                            $current_qty = 0;
+                            foreach ($ingredient->locations as $loc) {
+                                if ($loc['location'] === $location) {
+                                    $current_qty = $loc['quantity'];
+                                    break;
+                                }
+                            }
+                            
+                            $new_quantity = max(0, $current_qty - $decrement_by);
+                            
+                            if ($new_quantity == 0) {
+                                // Remove location if quantity reaches 0
+                                if ($ingredient->removeLocation($location)) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
+                                
+                                // Check if ingredient has any locations left
+                                $ingredient->loadLocations();
+                                if (empty($ingredient->locations)) {
+                                    $ingredient->delete();
+                                }
+                            } else {
+                                if ($ingredient->updateLocationQuantity($location, $new_quantity)) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if ($success_count > 0) {
+                header('Location: index.php?action=track_meal&message=' . urlencode($success_count . ' item(s) updated successfully'));
+            } else if ($error_count > 0) {
+                header('Location: index.php?action=track_meal&error=' . urlencode('Failed to update ' . $error_count . ' item(s)'));
+            } else {
+                header('Location: index.php?action=track_meal');
+            }
+        } else {
+            header('Location: index.php?action=track_meal');
+        }
+        exit();
+    }
 }
 ?>
