@@ -693,6 +693,8 @@ class InventoryController {
             
             if ($unit->nameExists()) {
                 $error = "A unit with this name already exists.";
+            } else if ($unit->abbreviationExists()) {
+                $error = "A unit with this abbreviation already exists.";
             } else if ($unit->create()) {
                 header('Location: index.php?action=system_settings&message=Unit added successfully');
                 exit();
@@ -723,6 +725,8 @@ class InventoryController {
             
             if ($unit->nameExists($unit->id)) {
                 $error = "A unit with this name already exists.";
+            } else if ($unit->abbreviationExists($unit->id)) {
+                $error = "A unit with this abbreviation already exists.";
             } else if ($unit->update()) {
                 header('Location: index.php?action=system_settings&message=Unit updated successfully');
                 exit();

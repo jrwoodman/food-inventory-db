@@ -130,6 +130,22 @@ class Unit {
         
         return $stmt->rowCount() > 0;
     }
+    
+    public function abbreviationExists($exclude_id = null) {
+        $query = "SELECT id FROM " . $this->table_name . " WHERE abbreviation = ?";
+        if ($exclude_id) {
+            $query .= " AND id != ?";
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        if ($exclude_id) {
+            $stmt->execute([$this->abbreviation, $exclude_id]);
+        } else {
+            $stmt->execute([$this->abbreviation]);
+        }
+        
+        return $stmt->rowCount() > 0;
+    }
 
     public static function getUnitOptions($db, $active_only = false) {
         $query = "SELECT id, name, abbreviation, description FROM units";
