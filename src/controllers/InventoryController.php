@@ -749,19 +749,26 @@ class InventoryController {
     
     // Group Management Methods
     public function listGroups() {
-        $group = new Group($this->db);
-        $stmt = $this->current_user->getGroups();
-        $groups = [];
-        
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $group->id = $row['id'];
-            $row['member_count'] = $group->getMemberCount();
-            $row['inventory_counts'] = $group->getInventoryCounts();
-            $groups[] = $row;
+        try {
+            $group = new Group($this->db);
+            $stmt = $this->current_user->getGroups();
+            $groups = [];
+            
+            if ($stmt) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $group->id = $row['id'];
+                    $row['member_count'] = $group->getMemberCount();
+                    $row['inventory_counts'] = $group->getInventoryCounts();
+                    $groups[] = $row;
+                }
+            }
+            
+            $current_user = $this->current_user;
+            include '../src/views/groups/list_groups.php';
+        } catch (Exception $e) {
+            echo "Error loading groups: " . $e->getMessage();
+            error_log("Groups error: " . $e->getMessage());
         }
-        
-        $current_user = $this->current_user;
-        include '../src/views/groups/list_groups.php';
     }
     
     public function createGroup() {
