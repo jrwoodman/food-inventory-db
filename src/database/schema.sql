@@ -232,7 +232,7 @@ INSERT INTO stores (name, address, phone, website, notes, is_active) VALUES
 -- Insert default admin user (password: admin123)
 -- Note: This is a demo password and should be changed immediately in production
 INSERT INTO users (username, email, password_hash, first_name, last_name, role, is_active) VALUES
-('admin', 'admin@foodinventory.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System', 'Administrator', 'admin', 1);
+('admin', 'admin@foodinventory.local', '$2y$12$r9Zh0vIN0EEgBCQMCS5CquUUbaICCnEhBelNMe.K0TAtmag7xVWrO', 'System', 'Administrator', 'admin', 1);
 
 -- Insert default group for existing users and data
 INSERT INTO groups (name, description) VALUES
