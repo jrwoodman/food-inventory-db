@@ -132,7 +132,7 @@ class Unit {
     }
 
     public static function getUnitOptions($db, $active_only = false) {
-        $query = "SELECT id, name, abbreviation as measurement, description FROM units";
+        $query = "SELECT id, name, abbreviation, description FROM units";
         if ($active_only) {
             $query .= " WHERE is_active = 1";
         }

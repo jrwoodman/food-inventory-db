@@ -19,6 +19,20 @@ class InventoryController {
         $food = new Food($this->db);
         $ingredient = new Ingredient($this->db);
         
+        // Get dropdown options for the bulk update form
+        $stores = Store::getStoreOptions($this->db);
+        $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
+        
+        // Get categories from database
+        $categories_query = "SELECT DISTINCT name FROM categories ORDER BY name";
+        $categories_stmt = $this->db->prepare($categories_query);
+        $categories_stmt->execute();
+        $categories = [];
+        while ($row = $categories_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $categories[] = $row['name'];
+        }
+        
         // Filter by current user's groups
         $group_ids = $this->current_user->getGroupIds();
         
