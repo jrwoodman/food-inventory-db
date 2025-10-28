@@ -33,7 +33,7 @@
             <form method="POST">
                 <div class="form-group">
                     <label for="name">Store Name *</label>
-                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($store->name); ?>" required>
+                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($store->name ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
@@ -43,12 +43,12 @@
 
                 <div class="form-group">
                     <label for="phone">Phone</label>
-                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($store->phone ?? ''); ?>" placeholder="(555) 123-4567">
+                    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($store->phone ?? ''); ?>" placeholder="(555) 123-4567">
                 </div>
 
                 <div class="form-group">
                     <label for="website">Website</label>
-                    <input type="url" id="website" name="website" value="<?php echo htmlspecialchars($store->website ?? ''); ?>" placeholder="https://example.com">
+                    <input type="text" id="website" name="website" value="<?php echo htmlspecialchars($store->website ?? ''); ?>" placeholder="https://example.com">
                 </div>
 
                 <div class="form-group">
@@ -65,8 +65,20 @@
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button type="submit" class="btn btn-primary">✓ Update Store</button>
                     <a href="index.php?action=manage_stores" class="btn btn-secondary">Cancel</a>
+                    <?php if(!$store->is_active): ?>
+                        <a href="index.php?action=delete_store&id=<?php echo $store->id; ?>" 
+                           class="btn btn-danger" 
+                           onclick="return confirm('Permanently delete this store? This cannot be undone.');"
+                           style="margin-left: auto;">
+                            🗑️ Delete Store
+                        </a>
+                    <?php endif; ?>
                 </div>
             </form>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="index.php?action=manage_stores" class="btn btn-secondary">← Back to Stores</a>
         </div>
     </div>
 </body>
