@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Groups - <?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="theme-color" content="#1a1d23">
+    <meta name="description" content="My Groups - Food & Ingredient Inventory Management">
+    <title>My Groups - Food & Ingredient Inventory</title>
+    <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="index.php?action=dashboard" class="nav-brand"><?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></a>
-            <ul class="nav-menu">
-                <li><a href="index.php?action=dashboard">Dashboard</a></li>
-                <li><a href="index.php?action=list_groups" class="active">Groups</a></li>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <nav class="nav">
+                <a href="index.php?action=dashboard">📊 Dashboard</a>
+                <a href="index.php?action=list_groups">👥 Groups</a>
                 <?php if ($current_user->isAdmin()): ?>
-                <li><a href="index.php?action=users">Users</a></li>
-                <li><a href="index.php?action=manage_stores">Stores</a></li>
-                <li><a href="index.php?action=manage_locations">Locations</a></li>
+                <a href="index.php?action=users">👤 Users</a>
+                <a href="index.php?action=manage_locations">📍 Locations</a>
+                <a href="index.php?action=manage_stores">🏪 Stores</a>
                 <?php endif; ?>
-                <li><a href="index.php?action=profile">Profile</a></li>
-                <li><a href="index.php?action=logout">Logout</a></li>
-            </ul>
+                <a href="index.php?action=profile">⚙️ Profile</a>
+                <a href="index.php?action=logout">🚪 Logout</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="container">
-        <div class="page-header">
-            <h1>My Groups</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>👥 My Groups</h1>
             <?php if ($current_user->canEdit()): ?>
-            <a href="index.php?action=create_group" class="btn btn-primary">Create New Group</a>
+            <a href="index.php?action=create_group" class="btn btn-success">+ Create New Group</a>
             <?php endif; ?>
         </div>
 
@@ -41,41 +43,41 @@
         <?php endif; ?>
 
         <?php if (empty($groups)): ?>
-            <div class="empty-state">
-                <p>You are not a member of any groups yet.</p>
+            <div class="card">
+                <p class="no-items">You are not a member of any groups yet.
                 <?php if ($current_user->canEdit()): ?>
-                <p><a href="index.php?action=create_group" class="btn">Create a Group</a></p>
+                    <a href="index.php?action=create_group">Create your first group!</a>
                 <?php endif; ?>
+                </p>
             </div>
         <?php else: ?>
-            <div class="groups-grid">
                 <?php foreach ($groups as $group): ?>
-                <div class="group-card">
-                    <div class="group-header">
-                        <h3><?php echo htmlspecialchars($group['name']); ?></h3>
-                        <span class="badge badge-<?php echo $group['role']; ?>"><?php echo ucfirst($group['role']); ?></span>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0;"><?php echo htmlspecialchars($group['name']); ?></h3>
+                        <span class="badge badge-<?php echo $group['role'] === 'owner' ? 'success' : ($group['role'] === 'admin' ? 'primary' : 'secondary'); ?>"><?php echo ucfirst($group['role']); ?></span>
                     </div>
                     
                     <?php if (!empty($group['description'])): ?>
-                    <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;"><?php echo htmlspecialchars($group['description']); ?></p>
                     <?php endif; ?>
                     
-                    <div class="group-stats">
-                        <div class="stat">
-                            <span class="stat-label">Members</span>
-                            <span class="stat-value"><?php echo $group['member_count']; ?></span>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Members</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; margin-top: 0.25rem;"><?php echo $group['member_count']; ?></div>
                         </div>
-                        <div class="stat">
-                            <span class="stat-label">Foods</span>
-                            <span class="stat-value"><?php echo $group['inventory_counts']['foods']; ?></span>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Foods</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; margin-top: 0.25rem;"><?php echo $group['inventory_counts']['foods']; ?></div>
                         </div>
-                        <div class="stat">
-                            <span class="stat-label">Ingredients</span>
-                            <span class="stat-value"><?php echo $group['inventory_counts']['ingredients']; ?></span>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Ingredients</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; margin-top: 0.25rem;"><?php echo $group['inventory_counts']['ingredients']; ?></div>
                         </div>
                     </div>
                     
-                    <div class="group-actions">
+                    <div class="table-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <?php if (in_array($group['role'], ['owner', 'admin']) || $current_user->isAdmin()): ?>
                         <a href="index.php?action=manage_group_members&id=<?php echo $group['id']; ?>" class="btn btn-sm">Manage Members</a>
                         <a href="index.php?action=edit_group&id=<?php echo $group['id']; ?>" class="btn btn-sm">Edit</a>
@@ -90,8 +92,11 @@
                     </div>
                 </div>
                 <?php endforeach; ?>
-            </div>
         <?php endif; ?>
+
+        <div style="margin-top: 2rem;">
+            <a href="index.php?action=dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
     </div>
 </body>
 </html>

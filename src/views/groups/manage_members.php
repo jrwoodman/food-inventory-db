@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Members - <?php echo htmlspecialchars($group->name); ?> - <?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="theme-color" content="#1a1d23">
+    <meta name="description" content="Manage Members - Food & Ingredient Inventory Management">
+    <title>Manage Members - <?php echo htmlspecialchars($group->name); ?> - Food & Ingredient Inventory</title>
+    <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="index.php?action=dashboard" class="nav-brand"><?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></a>
-            <ul class="nav-menu">
-                <li><a href="index.php?action=dashboard">Dashboard</a></li>
-                <li><a href="index.php?action=list_groups">Groups</a></li>
-                <li><a href="index.php?action=profile">Profile</a></li>
-                <li><a href="index.php?action=logout">Logout</a></li>
-            </ul>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <nav class="nav">
+                <a href="index.php?action=dashboard">📊 Dashboard</a>
+                <a href="index.php?action=list_groups">👥 Groups</a>
+                <a href="index.php?action=profile">⚙️ Profile</a>
+                <a href="index.php?action=logout">🚪 Logout</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="container">
-        <div class="page-header">
-            <h1>Manage Members - <?php echo htmlspecialchars($group->name); ?></h1>
-            <a href="index.php?action=list_groups" class="btn">Back to Groups</a>
-        </div>
+        <h1>👥 Manage Members - <?php echo htmlspecialchars($group->name); ?></h1>
 
         <?php if (isset($_GET['message'])): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($_GET['message']); ?></div>
@@ -40,8 +39,8 @@
 
         <?php if ($can_manage && !empty($all_users)): ?>
         <div class="card">
-            <h2>Add New Member</h2>
-            <form method="POST" action="index.php?action=add_group_member" class="form-inline">
+            <h3>➕ Add New Member</h3>
+            <form method="POST" action="index.php?action=add_group_member" style="display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; margin-top: 1rem;">
                 <input type="hidden" name="group_id" value="<?php echo $group->id; ?>">
                 
                 <div class="form-group">
@@ -74,12 +73,13 @@
         <?php endif; ?>
 
         <div class="card">
-            <h2>Current Members (<?php echo count($members); ?>)</h2>
+            <h3>👤 Current Members (<?php echo count($members); ?>)</h3>
             
             <?php if (empty($members)): ?>
                 <p>No members in this group.</p>
             <?php else: ?>
-                <table class="table">
+                <div class="table-container">
+                <table>
                     <thead>
                         <tr>
                             <th>Username</th>
@@ -131,7 +131,12 @@
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="index.php?action=list_groups" class="btn btn-secondary">← Back to Groups</a>
         </div>
     </div>
 </body>
