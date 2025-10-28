@@ -69,9 +69,9 @@
                         <option value="">Select Unit</option>
                         <?php if(isset($units) && !empty($units)): ?>
                             <?php foreach($units as $unit): ?>
-                                <option value="<?php echo htmlspecialchars($unit['measurement']); ?>"
-                                    <?php echo ($ingredient->unit ?? '') === $unit['measurement'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($unit['measurement']); ?>
+                                <option value="<?php echo htmlspecialchars($unit['abbreviation']); ?>"
+                                    <?php echo ($ingredient->unit ?? '') === $unit['abbreviation'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($unit['name']); ?> (<?php echo htmlspecialchars($unit['abbreviation']); ?>)
                                     <?php if(!empty($unit['description'])): ?>
                                         - <?php echo htmlspecialchars($unit['description']); ?>
                                     <?php endif; ?>
