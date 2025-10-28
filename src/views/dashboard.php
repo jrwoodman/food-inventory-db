@@ -278,6 +278,7 @@
                             <th>Total Quantity</th>
                             <th>Cost/Unit</th>
                             <th>Supplier</th>
+                            <th>Purchase Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -295,6 +296,7 @@
                                     <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
                                     <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
+                                    <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                     <td class="table-actions">
                                         <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
                                            class="btn btn-sm btn-primary" 
@@ -312,7 +314,7 @@
                             <?php endwhile;
                         }
                         if ($ingredient_count == 0): ?>
-                            <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
+                            <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -324,13 +326,14 @@
                 <h3><span class="card-icon">🍎</span> Food Items</h3>
                 <div class="table-container">
                     <table class="inventory-table">
-                        <thead>
+                    <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Category</th>
                                 <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                                 <th>Quantity</th>
                                 <th>Location</th>
+                                <th>Purchase Date</th>
                                 <th>Expiry Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -348,6 +351,7 @@
                                         <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                         <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
                                         <td><?php echo htmlspecialchars($row['location']); ?></td>
+                                        <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                         <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
                                         <td class="table-actions">
                                             <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" 
@@ -366,7 +370,7 @@
                                 <?php endwhile;
                             }
                             if ($food_count == 0): ?>
-                                <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
+                                <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
