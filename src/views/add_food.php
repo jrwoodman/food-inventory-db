@@ -104,28 +104,21 @@
                     <small class="form-help">Select which group this food item belongs to</small>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="quantity">Quantity *</label>
-                        <input type="number" id="quantity" name="quantity" step="0.01" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="unit">Unit</label>
-                        <select id="unit" name="unit">
-                            <option value="">Select Unit</option>
-                            <?php if(isset($units) && !empty($units)): ?>
-                                <?php foreach($units as $unit): ?>
-                                    <option value="<?php echo htmlspecialchars($unit['abbreviation']); ?>">
-                                        <?php echo htmlspecialchars($unit['name']); ?> (<?php echo htmlspecialchars($unit['abbreviation']); ?>)
-                                        <?php if(!empty($unit['description'])): ?>
-                                            - <?php echo htmlspecialchars($unit['description']); ?>
-                                        <?php endif; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="unit">Unit</label>
+                    <select id="unit" name="unit">
+                        <option value="">Select Unit</option>
+                        <?php if(isset($units) && !empty($units)): ?>
+                            <?php foreach($units as $unit): ?>
+                                <option value="<?php echo htmlspecialchars($unit['abbreviation']); ?>">
+                                    <?php echo htmlspecialchars($unit['name']); ?> (<?php echo htmlspecialchars($unit['abbreviation']); ?>)
+                                    <?php if(!empty($unit['description'])): ?>
+                                        - <?php echo htmlspecialchars($unit['description']); ?>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
                 </div>
 
                 <div class="form-row">
@@ -157,19 +150,52 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="location">Storage Location</label>
-                    <select id="location" name="location">
-                        <option value="">Select Location</option>
-                        <?php if(isset($locations) && !empty($locations)): ?>
-                            <?php foreach($locations as $location): ?>
-                                <option value="<?php echo htmlspecialchars($location['name']); ?>">
-                                    <?php echo htmlspecialchars($location['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                    <small class="form-help">Storage locations can be managed by admins</small>
+                    <label>Storage Locations & Quantities</label>
+                    <div id="locations-container">
+                        <div class="location-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <select name="locations[0][location]" style="flex: 1;" required>
+                                <option value="">Select Location</option>
+                                <?php if(isset($locations) && !empty($locations)): ?>
+                                    <?php foreach($locations as $location): ?>
+                                        <option value="<?php echo htmlspecialchars($location['name']); ?>">
+                                            <?php echo htmlspecialchars($location['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addLocationRow()" style="margin-top: 0.5rem;">+ Add Location</button>
+                    <small class="form-help">Add this food to multiple storage locations with different quantities</small>
                 </div>
+                
+                <script>
+                let locationIndex = 1;
+                const locationsData = <?php echo json_encode($locations ?? []); ?>;
+                function addLocationRow() {
+                    const container = document.getElementById('locations-container');
+                    const row = document.createElement('div');
+                    row.className = 'location-row';
+                    row.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+                    
+                    let optionsHtml = '<option value="">Select Location</option>';
+                    locationsData.forEach(loc => {
+                        optionsHtml += `<option value="${loc.name}">${loc.name}</option>`;
+                    });
+                    
+                    row.innerHTML = `
+                        <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
+                            ${optionsHtml}
+                        </select>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                    `;
+                    container.appendChild(row);
+                    locationIndex++;
+                }
+                </script>
 
                 <div class="form-group">
                     <label for="notes">Notes</label>
