@@ -26,18 +26,18 @@ A comprehensive PHP-based web application for managing food and ingredient inven
 
 ### 💻 User Interface
 - **Responsive Design**: Mobile-friendly interface
-- **Dark/Light Theme**: Toggle between themes with persistent preference
-- **Modern UI**: Clean, intuitive design with card-based layout
+- **Dark Theme**: Modern dark theme with Web 2.0 styling
+- **Clean UI**: Intuitive design with card-based layout
 - **Real-time Updates**: Dynamic content updates and alerts
 
 ## 🚀 Quick Start
 
 ### Requirements
-- PHP 7.4+ with SQLite extension
-- Web server (Apache, Nginx, or built-in PHP server)
+- PHP 7.4+ with PDO SQLite extension
+- Web server (Apache, Nginx) for production
 - SQLite 3.0+
 
-### Installation
+### Development Installation
 
 1. **Clone the repository:**
    ```bash
@@ -47,6 +47,7 @@ A comprehensive PHP-based web application for managing food and ingredient inven
 
 2. **Set up the database:**
    ```bash
+   mkdir -p database backups uploads logs
    sqlite3 database/food_inventory.db < src/database/schema.sql
    ```
 
@@ -58,25 +59,151 @@ A comprehensive PHP-based web application for managing food and ingredient inven
 
 4. **Start the development server:**
    ```bash
-   ./start_server.sh
-   ```
-   Or manually:
-   ```bash
    php -S localhost:8000 -t public/
    ```
 
 5. **Access the application:**
    - URL: `http://localhost:8000`
    - Default credentials: `admin` / `admin123`
+   - **Important**: Change the admin password after first login!
 
-## Technology Stack
+### Production Installation
 
-- **Backend**: PHP 8.4+ (compatible with 7.4+)
-- **Database**: SQLite 3.0+ (file-based, portable)
+#### Apache Setup
+
+1. **Clone to web server directory:**
+   ```bash
+   cd /var/www
+   git clone https://github.com/jrwoodman/food-inventory-db.git
+   cd food-inventory-db
+   ```
+
+2. **Set up database and permissions:**
+   ```bash
+   mkdir -p database backups uploads logs
+   sqlite3 database/food_inventory.db < src/database/schema.sql
+   
+   # Set ownership to web server user
+   chown -R www-data:www-data database/ backups/ uploads/ logs/
+   chmod 755 database/ backups/ uploads/ logs/
+   chmod 664 database/food_inventory.db
+   ```
+
+3. **Configure Apache virtual host:**
+   Create `/etc/apache2/sites-available/food-inventory.conf`:
+   ```apache
+   <VirtualHost *:80>
+       ServerName food.example.com
+       DocumentRoot /var/www/food-inventory-db/public
+       
+       <Directory /var/www/food-inventory-db/public>
+           AllowOverride All
+           Require all granted
+           
+           # Redirect all requests to index.php
+           <IfModule mod_rewrite.c>
+               RewriteEngine On
+               RewriteCond %{REQUEST_FILENAME} !-f
+               RewriteCond %{REQUEST_FILENAME} !-d
+               RewriteRule ^ index.php [L]
+           </IfModule>
+       </Directory>
+       
+       # Deny access to sensitive directories
+       <Directory /var/www/food-inventory-db/config>
+           Require all denied
+       </Directory>
+       <Directory /var/www/food-inventory-db/src>
+           Require all denied
+       </Directory>
+       <Directory /var/www/food-inventory-db/database>
+           Require all denied
+       </Directory>
+       
+       ErrorLog ${APACHE_LOG_DIR}/food-inventory-error.log
+       CustomLog ${APACHE_LOG_DIR}/food-inventory-access.log combined
+   </VirtualHost>
+   ```
+
+4. **Enable site and modules:**
+   ```bash
+   a2enmod rewrite
+   a2ensite food-inventory
+   systemctl restart apache2
+   ```
+
+#### Nginx Setup
+
+1. **Configure Nginx:**
+   Create `/etc/nginx/sites-available/food-inventory`:
+   ```nginx
+   server {
+       listen 80;
+       server_name food.example.com;
+       root /var/www/food-inventory-db/public;
+       index index.php;
+       
+       # Deny access to sensitive files
+       location ~ ^/(config|src|database|backups|logs)/ {
+           deny all;
+           return 404;
+       }
+       
+       location / {
+           try_files $uri $uri/ /index.php?$query_string;
+       }
+       
+       location ~ \.php$ {
+           fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+           fastcgi_index index.php;
+           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+           include fastcgi_params;
+       }
+       
+       # Deny access to .htaccess files
+       location ~ /\.ht {
+           deny all;
+       }
+   }
+   ```
+
+2. **Enable site:**
+   ```bash
+   ln -s /etc/nginx/sites-available/food-inventory /etc/nginx/sites-enabled/
+   nginx -t
+   systemctl restart nginx
+   ```
+
+#### SSL/HTTPS Setup (Recommended)
+
+Use Let's Encrypt for free SSL certificates:
+```bash
+sudo apt install certbot python3-certbot-apache  # For Apache
+# OR
+sudo apt install certbot python3-certbot-nginx   # For Nginx
+
+sudo certbot --apache -d food.example.com        # For Apache
+# OR
+sudo certbot --nginx -d food.example.com         # For Nginx
+```
+
+## 🛠️ Technology Stack
+
+- **Backend**: PHP 7.4+ (tested on PHP 8.2+)
+- **Database**: SQLite 3.0+ (file-based, zero-configuration, portable)
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Modern CSS Grid and Flexbox with theme support
-- **Authentication**: Custom session-based authentication
-- **Database ORM**: Custom PDO-based models
+- **Styling**: Modern CSS with dark theme and responsive design
+- **Authentication**: Secure session-based authentication with password hashing
+- **Database Access**: Custom PDO-based models with prepared statements
+- **Web Server**: Apache 2.4+ or Nginx 1.18+
+
+### Why SQLite?
+
+- **Zero Configuration**: No database server to install or configure
+- **Portable**: Single file database can be easily backed up or moved
+- **Reliable**: ACID-compliant, tested extensively
+- **Perfect for Small Teams**: Handles hundreds of concurrent users
+- **Low Maintenance**: No database server to maintain or update
 
 ## Project Structure
 
@@ -107,50 +234,32 @@ food-inventory-db/
 └── README.md
 ```
 
-## Installation
+## 📝 Configuration
 
-### Prerequisites
+### Database Location
 
-- PHP 7.4 or higher
-- MySQL 5.7+ or MariaDB 10.3+
-- Web server (Apache, Nginx, or PHP built-in server)
-
-### Setup Steps
-
-1. **Clone or Download**: Get the project files
-   ```bash
-   git clone <repository-url>
-   cd food-inventory-db
-   ```
-
-2. **Database Setup**:
-   - Create a MySQL database named `food_inventory_db`
-   - Import the schema: `mysql -u root -p food_inventory_db < src/database/schema.sql`
-   - Or use the auto-initialization feature in the Database class
-
-3. **Configuration**:
-   - Edit `config/config.php` with your database credentials
-   - Adjust timezone and other settings as needed
-
-4. **Web Server**:
-   - **Apache/Nginx**: Point document root to the `public/` directory
-   - **PHP Built-in Server**: 
-     ```bash
-     php -S localhost:8000 -t public/
-     ```
-
-5. **File Permissions**: Ensure write permissions for uploads and logs directories
-
-### Database Configuration
-
-Update the database settings in `config/config.php`:
-
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'food_inventory_db');
-define('DB_USER', 'your_username');
-define('DB_PASS', 'your_password');
+The SQLite database file is located at:
 ```
+database/food_inventory.db
+```
+
+No additional configuration needed - it works out of the box!
+
+### Application Settings
+
+Edit `config/config.php` to customize:
+- Session timeout duration
+- Timezone settings
+- Alert thresholds (expiry warnings, low stock levels)
+- File upload limits
+
+### Security Considerations
+
+1. **Change Default Password**: The default admin password is `admin123` - change it immediately!
+2. **Database Security**: Ensure the `database/` directory is not web-accessible
+3. **File Permissions**: Keep database file permissions at 664 (readable by web server only)
+4. **HTTPS**: Always use HTTPS in production
+5. **Backups**: Regularly backup the `database/food_inventory.db` file
 
 ## Usage
 
@@ -252,10 +361,28 @@ $storage_locations = ['Refrigerator', 'Freezer', ...];
 
 ### Common Issues
 
-1. **Database Connection**: Verify credentials in config.php
-2. **File Permissions**: Ensure uploads/ and logs/ directories are writable
-3. **PHP Version**: Requires PHP 7.4+
-4. **Missing Extensions**: Ensure PDO MySQL extension is installed
+1. **Database Locked Error**: 
+   - SQLite databases can lock during writes
+   - Check file permissions (must be writable by web server)
+   - Ensure only one process is writing at a time
+
+2. **File Permissions**: 
+   - Database directory must be writable: `chmod 755 database/`
+   - Database file must be writable: `chmod 664 database/food_inventory.db`
+   - Uploads, backups, logs directories must be writable
+
+3. **PHP Version**: 
+   - Requires PHP 7.4+
+   - Check version: `php -v`
+
+4. **Missing Extensions**: 
+   - Ensure PDO SQLite extension is installed
+   - Check: `php -m | grep sqlite`
+   - Install if missing: `sudo apt install php-sqlite3` (Ubuntu/Debian)
+
+5. **404 Errors**:
+   - Verify web server document root points to `public/` directory
+   - Check Apache/Nginx rewrite rules are configured
 
 ### Debug Mode
 
@@ -283,9 +410,23 @@ ini_set('display_errors', 1);
 3. Make changes and test thoroughly
 4. Submit a pull request
 
-## License
+## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is free software licensed under the GNU General Public License v3.0 (GPLv3).
+
+You are free to:
+- Use this software for any purpose
+- Study how it works and modify it
+- Redistribute copies
+- Distribute modified versions
+
+Under the following terms:
+- You must include the license and copyright notice
+- You must state changes made to the code
+- You must make source code available when distributing
+- Modified versions must also be licensed under GPLv3
+
+See the [LICENSE](LICENSE) file for full details.
 
 ## Support
 
