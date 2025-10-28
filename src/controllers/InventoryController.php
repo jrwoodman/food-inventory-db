@@ -127,25 +127,67 @@ class InventoryController {
         $default_group_id = $this->current_user->getDefaultGroupId();
         
         if ($_POST) {
-            $food = new Food($this->db);
+            $mode = $_POST['mode'] ?? 'single';
             
-            $food->name = $_POST['name'];
-            $food->category = $_POST['category'];
-            $food->quantity = $_POST['quantity'];
-            $food->unit = $_POST['unit'];
-            $food->expiry_date = $_POST['expiry_date'];
-            $food->purchase_date = $_POST['purchase_date'];
-            $food->purchase_location = $_POST['purchase_location'];
-            $food->location = $_POST['location'];
-            $food->notes = $_POST['notes'];
-            $food->user_id = $this->current_user->id;
-            $food->group_id = $_POST['group_id'] ?? null;
-
-            if($food->create()) {
-                header('Location: index.php?action=dashboard&message=Food added successfully');
-                exit();
+            if ($mode === 'bulk' && !empty($_POST['bulk_names'])) {
+                // Bulk add mode
+                $names = array_filter(array_map('trim', explode("\n", $_POST['bulk_names'])));
+                $success_count = 0;
+                $error_count = 0;
+                
+                foreach ($names as $name) {
+                    $food = new Food($this->db);
+                    $food->name = $name;
+                    $food->category = $_POST['category'];
+                    $food->quantity = $_POST['quantity'];
+                    $food->unit = $_POST['unit'];
+                    $food->expiry_date = $_POST['expiry_date'] ?: null;
+                    $food->purchase_date = $_POST['purchase_date'] ?: null;
+                    $food->purchase_location = $_POST['purchase_location'];
+                    $food->location = $_POST['location'];
+                    $food->notes = $_POST['notes'];
+                    $food->user_id = $this->current_user->id;
+                    $food->group_id = $_POST['group_id'] ?? null;
+                    
+                    if ($food->create()) {
+                        $success_count++;
+                    } else {
+                        $error_count++;
+                    }
+                }
+                
+                if ($success_count > 0) {
+                    $message = $success_count . ' item(s) added successfully';
+                    if ($error_count > 0) {
+                        $message .= ' (' . $error_count . ' failed)';
+                    }
+                    header('Location: index.php?action=dashboard&message=' . urlencode($message));
+                    exit();
+                } else {
+                    $error = "Unable to add any food items.";
+                }
             } else {
-                $error = "Unable to add food item.";
+                // Single add mode
+                $food = new Food($this->db);
+                
+                $food->name = $_POST['name'];
+                $food->category = $_POST['category'];
+                $food->quantity = $_POST['quantity'];
+                $food->unit = $_POST['unit'];
+                $food->expiry_date = $_POST['expiry_date'];
+                $food->purchase_date = $_POST['purchase_date'];
+                $food->purchase_location = $_POST['purchase_location'];
+                $food->location = $_POST['location'];
+                $food->notes = $_POST['notes'];
+                $food->user_id = $this->current_user->id;
+                $food->group_id = $_POST['group_id'] ?? null;
+
+                if($food->create()) {
+                    header('Location: index.php?action=dashboard&message=Food added successfully');
+                    exit();
+                } else {
+                    $error = "Unable to add food item.";
+                }
             }
         }
         $current_user = $this->current_user;
