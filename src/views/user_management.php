@@ -76,60 +76,71 @@
                 <a href="index.php?action=register" class="btn btn-success">+ Add User</a>
             </div>
 
-            <div class="users-container">
-                <?php 
-                $user_count = 0;
-                while ($row = $users->fetch(PDO::FETCH_ASSOC)): 
-                    $user_count++;
-                ?>
-                    <div class="user-card">
-                        <div class="user-avatar">
-                            <?php echo strtoupper(substr($row['username'], 0, 2)); ?>
-                        </div>
-                        
-                        <div class="user-info">
-                            <h4><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name'] ?: $row['username']); ?></h4>
-                            <p>@<?php echo htmlspecialchars($row['username']); ?> • <?php echo htmlspecialchars($row['email']); ?></p>
-                            <p><small>Joined <?php echo date('M j, Y', strtotime($row['created_at'])); ?></small></p>
-                        </div>
-                        
-                        <div class="user-meta">
-                            <span class="user-role <?php echo $row['role']; ?>"><?php echo $row['role']; ?></span>
-                            <span class="user-status <?php echo $row['is_active'] ? 'active' : 'inactive'; ?>">
-                                <?php echo $row['is_active'] ? '● Active' : '○ Inactive'; ?>
-                            </span>
-                            <?php if ($row['last_login']): ?>
-                                <span class="user-status">Last login: <?php echo date('M j, Y', strtotime($row['last_login'])); ?></span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="user-actions">
-                            <a href="index.php?action=edit_user&id=<?php echo $row['id']; ?>" 
-                               class="btn btn-sm btn-primary"
-                               title="Edit <?php echo htmlspecialchars($row['username']); ?>">
-                               ✏️ Edit
-                            </a>
+            <div class="card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $user_count = 0;
+                            while ($row = $users->fetch(PDO::FETCH_ASSOC)): 
+                                $user_count++;
+                            ?>
+                                <tr>
+                                    <td>
+                                        <strong><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name'] ?: $row['username']); ?></strong>
+                                    </td>
+                                    <td>@<?php echo htmlspecialchars($row['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                    <td>
+                                        <span class="badge badge-<?php echo $row['role'] === 'admin' ? 'primary' : 'secondary'; ?>">
+                                            <?php echo ucfirst($row['role']); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($row['is_active']): ?>
+                                            <span class="badge badge-success">Active</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger">Inactive</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($row['last_login']): ?>
+                                            <?php echo date('M j, Y', strtotime($row['last_login'])); ?>
+                                        <?php else: ?>
+                                            <span style="color: var(--text-muted);">Never</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="table-actions">
+                                        <a href="index.php?action=edit_user&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-primary">✏️ Edit</a>
+                                        <?php if ($row['id'] != $current_user->id): ?>
+                                            <a href="index.php?action=delete_user&id=<?php echo $row['id']; ?>" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                               🗑️ Delete
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
                             
-                            <?php if ($row['id'] != $current_user->id): ?>
-                                <a href="index.php?action=delete_user&id=<?php echo $row['id']; ?>" 
-                                   class="btn btn-sm btn-danger"
-                                   title="Delete <?php echo htmlspecialchars($row['username']); ?>"
-                                   onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
-                                   🗑️ Delete
-                                </a>
+                            <?php if ($user_count == 0): ?>
+                                <tr><td colspan="7" class="no-items">No users found. <a href="index.php?action=register">Add your first user!</a></td></tr>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-                
-                <?php if ($user_count == 0): ?>
-                    <div class="card">
-                        <div class="no-items">
-                            <p>No users found.</p>
-                            <a href="index.php?action=register">Add your first user!</a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
             <div class="user-stats" style="margin-top: 2rem;">
