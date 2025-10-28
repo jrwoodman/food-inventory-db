@@ -215,6 +215,33 @@ class Food {
         return $stmt;
     }
 
+    public function getLowStockItems($threshold = 10) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE quantity <= ?
+                 ORDER BY quantity ASC, name ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$threshold]);
+        return $stmt;
+    }
+    
+    public function getLowStockItemsByGroups($group_ids, $threshold = 10) {
+        if (empty($group_ids)) {
+            return false;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE group_id IN ($placeholders)
+                 AND quantity <= ?
+                 ORDER BY quantity ASC, name ASC";
+        
+        $params = array_merge($group_ids, [$threshold]);
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
     // Search foods
     public function search($keywords) {
         $query = "SELECT * FROM " . $this->table_name . " 

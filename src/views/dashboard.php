@@ -242,19 +242,43 @@
                 </div>
             </div>
 
-            <!-- Low Stock Alert -->
+            <!-- Low Stock Foods Alert -->
             <div class="card alert-card">
-                <h3><span class="card-icon">📉</span> Low Stock Ingredients</h3>
+                <h3><span class="card-icon">🍎</span> Low Stock Foods</h3>
+                <div class="low-stock-items">
+                    <?php
+                    $low_stock_foods_count = 0;
+                    if ($low_stock_foods && is_object($low_stock_foods)) {
+                        while ($row = $low_stock_foods->fetch(PDO::FETCH_ASSOC)): 
+                            $low_stock_foods_count++;
+                            $is_zero = ($row['quantity'] == 0);
+                        ?>
+                            <div class="low-stock-item" style="<?php echo $is_zero ? 'color: #ff4444;' : ''; ?>">
+                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                <span class="quantity"><?php echo $row['quantity'] . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
+                            </div>
+                        <?php endwhile;
+                    }
+                    if ($low_stock_foods_count == 0): ?>
+                        <p class="no-items">All foods well stocked!</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Low Stock Ingredients Alert -->
+            <div class="card alert-card">
+                <h3><span class="card-icon">🧄</span> Low Stock Ingredients</h3>
                 <div class="low-stock-items">
                     <?php
                     $low_stock_count = 0;
                     if ($low_stock_ingredients && is_object($low_stock_ingredients)) {
                         while ($row = $low_stock_ingredients->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_count++;
+                            $is_zero = ($row['total_quantity'] == 0);
                         ?>
-                            <div class="low-stock-item">
+                            <div class="low-stock-item" style="<?php echo $is_zero ? 'color: #ff4444;' : ''; ?>">
                                 <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></span>
+                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
                             </div>
                         <?php endwhile;
                     }

@@ -55,18 +55,21 @@ class InventoryController {
                 $ingredients = $ingredient->read();
                 $expiring_foods = $food->getExpiringItems(7);
                 $low_stock_ingredients = $ingredient->getLowStockItems(10);
+                $low_stock_foods = $food->getLowStockItems(10);
             } else if ($filter_group_id) {
                 // Admin viewing specific group
                 $foods = $food->readByGroups([$filter_group_id]);
                 $ingredients = $ingredient->readByGroups([$filter_group_id]);
                 $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], 7);
                 $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], 10);
+                $low_stock_foods = $food->getLowStockItemsByGroups([$filter_group_id], 10);
             } else {
                 // Admin not in any group and no filter selected
                 $foods = $food->read();
                 $ingredients = $ingredient->read();
                 $expiring_foods = $food->getExpiringItems(7);
                 $low_stock_ingredients = $ingredient->getLowStockItems(10);
+                $low_stock_foods = $food->getLowStockItems(10);
             }
         } else if (!empty($group_ids)) {
             // Regular users see items from their groups
@@ -74,12 +77,14 @@ class InventoryController {
             $ingredients = $ingredient->readByGroups($group_ids);
             $expiring_foods = $food->getExpiringItemsByGroups($group_ids, 7);
             $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, 10);
+            $low_stock_foods = $food->getLowStockItemsByGroups($group_ids, 10);
         } else {
             // User not in any group - show empty results
             $foods = false;
             $ingredients = false;
             $expiring_foods = false;
             $low_stock_ingredients = false;
+            $low_stock_foods = false;
         }
 
         $current_user = $this->current_user;
