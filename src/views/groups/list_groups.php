@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Groups - <?php echo SITE_NAME; ?></title>
+    <title>My Groups - <?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <nav>
         <div class="nav-container">
-            <a href="index.php?action=dashboard" class="nav-brand"><?php echo SITE_NAME; ?></a>
+            <a href="index.php?action=dashboard" class="nav-brand"><?php echo defined('APP_NAME') ? APP_NAME : 'Food Inventory'; ?></a>
             <ul class="nav-menu">
                 <li><a href="index.php?action=dashboard">Dashboard</a></li>
                 <li><a href="index.php?action=list_groups" class="active">Groups</a></li>
