@@ -109,7 +109,10 @@ class Category {
 
     public function nameExists($type = null, $exclude_id = null) {
         $query = "SELECT id FROM " . $this->table_name . " WHERE name = ?";
-        $params = [$this->name];
+        
+        // Clean data the same way as in create/update
+        $clean_name = htmlspecialchars(strip_tags($this->name));
+        $params = [$clean_name];
         
         if ($type) {
             $query .= " AND type = ?";
@@ -124,7 +127,8 @@ class Category {
         $stmt = $this->conn->prepare($query);
         $stmt->execute($params);
         
-        return $stmt->rowCount() > 0;
+        // Use fetch instead of rowCount for SELECT queries (SQLite compatibility)
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     public static function getCategoryOptions($db, $type = null) {
