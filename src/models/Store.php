@@ -76,8 +76,8 @@ class Store {
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$this->id]);
         
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
             $this->name = $row['name'];
             $this->address = $row['address'];
             $this->phone = $row['phone'];
