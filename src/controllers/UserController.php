@@ -147,11 +147,14 @@ class UserController {
         $user = new User($this->db);
         $users = $user->read();
         
-        // Get groups
+        // Get groups with details
         $group_model = new Group($this->db);
-        $groups_stmt = $group_model->readWithDetails();
+        $groups_stmt = $group_model->read();
         $groups = [];
         while ($row = $groups_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $group_model->id = $row['id'];
+            $row['member_count'] = $group_model->getMemberCount();
+            $row['inventory_counts'] = $group_model->getInventoryCounts();
             $groups[] = $row;
         }
         
