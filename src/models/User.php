@@ -274,7 +274,7 @@ class User {
      * Set default group for the user
      */
     public function setDefaultGroup($group_id) {
-        // Verify user is member of the group
+        // Verify user is member of the group (if not null)
         if ($group_id && !$this->isMemberOfGroup($group_id)) {
             return false;
         }
@@ -285,7 +285,13 @@ class User {
                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":group_id", $group_id);
+        
+        // Handle NULL values properly for SQLite foreign key constraints
+        if ($group_id === null || $group_id === '' || $group_id === 'null') {
+            $stmt->bindValue(":group_id", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":group_id", $group_id);
+        }
         $stmt->bindParam(":id", $this->id);
         
         if ($stmt->execute()) {
