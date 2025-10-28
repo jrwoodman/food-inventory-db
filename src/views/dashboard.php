@@ -250,7 +250,7 @@
                 <div class="low-stock-items">
                     <?php
                     $low_stock_foods_count = 0;
-                    if ($low_stock_foods && is_object($low_stock_foods)) {
+                    if (isset($low_stock_foods) && $low_stock_foods && is_object($low_stock_foods)) {
                         while ($row = $low_stock_foods->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_foods_count++;
                             $is_zero = ($row['quantity'] == 0);
