@@ -62,13 +62,15 @@
                     </label>
                 </div>
 
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <div style="display: flex; gap: 1rem; margin-top: 2rem; align-items: center;">
                     <button type="submit" class="btn btn-primary">✓ Update Store</button>
                     <a href="index.php?action=manage_stores" class="btn btn-secondary">Cancel</a>
-                    <?php if(!$store->is_active): ?>
+                    <?php if($store->is_active): ?>
+                        <span style="margin-left: auto; color: #888; font-size: 0.9em;">💡 Uncheck "Active" to enable deletion</span>
+                    <?php else: ?>
                         <a href="index.php?action=delete_store&id=<?php echo $store->id; ?>" 
                            class="btn btn-danger" 
-                           onclick="return confirm('Permanently delete this store? This cannot be undone.');"
+                           onclick="return confirm('Permanently delete this store? This cannot be undone.');" 
                            style="margin-left: auto;">
                             🗑️ Delete Store
                         </a>
