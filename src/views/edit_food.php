@@ -105,14 +105,16 @@
                     <label for="location">Storage Location</label>
                     <select id="location" name="location">
                         <option value="">Select Location</option>
-                        <option value="Refrigerator" <?php echo ($food->location ?? '') === 'Refrigerator' ? 'selected' : ''; ?>>Refrigerator</option>
-                        <option value="Freezer" <?php echo ($food->location ?? '') === 'Freezer' ? 'selected' : ''; ?>>Freezer</option>
-                        <option value="Pantry" <?php echo ($food->location ?? '') === 'Pantry' ? 'selected' : ''; ?>>Pantry</option>
-                        <option value="Counter" <?php echo ($food->location ?? '') === 'Counter' ? 'selected' : ''; ?>>Counter</option>
-                        <option value="Cupboard" <?php echo ($food->location ?? '') === 'Cupboard' ? 'selected' : ''; ?>>Cupboard</option>
-                        <option value="Basement" <?php echo ($food->location ?? '') === 'Basement' ? 'selected' : ''; ?>>Basement</option>
-                        <option value="Other" <?php echo ($food->location ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                        <?php if(isset($locations) && !empty($locations)): ?>
+                            <?php foreach($locations as $location): ?>
+                                <option value="<?php echo htmlspecialchars($location['name']); ?>"
+                                    <?php echo ($food->location ?? '') === $location['name'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($location['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">Storage locations can be managed by admins</small>
                 </div>
 
                 <div class="form-group">

@@ -104,14 +104,15 @@
                     <label for="location">Storage Location</label>
                     <select id="location" name="location">
                         <option value="">Select Location</option>
-                        <option value="Refrigerator">Refrigerator</option>
-                        <option value="Freezer">Freezer</option>
-                        <option value="Pantry">Pantry</option>
-                        <option value="Counter">Counter</option>
-                        <option value="Cupboard">Cupboard</option>
-                        <option value="Basement">Basement</option>
-                        <option value="Other">Other</option>
+                        <?php if(isset($locations) && !empty($locations)): ?>
+                            <?php foreach($locations as $location): ?>
+                                <option value="<?php echo htmlspecialchars($location['name']); ?>">
+                                    <?php echo htmlspecialchars($location['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">Storage locations can be managed by admins</small>
                 </div>
 
                 <div class="form-group">

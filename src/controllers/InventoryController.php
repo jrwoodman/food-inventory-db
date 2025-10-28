@@ -43,8 +43,9 @@ class InventoryController {
             exit();
         }
         
-        // Get stores for dropdown
+        // Get stores and locations for dropdowns
         $stores = Store::getStoreOptions($this->db);
+        $locations = Location::getLocationOptions($this->db, true);
         
         if ($_POST) {
             $food = new Food($this->db);
@@ -75,9 +76,10 @@ class InventoryController {
         $food = new Food($this->db);
         $food->id = $_GET['id'] ?? 0;
         
-        // Get stores for dropdown
+        // Get stores and locations for dropdowns
         $stores = Store::getStoreOptions($this->db);
-
+        $locations = Location::getLocationOptions($this->db, true);
+        
         if ($_POST) {
             $food->name = $_POST['name'];
             $food->category = $_POST['category'];
@@ -123,8 +125,9 @@ class InventoryController {
             exit();
         }
         
-        // Get stores for dropdown
+        // Get stores and locations for dropdowns
         $stores = Store::getStoreOptions($this->db);
+        $locations = Location::getLocationOptions($this->db, true);
         
         if ($_POST) {
             $ingredient = new Ingredient($this->db);
@@ -214,8 +217,9 @@ class InventoryController {
         $ingredient = new Ingredient($this->db);
         $ingredient->id = $_GET['id'] ?? 0;
         
-        // Get stores for dropdown
+        // Get stores and locations for dropdowns
         $stores = Store::getStoreOptions($this->db);
+        $locations = Location::getLocationOptions($this->db, true);
         
         if ($_POST) {
             $ingredient->name = $_POST['name'];

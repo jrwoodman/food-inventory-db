@@ -50,29 +50,22 @@
                     </select>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="quantity">Quantity *</label>
-                        <input type="number" id="quantity" name="quantity" step="0.01" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="unit">Unit</label>
-                        <select id="unit" name="unit">
-                            <option value="oz">Ounces</option>
-                            <option value="g">Grams</option>
-                            <option value="lbs">Pounds</option>
-                            <option value="kg">Kilograms</option>
-                            <option value="cups">Cups</option>
-                            <option value="tbsp">Tablespoons</option>
-                            <option value="tsp">Teaspoons</option>
-                            <option value="ml">Milliliters</option>
-                            <option value="liters">Liters</option>
-                            <option value="bottles">Bottles</option>
-                            <option value="jars">Jars</option>
-                            <option value="packages">Packages</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="unit">Unit</label>
+                    <select id="unit" name="unit">
+                        <option value="oz">Ounces</option>
+                        <option value="g">Grams</option>
+                        <option value="lbs">Pounds</option>
+                        <option value="kg">Kilograms</option>
+                        <option value="cups">Cups</option>
+                        <option value="tbsp">Tablespoons</option>
+                        <option value="tsp">Teaspoons</option>
+                        <option value="ml">Milliliters</option>
+                        <option value="liters">Liters</option>
+                        <option value="bottles">Bottles</option>
+                        <option value="jars">Jars</option>
+                        <option value="packages">Packages</option>
+                    </select>
                 </div>
 
                 <div class="form-row">
@@ -116,18 +109,54 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="location">Storage Location</label>
-                    <select id="location" name="location">
-                        <option value="">Select Location</option>
-                        <option value="Spice Rack">Spice Rack</option>
-                        <option value="Pantry">Pantry</option>
-                        <option value="Refrigerator">Refrigerator</option>
-                        <option value="Freezer">Freezer</option>
-                        <option value="Cupboard">Cupboard</option>
-                        <option value="Counter">Counter</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <label>Storage Locations & Quantities</label>
+                    <div id="locations-container">
+                        <div class="location-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <select name="locations[0][location]" style="flex: 1;" required>
+                                <option value="">Select Location</option>
+                                <?php if(isset($locations) && !empty($locations)): ?>
+                                    <?php foreach($locations as $location): ?>
+                                        <option value="<?php echo htmlspecialchars($location['name']); ?>">
+                                            <?php echo htmlspecialchars($location['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                            <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required value="<?php echo isset($_POST['quantity']) ? htmlspecialchars($_POST['quantity']) : ''; ?>">
+                            <input type="text" name="locations[0][notes]" placeholder="Notes (optional)" style="flex: 1;">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addLocationRow()" style="margin-top: 0.5rem;">+ Add Location</button>
+                    <small class="form-help">Track this ingredient across multiple storage locations</small>
                 </div>
+
+                <script>
+                let locationIndex = 1;
+                const locationsData = <?php echo json_encode($locations ?? []); ?>;
+                function addLocationRow() {
+                    const container = document.getElementById('locations-container');
+                    const row = document.createElement('div');
+                    row.className = 'location-row';
+                    row.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+                    
+                    let optionsHtml = '<option value="">Select Location</option>';
+                    locationsData.forEach(loc => {
+                        optionsHtml += `<option value="${loc.name}">${loc.name}</option>`;
+                    });
+                    
+                    row.innerHTML = `
+                        <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
+                            ${optionsHtml}
+                        </select>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <input type="text" name="locations[${locationIndex}][notes]" placeholder="Notes (optional)" style="flex: 1;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                    `;
+                    container.appendChild(row);
+                    locationIndex++;
+                }
+                </script>
 
                 <div class="form-group">
                     <label for="notes">Notes</label>
