@@ -40,6 +40,129 @@
             <div class="alert alert-error"><?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
         
+        <?php if ($current_user->canEdit()): ?>
+            <!-- Multi-Search Widget -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>🔍 Quick Search & Update</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Enter item names separated by commas to search and update multiple items at once.</p>
+                <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <input type="hidden" name="action" value="bulk_search">
+                    <input type="text" 
+                           name="search_items" 
+                           id="search_items"
+                           placeholder="e.g. Milk, Bread, Eggs, Flour"
+                           style="flex: 1; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);"
+                           value="<?php echo isset($_GET['search_items']) ? htmlspecialchars($_GET['search_items']) : ''; ?>">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                
+                <?php if (isset($search_results) && !empty($search_results)): ?>
+                    <div style="background: var(--card-bg); padding: 1rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                        <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> items found)</h4>
+                        <form method="POST" action="index.php?action=bulk_update" id="bulk-update-form">
+                            <?php foreach ($search_results as $result): ?>
+                                <div style="background: var(--bg-secondary); padding: 1rem; margin-bottom: 1rem; border-radius: 4px; border-left: 3px solid <?php echo $result['type'] === 'food' ? '#4CAF50' : '#FF9800'; ?>;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                        <h5 style="margin: 0;">
+                                            <?php echo $result['type'] === 'food' ? '🍎' : '🧄'; ?> 
+                                            <?php echo htmlspecialchars($result['name']); ?>
+                                            <span style="font-size: 0.875rem; color: var(--text-muted); font-weight: normal;">(<?php echo ucfirst($result['type']); ?>)</span>
+                                        </h5>
+                                    </div>
+                                    
+                                    <input type="hidden" name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][type]" value="<?php echo $result['type']; ?>">
+                                    <input type="hidden" name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][id]" value="<?php echo $result['id']; ?>">
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Quantity</label>
+                                            <input type="number" 
+                                                   step="0.01"
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][quantity]" 
+                                                   value="<?php echo $result['quantity']; ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Unit</label>
+                                            <input type="text" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][unit]" 
+                                                   value="<?php echo htmlspecialchars($result['unit']); ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Category</label>
+                                            <input type="text" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][category]" 
+                                                   value="<?php echo htmlspecialchars($result['category'] ?? ''); ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;"><?php echo $result['type'] === 'food' ? 'Expiry Date' : 'Expiry Date'; ?></label>
+                                            <input type="date" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][expiry_date]" 
+                                                   value="<?php echo $result['expiry_date'] ?? ''; ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Purchase Date</label>
+                                            <input type="date" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_date]" 
+                                                   value="<?php echo $result['purchase_date'] ?? ''; ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Purchase Location</label>
+                                            <input type="text" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_location]" 
+                                                   value="<?php echo htmlspecialchars($result['purchase_location'] ?? ''); ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <?php if ($result['type'] === 'food'): ?>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Storage Location</label>
+                                            <input type="text" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][location]" 
+                                                   value="<?php echo htmlspecialchars($result['location'] ?? ''); ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        <?php else: ?>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Supplier</label>
+                                            <input type="text" 
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][supplier]" 
+                                                   value="<?php echo htmlspecialchars($result['supplier'] ?? ''); ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.875rem;">Cost/Unit</label>
+                                            <input type="number" 
+                                                   step="0.01"
+                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][cost_per_unit]" 
+                                                   value="<?php echo $result['cost_per_unit'] ?? ''; ?>"
+                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                            
+                            <div style="display: flex; gap: 0.5rem; justify-content: end; margin-top: 1rem;">
+                                <a href="index.php?action=dashboard" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-success">💾 Update All Items</button>
+                            </div>
+                        </form>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        
         <?php if ($current_user->isAdmin() && isset($all_groups)): ?>
             <div class="card" style="margin-bottom: 1.5rem;">
                 <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; align-items: end;">

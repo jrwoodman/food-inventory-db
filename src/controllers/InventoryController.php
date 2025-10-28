@@ -1011,5 +1011,223 @@ class InventoryController {
         }
         exit();
     }
+    
+    public function bulkSearch() {
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $search_items = $_GET['search_items'] ?? '';
+        $search_results = [];
+        
+        if (!empty($search_items)) {
+            // Split by comma and trim each item
+            $search_terms = array_map('trim', explode(',', $search_items));
+            $search_terms = array_filter($search_terms); // Remove empty items
+            
+            if (!empty($search_terms)) {
+                $food = new Food($this->db);
+                $ingredient = new Ingredient($this->db);
+                
+                // Get user's group IDs for filtering
+                $group_ids = $this->current_user->getGroupIds();
+                
+                foreach ($search_terms as $term) {
+                    // Search foods
+                    $query = "SELECT f.*, 'food' as type, g.name as group_name 
+                              FROM foods f
+                              LEFT JOIN groups g ON f.group_id = g.id
+                              WHERE LOWER(f.name) LIKE LOWER(?)
+                              " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
+                                  "AND f.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
+                              ORDER BY f.name";
+                    
+                    $params = ['%' . $term . '%'];
+                    if (!$this->current_user->isAdmin() && !empty($group_ids)) {
+                        $params = array_merge($params, $group_ids);
+                    }
+                    
+                    $stmt = $this->db->prepare($query);
+                    $stmt->execute($params);
+                    
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $search_results[] = $row;
+                    }
+                    
+                    // Search ingredients
+                    $query = "SELECT i.*, 'ingredient' as type, g.name as group_name,
+                              COALESCE(SUM(il.quantity), 0) as quantity
+                              FROM ingredients i
+                              LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
+                              LEFT JOIN groups g ON i.group_id = g.id
+                              WHERE LOWER(i.name) LIKE LOWER(?)
+                              " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
+                                  "AND i.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
+                              GROUP BY i.id
+                              ORDER BY i.name";
+                    
+                    $params = ['%' . $term . '%'];
+                    if (!$this->current_user->isAdmin() && !empty($group_ids)) {
+                        $params = array_merge($params, $group_ids);
+                    }
+                    
+                    $stmt = $this->db->prepare($query);
+                    $stmt->execute($params);
+                    
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $search_results[] = $row;
+                    }
+                }
+            }
+        }
+        
+        // Re-run dashboard with search results
+        $food = new Food($this->db);
+        $ingredient = new Ingredient($this->db);
+        
+        // Filter by current user's groups
+        $group_ids = $this->current_user->getGroupIds();
+        
+        // Get group filter for admins
+        $filter_group_id = null;
+        $show_all_groups = false;
+        
+        if ($this->current_user->isAdmin()) {
+            // Check if admin has selected a specific group filter or "all groups"
+            if (isset($_GET['group_filter'])) {
+                if ($_GET['group_filter'] === 'all') {
+                    $show_all_groups = true;
+                } else {
+                    $filter_group_id = intval($_GET['group_filter']);
+                }
+            } else {
+                // Default to user's default group if set
+                $filter_group_id = $this->current_user->getDefaultGroupId();
+            }
+            
+            // Get all groups for the filter dropdown
+            $group_model = new Group($this->db);
+            $all_groups_stmt = $group_model->read();
+            $all_groups = [];
+            while ($row = $all_groups_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $all_groups[] = $row;
+            }
+        }
+        
+        if ($this->current_user->isAdmin()) {
+            if ($show_all_groups) {
+                // Admin viewing all groups - show all items with group names
+                $foods = $food->read();
+                $ingredients = $ingredient->read();
+                $expiring_foods = $food->getExpiringItems(7);
+                $low_stock_ingredients = $ingredient->getLowStockItems(10);
+            } else if ($filter_group_id) {
+                // Admin viewing specific group
+                $foods = $food->readByGroups([$filter_group_id]);
+                $ingredients = $ingredient->readByGroups([$filter_group_id]);
+                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], 7);
+                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], 10);
+            } else {
+                // Admin not in any group and no filter selected
+                $foods = $food->read();
+                $ingredients = $ingredient->read();
+                $expiring_foods = $food->getExpiringItems(7);
+                $low_stock_ingredients = $ingredient->getLowStockItems(10);
+            }
+        } else if (!empty($group_ids)) {
+            // Regular users see items from their groups
+            $foods = $food->readByGroups($group_ids);
+            $ingredients = $ingredient->readByGroups($group_ids);
+            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, 7);
+            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, 10);
+        } else {
+            // User not in any group - show empty results
+            $foods = false;
+            $ingredients = false;
+            $expiring_foods = false;
+            $low_stock_ingredients = false;
+        }
+
+        $current_user = $this->current_user;
+        include '../src/views/dashboard.php';
+    }
+    
+    public function bulkUpdate() {
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST && isset($_POST['items'])) {
+            $updated_count = 0;
+            $error_count = 0;
+            
+            foreach ($_POST['items'] as $key => $item_data) {
+                $type = $item_data['type'];
+                $id = $item_data['id'];
+                
+                if ($type === 'food') {
+                    $food = new Food($this->db);
+                    $food->id = $id;
+                    
+                    if ($food->readOne()) {
+                        $food->name = $food->name; // Keep existing name
+                        $food->category = $item_data['category'] ?? $food->category;
+                        $food->quantity = $item_data['quantity'] ?? $food->quantity;
+                        $food->unit = $item_data['unit'] ?? $food->unit;
+                        $food->expiry_date = !empty($item_data['expiry_date']) ? $item_data['expiry_date'] : null;
+                        $food->purchase_date = !empty($item_data['purchase_date']) ? $item_data['purchase_date'] : null;
+                        $food->purchase_location = $item_data['purchase_location'] ?? $food->purchase_location;
+                        $food->location = $item_data['location'] ?? $food->location;
+                        $food->user_id = $this->current_user->id;
+                        $food->group_id = $food->group_id; // Keep existing group
+                        
+                        if ($food->update()) {
+                            $updated_count++;
+                        } else {
+                            $error_count++;
+                        }
+                    }
+                } else if ($type === 'ingredient') {
+                    $ingredient = new Ingredient($this->db);
+                    $ingredient->id = $id;
+                    
+                    if ($ingredient->readOne()) {
+                        $ingredient->name = $ingredient->name; // Keep existing name
+                        $ingredient->category = $item_data['category'] ?? $ingredient->category;
+                        $ingredient->unit = $item_data['unit'] ?? $ingredient->unit;
+                        $ingredient->cost_per_unit = !empty($item_data['cost_per_unit']) ? $item_data['cost_per_unit'] : null;
+                        $ingredient->supplier = $item_data['supplier'] ?? $ingredient->supplier;
+                        $ingredient->purchase_date = !empty($item_data['purchase_date']) ? $item_data['purchase_date'] : null;
+                        $ingredient->purchase_location = $item_data['purchase_location'] ?? $ingredient->purchase_location;
+                        $ingredient->expiry_date = !empty($item_data['expiry_date']) ? $item_data['expiry_date'] : null;
+                        $ingredient->user_id = $this->current_user->id;
+                        $ingredient->group_id = $ingredient->group_id; // Keep existing group
+                        
+                        // Note: For ingredients, quantity is handled separately in ingredient_locations
+                        // This bulk update focuses on the main ingredient properties
+                        
+                        if ($ingredient->update()) {
+                            $updated_count++;
+                        } else {
+                            $error_count++;
+                        }
+                    }
+                }
+            }
+            
+            if ($error_count > 0) {
+                header('Location: index.php?action=dashboard&message=' . $updated_count . ' items updated&error=' . $error_count . ' items failed to update');
+            } else {
+                header('Location: index.php?action=dashboard&message=' . $updated_count . ' items updated successfully');
+            }
+        } else {
+            header('Location: index.php?action=dashboard');
+        }
+        exit();
+    }
 }
 ?>

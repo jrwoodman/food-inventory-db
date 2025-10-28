@@ -187,6 +187,14 @@ switch ($action) {
     case 'set_default_group':
         $controller->setDefaultGroup();
         break;
+    
+    // Bulk operations routes
+    case 'bulk_search':
+        $controller->bulkSearch();
+        break;
+    case 'bulk_update':
+        $controller->bulkUpdate();
+        break;
         
     default:
         // Check if user is logged in, otherwise redirect to login
