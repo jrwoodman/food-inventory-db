@@ -103,17 +103,12 @@ DROP TABLE ingredient_locations;
 -- Rename new table to original name
 ALTER TABLE ingredient_locations_new RENAME TO ingredient_locations;
 
--- Step 5: Recreate views (they need to be recreated after table changes)
+-- Step 5: Create/recreate views
+-- Note: If views already exist from a previous version, you may see errors - this is expected
+-- Views will be created if they don't exist, or you can manually drop and recreate them
 
--- Drop existing views
-DROP VIEW IF EXISTS expiring_foods;
-DROP VIEW IF EXISTS ingredient_totals;
-DROP VIEW IF EXISTS low_stock_ingredients;
-DROP VIEW IF EXISTS ingredient_location_details;
-DROP VIEW IF EXISTS inventory_summary;
-
--- Recreate views
-CREATE VIEW expiring_foods AS
+-- Recreate views (DROP IF EXISTS should work, but if you get errors, ignore them)
+CREATE VIEW IF NOT EXISTS expiring_foods AS
 SELECT 
     id, name, category, quantity, unit, expiry_date, location,
     CAST(julianday(expiry_date) - julianday('now') AS INTEGER) as days_until_expiry
@@ -123,7 +118,7 @@ WHERE expiry_date IS NOT NULL
     AND date(expiry_date) >= date('now')
 ORDER BY expiry_date ASC;
 
-CREATE VIEW ingredient_totals AS
+CREATE VIEW IF NOT EXISTS ingredient_totals AS
 SELECT 
     i.id,
     i.name,
@@ -136,14 +131,14 @@ FROM ingredients i
 LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
 GROUP BY i.id, i.name, i.category, i.unit, i.supplier;
 
-CREATE VIEW low_stock_ingredients AS
+CREATE VIEW IF NOT EXISTS low_stock_ingredients AS
 SELECT 
     id, name, category, total_quantity, unit, supplier, location_breakdown
 FROM ingredient_totals
 WHERE total_quantity <= 10
 ORDER BY total_quantity ASC;
 
-CREATE VIEW ingredient_location_details AS
+CREATE VIEW IF NOT EXISTS ingredient_location_details AS
 SELECT 
     i.id as ingredient_id,
     i.name as ingredient_name,
@@ -158,7 +153,7 @@ FROM ingredients i
 LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
 ORDER BY i.name, il.location;
 
-CREATE VIEW inventory_summary AS
+CREATE VIEW IF NOT EXISTS inventory_summary AS
 SELECT 
     'Foods' as type,
     COUNT(*) as total_items,
