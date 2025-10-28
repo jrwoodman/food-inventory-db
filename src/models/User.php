@@ -11,6 +11,7 @@ class User {
     public $last_name;
     public $role;
     public $is_active;
+    public $default_group_id;
     public $last_login;
     public $created_at;
     public $updated_at;
@@ -71,6 +72,7 @@ class User {
             $this->last_name = $row['last_name'];
             $this->role = $row['role'];
             $this->is_active = $row['is_active'];
+            $this->default_group_id = $row['default_group_id'];
             $this->last_login = $row['last_login'];
             $this->created_at = $row['created_at'];
             $this->updated_at = $row['updated_at'];
@@ -83,6 +85,7 @@ class User {
         $query = "UPDATE " . $this->table_name . "
                  SET username=:username, email=:email, first_name=:first_name, 
                      last_name=:last_name, role=:role, is_active=:is_active,
+                     default_group_id=:default_group_id,
                      updated_at=datetime('now')
                  WHERE id=:id";
 
@@ -94,6 +97,7 @@ class User {
         $stmt->bindParam(":last_name", $this->last_name);
         $stmt->bindParam(":role", $this->role);
         $stmt->bindParam(":is_active", $this->is_active);
+        $stmt->bindParam(":default_group_id", $this->default_group_id);
         $stmt->bindParam(":id", $this->id);
 
         return $stmt->execute();
@@ -264,6 +268,45 @@ class User {
     public function getGroupRole($group_id) {
         $membership = $this->isMemberOfGroup($group_id);
         return $membership ? $membership['role'] : null;
+    }
+
+    /**
+     * Set default group for the user
+     */
+    public function setDefaultGroup($group_id) {
+        // Verify user is member of the group
+        if ($group_id && !$this->isMemberOfGroup($group_id)) {
+            return false;
+        }
+        
+        $query = "UPDATE " . $this->table_name . "
+                 SET default_group_id = :group_id,
+                     updated_at = datetime('now')
+                 WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":group_id", $group_id);
+        $stmt->bindParam(":id", $this->id);
+        
+        if ($stmt->execute()) {
+            $this->default_group_id = $group_id;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get default group ID (returns first group if no default set)
+     */
+    public function getDefaultGroupId() {
+        // If default is set and user is still member, return it
+        if ($this->default_group_id && $this->isMemberOfGroup($this->default_group_id)) {
+            return $this->default_group_id;
+        }
+        
+        // Otherwise return the first group user belongs to
+        $group_ids = $this->getGroupIds();
+        return !empty($group_ids) ? $group_ids[0] : null;
     }
 }
 ?>

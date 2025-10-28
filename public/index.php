@@ -184,6 +184,9 @@ switch ($action) {
     case 'remove_group_member':
         $controller->removeGroupMember();
         break;
+    case 'set_default_group':
+        $controller->setDefaultGroup();
+        break;
         
     default:
         // Check if user is logged in, otherwise redirect to login

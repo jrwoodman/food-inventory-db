@@ -51,6 +51,24 @@
                 </p>
             </div>
         <?php else: ?>
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>⭐ Default Group</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Your default group will be pre-selected when adding new food or ingredient items.</p>
+                <form method="POST" action="index.php?action=set_default_group" style="display: flex; gap: 0.5rem; align-items: end;">
+                    <div class="form-group" style="flex: 1; margin: 0;">
+                        <label for="default_group">Default Group</label>
+                        <select id="default_group" name="group_id">
+                            <option value="">None (use first group)</option>
+                            <?php foreach ($groups as $group): ?>
+                                <option value="<?php echo $group['id']; ?>" <?php echo ($current_user->default_group_id == $group['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($group['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">✓ Set Default</button>
+                </form>
+            </div>
                 <?php foreach ($groups as $group): ?>
                 <div class="card" style="margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">

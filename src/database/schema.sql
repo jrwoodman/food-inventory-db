@@ -29,9 +29,11 @@ CREATE TABLE users (
     last_name VARCHAR(50),
     role TEXT CHECK(role IN ('admin', 'user', 'viewer')) DEFAULT 'user',
     is_active BOOLEAN DEFAULT 1,
+    default_group_id INTEGER,
     last_login TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (default_group_id) REFERENCES groups(id) ON DELETE SET NULL
 );
 
 -- Create user sessions table for session management

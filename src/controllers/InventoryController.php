@@ -63,6 +63,7 @@ class InventoryController {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $user_groups[] = $row;
         }
+        $default_group_id = $this->current_user->getDefaultGroupId();
         
         if ($_POST) {
             $food = new Food($this->db);
@@ -161,6 +162,7 @@ class InventoryController {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $user_groups[] = $row;
         }
+        $default_group_id = $this->current_user->getDefaultGroupId();
         
         if ($_POST) {
             $ingredient = new Ingredient($this->db);
@@ -951,6 +953,21 @@ class InventoryController {
             header('Location: index.php?action=manage_group_members&id=' . $group->id . '&message=Member removed successfully');
         } else {
             header('Location: index.php?action=manage_group_members&id=' . $group->id . '&error=Unable to remove member');
+        }
+        exit();
+    }
+    
+    public function setDefaultGroup() {
+        if ($_POST) {
+            $group_id = $_POST['group_id'] ?? null;
+            
+            if ($this->current_user->setDefaultGroup($group_id)) {
+                header('Location: index.php?action=list_groups&message=Default group updated successfully');
+            } else {
+                header('Location: index.php?action=list_groups&error=Unable to set default group');
+            }
+        } else {
+            header('Location: index.php?action=list_groups');
         }
         exit();
     }

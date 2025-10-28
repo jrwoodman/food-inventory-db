@@ -56,7 +56,7 @@
                         <option value="">Select Group</option>
                         <?php if(isset($user_groups) && !empty($user_groups)): ?>
                             <?php foreach($user_groups as $group): ?>
-                                <option value="<?php echo $group['id']; ?>">
+                                <option value="<?php echo $group['id']; ?>" <?php echo (isset($default_group_id) && $default_group_id == $group['id']) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($group['name']); ?>
                                 </option>
                             <?php endforeach; ?>
