@@ -381,10 +381,10 @@ class InventoryController {
         $store = new Store($this->db);
         $store->id = $_GET['id'] ?? 0;
         
-        if ($store->delete()) {
-            header('Location: index.php?action=manage_stores&message=Store deactivated successfully');
+        if ($store->hardDelete()) {
+            header('Location: index.php?action=manage_stores&message=Store deleted successfully');
         } else {
-            header('Location: index.php?action=manage_stores&error=Unable to deactivate store');
+            header('Location: index.php?action=manage_stores&error=Unable to delete store');
         }
         exit();
     }
