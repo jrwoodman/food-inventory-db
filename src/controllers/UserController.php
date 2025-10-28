@@ -55,6 +55,16 @@ class UserController {
             $this->auth->requireAdmin();
         }
 
+        // Get all groups for selection (if admin is creating user)
+        $all_groups = [];
+        if ($users_count > 0) {
+            $group_model = new Group($this->db);
+            $stmt = $group_model->read();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $all_groups[] = $row;
+            }
+        }
+
         $error = '';
         $success = '';
 
@@ -95,8 +105,23 @@ class UserController {
                     $new_user->is_active = 1;
 
                     if ($new_user->create()) {
+                        // Assign user to selected groups
+                        if (isset($_POST['group_ids']) && is_array($_POST['group_ids'])) {
+                            $group_model = new Group($this->db);
+                            foreach ($_POST['group_ids'] as $group_id) {
+                                $group_model->id = $group_id;
+                                $group_model->addMember($new_user->id, 'member');
+                            }
+                        }
+                        
                         if ($users_count == 0) {
-                            // Auto-login first user
+                            // Auto-login first user and assign to default group
+                            $group_model = new Group($this->db);
+                            $stmt = $group_model->read();
+                            if ($first_group = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                $group_model->id = $first_group['id'];
+                                $group_model->addMember($new_user->id, 'owner');
+                            }
                             $this->auth->login($username, $password);
                             header('Location: index.php?action=dashboard&message=Welcome! Account created successfully');
                             exit();

@@ -111,6 +111,28 @@
                 <input type="hidden" name="role" value="admin">
                 <?php endif; ?>
 
+                <?php if($users_count > 0 && !empty($all_groups)): ?>
+                <div class="form-group">
+                    <label for="groups">Groups</label>
+                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; padding: 0.75rem;">
+                        <?php foreach($all_groups as $group): ?>
+                        <div style="margin-bottom: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" name="group_ids[]" value="<?php echo $group['id']; ?>" 
+                                       style="margin-right: 0.5rem;"
+                                       <?php echo (isset($_POST['group_ids']) && in_array($group['id'], $_POST['group_ids'])) ? 'checked' : ''; ?>>
+                                <span><?php echo htmlspecialchars($group['name']); ?></span>
+                                <?php if (!empty($group['description'])): ?>
+                                <small style="color: var(--text-muted); margin-left: 0.5rem;">- <?php echo htmlspecialchars($group['description']); ?></small>
+                                <?php endif; ?>
+                            </label>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <small style="color: var(--text-muted);">Select which groups this user should be added to</small>
+                </div>
+                <?php endif; ?>
+
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button type="submit" class="btn btn-success" style="<?php echo $users_count == 0 ? 'width: 100%;' : ''; ?>">
                         <?php echo $users_count == 0 ? '✓ Create Admin Account' : '✓ Add User'; ?>
