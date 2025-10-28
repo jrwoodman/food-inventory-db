@@ -114,6 +114,76 @@
                     <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about this ingredient..."><?php echo htmlspecialchars($ingredient->notes ?? ''); ?></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label>Storage Locations & Quantities</label>
+                    <div id="locations-container">
+                        <?php if (!empty($ingredient->locations)): ?>
+                            <?php foreach($ingredient->locations as $idx => $loc): ?>
+                                <div class="location-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <select name="locations[<?php echo $idx; ?>][location]" style="flex: 1;" required>
+                                        <option value="">Select Location</option>
+                                        <option value="Spice Rack" <?php echo $loc['location'] === 'Spice Rack' ? 'selected' : ''; ?>>Spice Rack</option>
+                                        <option value="Pantry" <?php echo $loc['location'] === 'Pantry' ? 'selected' : ''; ?>>Pantry</option>
+                                        <option value="Refrigerator" <?php echo $loc['location'] === 'Refrigerator' ? 'selected' : ''; ?>>Refrigerator</option>
+                                        <option value="Freezer" <?php echo $loc['location'] === 'Freezer' ? 'selected' : ''; ?>>Freezer</option>
+                                        <option value="Cupboard" <?php echo $loc['location'] === 'Cupboard' ? 'selected' : ''; ?>>Cupboard</option>
+                                        <option value="Counter" <?php echo $loc['location'] === 'Counter' ? 'selected' : ''; ?>>Counter</option>
+                                        <option value="Other" <?php echo $loc['location'] === 'Other' ? 'selected' : ''; ?>>Other</option>
+                                    </select>
+                                    <input type="number" name="locations[<?php echo $idx; ?>][quantity]" placeholder="Quantity" step="0.01" value="<?php echo htmlspecialchars($loc['quantity']); ?>" style="width: 120px;" required>
+                                    <input type="text" name="locations[<?php echo $idx; ?>][notes]" placeholder="Notes (optional)" value="<?php echo htmlspecialchars($loc['notes'] ?? ''); ?>" style="flex: 1;">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="location-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <select name="locations[0][location]" style="flex: 1;" required>
+                                    <option value="">Select Location</option>
+                                    <option value="Spice Rack">Spice Rack</option>
+                                    <option value="Pantry">Pantry</option>
+                                    <option value="Refrigerator">Refrigerator</option>
+                                    <option value="Freezer">Freezer</option>
+                                    <option value="Cupboard">Cupboard</option>
+                                    <option value="Counter">Counter</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <input type="number" name="locations[0][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                                <input type="text" name="locations[0][notes]" placeholder="Notes (optional)" style="flex: 1;">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addLocationRow()" style="margin-top: 0.5rem;">+ Add Location</button>
+                    <small class="form-help">Track this ingredient across multiple storage locations</small>
+                </div>
+
+                <script>
+                let locationIndex = <?php echo !empty($ingredient->locations) ? count($ingredient->locations) : 1; ?>;
+                function addLocationRow() {
+                    const container = document.getElementById('locations-container');
+                    const row = document.createElement('div');
+                    row.className = 'location-row';
+                    row.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+                    row.innerHTML = `
+                        <select name="locations[${locationIndex}][location]" style="flex: 1;" required>
+                            <option value="">Select Location</option>
+                            <option value="Spice Rack">Spice Rack</option>
+                            <option value="Pantry">Pantry</option>
+                            <option value="Refrigerator">Refrigerator</option>
+                            <option value="Freezer">Freezer</option>
+                            <option value="Cupboard">Cupboard</option>
+                            <option value="Counter">Counter</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="number" name="locations[${locationIndex}][quantity]" placeholder="Quantity" step="0.01" style="width: 120px;" required>
+                        <input type="text" name="locations[${locationIndex}][notes]" placeholder="Notes (optional)" style="flex: 1;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                    `;
+                    container.appendChild(row);
+                    locationIndex++;
+                }
+                </script>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-success">✓ Update Ingredient</button>
                     <a href="index.php?action=dashboard" class="btn btn-secondary">× Cancel</a>
