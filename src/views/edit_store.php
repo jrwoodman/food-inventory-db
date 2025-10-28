@@ -11,8 +11,8 @@
         <div class="header-content">
             <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
             <nav class="nav">
-                <a href="index.php?action=manage_stores">🏪 Stores</a>
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
+                <a href="index.php?action=profile">👤 Profile</a>
                 <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>
