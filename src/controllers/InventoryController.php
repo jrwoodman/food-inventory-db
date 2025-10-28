@@ -940,24 +940,16 @@ class InventoryController {
                                 $error_count++;
                             }
                         } else if (isset($data['decrement'])) {
-                            // Decrement quantity
+                            // Decrement quantity (never goes below 0)
                             $decrement_by = floatval($data['decrement']);
                             $new_quantity = max(0, $food->quantity - $decrement_by);
                             $food->quantity = $new_quantity;
                             
-                            if ($new_quantity == 0) {
-                                // Delete if quantity reaches 0
-                                if ($food->delete()) {
-                                    $success_count++;
-                                } else {
-                                    $error_count++;
-                                }
+                            // Update item (keep at 0 instead of deleting)
+                            if ($food->update()) {
+                                $success_count++;
                             } else {
-                                if ($food->update()) {
-                                    $success_count++;
-                                } else {
-                                    $error_count++;
-                                }
+                                $error_count++;
                             }
                         }
                     }
@@ -979,7 +971,7 @@ class InventoryController {
                                 $error_count++;
                             }
                         } else if (isset($data['decrement']) && isset($data['location'])) {
-                            // Decrement quantity at specific location
+                            // Decrement quantity at specific location (never goes below 0)
                             $decrement_by = floatval($data['decrement']);
                             $location = $data['location'];
                             
@@ -994,25 +986,11 @@ class InventoryController {
                             
                             $new_quantity = max(0, $current_qty - $decrement_by);
                             
-                            if ($new_quantity == 0) {
-                                // Remove location if quantity reaches 0
-                                if ($ingredient->removeLocation($location)) {
-                                    $success_count++;
-                                } else {
-                                    $error_count++;
-                                }
-                                
-                                // Check if ingredient has any locations left
-                                $ingredient->loadLocations();
-                                if (empty($ingredient->locations)) {
-                                    $ingredient->delete();
-                                }
+                            // Update location quantity (keep at 0 instead of removing)
+                            if ($ingredient->updateLocationQuantity($location, $new_quantity)) {
+                                $success_count++;
                             } else {
-                                if ($ingredient->updateLocationQuantity($location, $new_quantity)) {
-                                    $success_count++;
-                                } else {
-                                    $error_count++;
-                                }
+                                $error_count++;
                             }
                         }
                     }
