@@ -247,7 +247,7 @@
                     
                     <div class="form-group">
                         <label for="bulk_purchase_date">Purchase Date</label>
-                        <input type="date" id="bulk_purchase_date" name="purchase_date">
+                        <input type="date" id="bulk_purchase_date" name="purchase_date" value="<?php echo date('Y-m-d'); ?>">
                     </div>
                     
                     <div class="form-group">
