@@ -90,9 +90,9 @@
                                                     style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
                                                 <option value="">Select unit...</option>
                                                 <?php if (isset($units)): foreach ($units as $unit_option): ?>
-                                                    <option value="<?php echo htmlspecialchars($unit_option); ?>" 
-                                                            <?php echo ($result['unit'] == $unit_option) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($unit_option); ?>
+                                                    <option value="<?php echo htmlspecialchars($unit_option['abbreviation']); ?>" 
+                                                            <?php echo ($result['unit'] == $unit_option['abbreviation']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($unit_option['name']); ?> (<?php echo htmlspecialchars($unit_option['abbreviation']); ?>)
                                                     </option>
                                                 <?php endforeach; endif; ?>
                                             </select>

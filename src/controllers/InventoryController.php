@@ -1209,6 +1209,7 @@ class InventoryController {
         // Get dropdown options for the form
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
         
         // Get categories from database
         $categories_query = "SELECT DISTINCT name FROM categories ORDER BY name";
@@ -1217,20 +1218,6 @@ class InventoryController {
         $categories = [];
         while ($row = $categories_stmt->fetch(PDO::FETCH_ASSOC)) {
             $categories[] = $row['name'];
-        }
-        
-        // Get units from existing items
-        $units_query = "SELECT DISTINCT unit FROM foods 
-                        UNION 
-                        SELECT DISTINCT unit FROM ingredients 
-                        ORDER BY unit";
-        $units_stmt = $this->db->prepare($units_query);
-        $units_stmt->execute();
-        $units = [];
-        while ($row = $units_stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (!empty($row['unit'])) {
-                $units[] = $row['unit'];
-            }
         }
         
         // Re-run dashboard with search results
