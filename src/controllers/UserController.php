@@ -139,10 +139,23 @@ class UserController {
     }
 
     public function userManagement() {
-        // For now, redirect to users view - we can enhance this later with tabs like system_settings
         $this->auth->requireAdmin();
-        header('Location: index.php?action=users');
-        exit();
+        
+        $current_user = $this->auth->getCurrentUser();
+        
+        // Get users
+        $user = new User($this->db);
+        $users = $user->read();
+        
+        // Get groups
+        $group_model = new Group($this->db);
+        $groups_stmt = $group_model->readWithDetails();
+        $groups = [];
+        while ($row = $groups_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row;
+        }
+        
+        include '../src/views/user_management.php';
     }
     
     public function users() {
