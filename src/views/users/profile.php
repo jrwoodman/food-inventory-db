@@ -21,11 +21,11 @@
     <div class="container">
         <h1>👤 My Profile</h1>
 
-        <?php if(isset($error)): ?>
+        <?php if(isset($error) && !empty($error)): ?>
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
-        <?php if(isset($success)): ?>
+        <?php if(isset($success) && !empty($success)): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
 
