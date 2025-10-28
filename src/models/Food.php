@@ -65,7 +65,10 @@ class Food {
     }
 
     public function read() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
+        $query = "SELECT f.*, g.name as group_name 
+                  FROM " . $this->table_name . " f
+                  LEFT JOIN groups g ON f.group_id = g.id
+                  ORDER BY f.created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;

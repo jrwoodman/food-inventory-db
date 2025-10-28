@@ -22,12 +22,52 @@ class InventoryController {
         // Filter by current user's groups
         $group_ids = $this->current_user->getGroupIds();
         
+        // Get group filter for admins
+        $filter_group_id = null;
+        $show_all_groups = false;
+        
         if ($this->current_user->isAdmin()) {
-            // Admin sees all items
-            $foods = $food->read();
-            $ingredients = $ingredient->read();
-            $expiring_foods = $food->getExpiringItems(7);
-            $low_stock_ingredients = $ingredient->getLowStockItems(10);
+            // Check if admin has selected a specific group filter or "all groups"
+            if (isset($_GET['group_filter'])) {
+                if ($_GET['group_filter'] === 'all') {
+                    $show_all_groups = true;
+                } else {
+                    $filter_group_id = intval($_GET['group_filter']);
+                }
+            } else {
+                // Default to user's default group if set
+                $filter_group_id = $this->current_user->getDefaultGroupId();
+            }
+            
+            // Get all groups for the filter dropdown
+            $group_model = new Group($this->db);
+            $all_groups_stmt = $group_model->read();
+            $all_groups = [];
+            while ($row = $all_groups_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $all_groups[] = $row;
+            }
+        }
+        
+        if ($this->current_user->isAdmin()) {
+            if ($show_all_groups) {
+                // Admin viewing all groups - show all items with group names
+                $foods = $food->read();
+                $ingredients = $ingredient->read();
+                $expiring_foods = $food->getExpiringItems(7);
+                $low_stock_ingredients = $ingredient->getLowStockItems(10);
+            } else if ($filter_group_id) {
+                // Admin viewing specific group
+                $foods = $food->readByGroups([$filter_group_id]);
+                $ingredients = $ingredient->readByGroups([$filter_group_id]);
+                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], 7);
+                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], 10);
+            } else {
+                // Admin not in any group and no filter selected
+                $foods = $food->read();
+                $ingredients = $ingredient->read();
+                $expiring_foods = $food->getExpiringItems(7);
+                $low_stock_ingredients = $ingredient->getLowStockItems(10);
+            }
         } else if (!empty($group_ids)) {
             // Regular users see items from their groups
             $foods = $food->readByGroups($group_ids);

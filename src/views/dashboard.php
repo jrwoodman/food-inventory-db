@@ -40,6 +40,26 @@
             <div class="alert alert-error"><?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
         
+        <?php if ($current_user->isAdmin() && isset($all_groups)): ?>
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; align-items: end;">
+                    <input type="hidden" name="action" value="dashboard">
+                    <div class="form-group" style="flex: 1; margin: 0;">
+                        <label for="group_filter">Filter by Group</label>
+                        <select id="group_filter" name="group_filter" onchange="this.form.submit()">
+                            <option value="all" <?php echo ($show_all_groups) ? 'selected' : ''; ?>>All Groups</option>
+                            <?php foreach ($all_groups as $group): ?>
+                                <option value="<?php echo $group['id']; ?>" <?php echo ($filter_group_id == $group['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($group['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </form>
+            </div>
+        <?php endif; ?>
+        
         <?php if (!$current_user->isAdmin() && (!$foods || !is_object($foods)) && (!$ingredients || !is_object($ingredients))): ?>
             <div class="alert alert-info">
                 <strong>Welcome!</strong> You're not a member of any groups yet. 
@@ -107,6 +127,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Category</th>
+                            <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                             <th>Total Quantity</th>
                             <th>Cost/Unit</th>
                             <th>Supplier</th>
@@ -123,6 +144,7 @@
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
+                                    <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                     <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
                                     <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
@@ -143,7 +165,7 @@
                             <?php endwhile;
                         }
                         if ($ingredient_count == 0): ?>
-                            <tr><td colspan="6" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
+                            <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -159,6 +181,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Category</th>
+                                <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                                 <th>Quantity</th>
                                 <th>Location</th>
                                 <th>Expiry Date</th>
@@ -175,6 +198,7 @@
                                     <tr>
                                         <td><?php echo htmlspecialchars($row['name']); ?></td>
                                         <td><?php echo htmlspecialchars($row['category']); ?></td>
+                                        <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                         <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
                                         <td><?php echo htmlspecialchars($row['location']); ?></td>
                                         <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
@@ -195,7 +219,7 @@
                                 <?php endwhile;
                             }
                             if ($food_count == 0): ?>
-                                <tr><td colspan="6" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
+                                <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>

@@ -89,7 +89,14 @@ class Ingredient {
     }
 
     public function read() {
-        $query = "SELECT * FROM ingredient_totals ORDER BY name";
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity,
+                  g.name as group_name
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  LEFT JOIN groups g ON i.group_id = g.id
+                  GROUP BY i.id
+                  ORDER BY i.name";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
