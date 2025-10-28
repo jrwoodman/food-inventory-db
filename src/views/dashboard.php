@@ -20,8 +20,6 @@
                 <?php endif; ?>
                 <?php if ($current_user->isAdmin()): ?>
                     <a href="index.php?action=user_management">👥 Users & Groups</a>
-                    <a href="index.php?action=manage_locations">📍 Locations</a>
-                    <a href="index.php?action=manage_stores">🏪 Stores</a>
                     <a href="index.php?action=system_settings">⚙️ System Settings</a>
                 <?php else: ?>
                     <a href="index.php?action=list_groups">👥 Groups</a>

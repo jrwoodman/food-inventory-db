@@ -435,7 +435,7 @@ class InventoryController {
             if ($store->nameExists()) {
                 $error = "A store with this name already exists.";
             } else if ($store->create()) {
-                header('Location: index.php?action=manage_stores&message=Store added successfully');
+                header('Location: index.php?action=system_settings&message=Store added successfully');
                 exit();
             } else {
                 $error = "Unable to add store.";
@@ -473,7 +473,7 @@ class InventoryController {
             if ($store->name !== $original_store->name && $store->nameExists($store->id)) {
                 $error = "A store with this name already exists.";
             } else if ($store->update()) {
-                header('Location: index.php?action=manage_stores&message=Store updated successfully');
+                header('Location: index.php?action=system_settings&message=Store updated successfully');
                 exit();
             } else {
                 $error = "Unable to update store.";
@@ -497,9 +497,9 @@ class InventoryController {
         $store->id = $_GET['id'] ?? 0;
         
         if ($store->hardDelete()) {
-            header('Location: index.php?action=manage_stores&message=Store deleted successfully');
+            header('Location: index.php?action=system_settings&message=Store deleted successfully');
         } else {
-            header('Location: index.php?action=manage_stores&error=Unable to delete store');
+            header('Location: index.php?action=system_settings&error=Unable to delete store');
         }
         exit();
     }
@@ -515,9 +515,9 @@ class InventoryController {
         $store->id = $_GET['id'] ?? 0;
         
         if ($store->toggleActive()) {
-            header('Location: index.php?action=manage_stores&message=Store status updated successfully');
+            header('Location: index.php?action=system_settings&message=Store status updated successfully');
         } else {
-            header('Location: index.php?action=manage_stores&error=Unable to update store status');
+            header('Location: index.php?action=system_settings&error=Unable to update store status');
         }
         exit();
     }
@@ -554,7 +554,7 @@ class InventoryController {
             if ($location->nameExists()) {
                 $error = "A location with this name already exists.";
             } else if ($location->create()) {
-                header('Location: index.php?action=manage_locations&message=Location added successfully');
+                header('Location: index.php?action=system_settings&message=Location added successfully');
                 exit();
             } else {
                 $error = "Unable to add location.";
@@ -583,7 +583,7 @@ class InventoryController {
             if ($location->nameExists($location->id)) {
                 $error = "A location with this name already exists.";
             } else if ($location->update()) {
-                header('Location: index.php?action=manage_locations&message=Location updated successfully');
+                header('Location: index.php?action=system_settings&message=Location updated successfully');
                 exit();
             } else {
                 $error = "Unable to update location.";
@@ -616,7 +616,7 @@ class InventoryController {
             if ($_POST && isset($_POST['migrate_to'])) {
                 if ($location->migrateToLocation($_POST['migrate_to'])) {
                     if ($location->delete()) {
-                        header('Location: index.php?action=manage_locations&message=Location deleted and items migrated successfully');
+                        header('Location: index.php?action=system_settings&message=Location deleted and items migrated successfully');
                         exit();
                     }
                 }
@@ -630,9 +630,9 @@ class InventoryController {
         } else {
             // No items using this location, safe to delete
             if ($location->delete()) {
-                header('Location: index.php?action=manage_locations&message=Location deleted successfully');
+                header('Location: index.php?action=system_settings&message=Location deleted successfully');
             } else {
-                header('Location: index.php?action=manage_locations&error=Unable to delete location');
+                header('Location: index.php?action=system_settings&error=Unable to delete location');
             }
             exit();
         }
@@ -649,9 +649,9 @@ class InventoryController {
         $location->id = $_GET['id'] ?? 0;
         
         if ($location->toggleActive()) {
-            header('Location: index.php?action=manage_locations&message=Location status updated successfully');
+            header('Location: index.php?action=system_settings&message=Location status updated successfully');
         } else {
-            header('Location: index.php?action=manage_locations&error=Unable to update location status');
+            header('Location: index.php?action=system_settings&error=Unable to update location status');
         }
         exit();
     }
@@ -773,7 +773,7 @@ class InventoryController {
         exit();
     }
     
-    // System Settings (Combined Units and Categories)
+    // System Settings (Combined Units, Categories, Stores, and Locations)
     public function systemSettings() {
         // Check if user is admin
         if (!$this->current_user->isAdmin()) {
@@ -803,7 +803,28 @@ class InventoryController {
             $ingredient_categories[] = $row;
         }
         
+        // Get stores
+        $store = new Store($this->db);
+        $stores_stmt = $store->read();
+        $stores = [];
+        while ($row = $stores_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $stores[] = $row;
+        }
+        
+        // Get locations
+        $location = new Location($this->db);
+        $locations_stmt = $location->read();
+        $locations = [];
+        $location_model = new Location($this->db);
+        while ($row = $locations_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $location_model->id = $row['id'];
+            $row['food_count'] = $location_model->getFoodCount();
+            $row['ingredient_count'] = $location_model->getIngredientLocationCount();
+            $locations[] = $row;
+        }
+        
         $current_user = $this->current_user;
+        $db = $this->db; // For location views that need it
         include '../src/views/system_settings.php';
     }
     

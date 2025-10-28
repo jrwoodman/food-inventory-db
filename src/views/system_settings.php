@@ -44,8 +44,6 @@
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <a href="index.php?action=user_management">👥 Users & Groups</a>
-                <a href="index.php?action=manage_locations">📍 Locations</a>
-                <a href="index.php?action=manage_stores">🏪 Stores</a>
                 <a href="index.php?action=system_settings" class="active">⚙️ System Settings</a>
                 <a href="index.php?action=profile">⚙️ Profile</a>
                 <a href="index.php?action=logout">🚪 Logout</a>
@@ -67,6 +65,8 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('units')">📏 Units</button>
             <button class="tab" onclick="showTab('categories')">🏷️ Categories</button>
+            <button class="tab" onclick="showTab('stores')">🏪 Stores</button>
+            <button class="tab" onclick="showTab('locations')">📍 Locations</button>
         </div>
 
         <!-- Units Tab -->
@@ -207,6 +207,148 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stores Tab -->
+        <div id="stores-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Store Locations</h3>
+                    <a href="index.php?action=add_store" class="btn btn-success">+ Add Store</a>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Store Name</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Website</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $store_count = 0;
+                            foreach ($stores as $row): 
+                                $store_count++;
+                            ?>
+                                <tr>
+                                    <td>
+                                        <strong><?php echo htmlspecialchars($row['name']); ?></strong>
+                                        <?php if(!empty($row['notes'])): ?>
+                                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;"><?php echo htmlspecialchars($row['notes']); ?></div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo !empty($row['address']) ? htmlspecialchars($row['address']) : '-'; ?></td>
+                                    <td><?php echo !empty($row['phone']) ? htmlspecialchars($row['phone']) : '-'; ?></td>
+                                    <td>
+                                        <?php if(!empty($row['website'])): ?>
+                                            <a href="<?php echo htmlspecialchars($row['website']); ?>" target="_blank" style="color: var(--accent-primary);">
+                                                Visit →
+                                            </a>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if($row['is_active']): ?>
+                                            <span class="badge badge-success">Active</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger">Inactive</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo date('M j, Y', strtotime($row['created_at'])); ?></td>
+                                    <td class="table-actions">
+                                        <a href="index.php?action=edit_store&id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary">✏️ Edit</a>
+                                        <a href="index.php?action=toggle_store_status&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-secondary"
+                                           onclick="return confirm('Toggle store status?');">
+                                            <?php echo $row['is_active'] ? '🚫 Deactivate' : '✅ Activate'; ?>
+                                        </a>
+                                        <?php if(!$row['is_active']): ?>
+                                            <a href="index.php?action=delete_store&id=<?php echo $row['id']; ?>" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Permanently delete this store?');">
+                                                🗑️ Delete
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <?php if($store_count == 0): ?>
+                                <tr>
+                                    <td colspan="7" class="no-items">
+                                        No stores found. <a href="index.php?action=add_store">Add your first store!</a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locations Tab -->
+        <div id="locations-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Storage Locations</h3>
+                    <a href="index.php?action=add_location" class="btn btn-success">+ Add Location</a>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Items Using</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $location_count = 0;
+                            foreach ($locations as $row): 
+                                $location_count++;
+                                $total_items = $row['food_count'] + $row['ingredient_count'];
+                            ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($row['name']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($row['description'] ?? '-'); ?></td>
+                                    <td>
+                                        <?php if ($row['is_active']): ?>
+                                            <span class="badge badge-success">Active</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger">Inactive</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo $total_items; ?> items (<?php echo $row['food_count']; ?> foods, <?php echo $row['ingredient_count']; ?> ingredient locations)</td>
+                                    <td class="table-actions">
+                                        <a href="index.php?action=edit_location&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-primary">✏️ Edit</a>
+                                        <a href="index.php?action=toggle_location_status&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-secondary">
+                                            <?php echo $row['is_active'] ? '🚫 Deactivate' : '✅ Activate'; ?>
+                                        </a>
+                                        <a href="index.php?action=delete_location&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Are you sure you want to delete this location?');">🗑️ Delete</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <?php if ($location_count == 0): ?>
+                                <tr><td colspan="5" class="no-items">No locations found. <a href="index.php?action=add_location">Add your first location!</a></td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
