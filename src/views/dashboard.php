@@ -39,6 +39,17 @@
         <?php if(isset($_GET['error'])): ?>
             <div class="alert alert-error"><?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
+        
+        <?php if (!$current_user->isAdmin() && (!$foods || !is_object($foods)) && (!$ingredients || !is_object($ingredients))): ?>
+            <div class="alert alert-info">
+                <strong>Welcome!</strong> You're not a member of any groups yet. 
+                <?php if ($current_user->canEdit()): ?>
+                <a href="index.php?action=create_group">Create a group</a> or ask an administrator to add you to an existing group to start managing inventory.
+                <?php else: ?>
+                Please ask an administrator to add you to a group to access inventory.
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
         <!-- Alert Cards Row -->
         <div class="dashboard-grid">
@@ -48,15 +59,17 @@
                 <div class="expiring-items">
                     <?php
                     $expiring_count = 0;
-                    while ($row = $expiring_foods->fetch(PDO::FETCH_ASSOC)): 
-                        $expiring_count++;
-                    ?>
-                        <div class="expiring-item">
-                            <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                            <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?></span>
-                        </div>
-                    <?php endwhile; ?>
-                    <?php if ($expiring_count == 0): ?>
+                    if ($expiring_foods && is_object($expiring_foods)) {
+                        while ($row = $expiring_foods->fetch(PDO::FETCH_ASSOC)): 
+                            $expiring_count++;
+                        ?>
+                            <div class="expiring-item">
+                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?></span>
+                            </div>
+                        <?php endwhile;
+                    }
+                    if ($expiring_count == 0): ?>
                         <p class="no-items">No items expiring soon!</p>
                     <?php endif; ?>
                 </div>
@@ -68,15 +81,17 @@
                 <div class="low-stock-items">
                     <?php
                     $low_stock_count = 0;
-                    while ($row = $low_stock_ingredients->fetch(PDO::FETCH_ASSOC)): 
-                        $low_stock_count++;
-                    ?>
-                        <div class="low-stock-item">
-                            <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                            <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></span>
-                        </div>
-                    <?php endwhile; ?>
-                    <?php if ($low_stock_count == 0): ?>
+                    if ($low_stock_ingredients && is_object($low_stock_ingredients)) {
+                        while ($row = $low_stock_ingredients->fetch(PDO::FETCH_ASSOC)): 
+                            $low_stock_count++;
+                        ?>
+                            <div class="low-stock-item">
+                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></span>
+                            </div>
+                        <?php endwhile;
+                    }
+                    if ($low_stock_count == 0): ?>
                         <p class="no-items">All ingredients well stocked!</p>
                     <?php endif; ?>
                 </div>
@@ -101,32 +116,34 @@
                     <tbody>
                         <?php
                         $ingredient_count = 0;
-                        while ($row = $ingredients->fetch(PDO::FETCH_ASSOC)): 
-                            $ingredient_count++;
-                        ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
-                                <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
-                                <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
-                                <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
-                                <td class="table-actions">
-                                    <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
-                                       class="btn btn-sm btn-primary" 
-                                       title="Edit <?php echo htmlspecialchars($row['name']); ?>">
-                                       ✏️ Edit
-                                    </a>
-                                    <a href="index.php?action=delete_ingredient&id=<?php echo $row['id']; ?>" 
-                                       class="btn btn-sm btn-danger" 
-                                       title="Delete <?php echo htmlspecialchars($row['name']); ?>"
-                                       onclick="return confirm('Are you sure you want to delete this item?')">
-                                       🗑️ Delete
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                        <?php if ($ingredient_count == 0): ?>
-                            <tr><td colspan="6" class="no-items">No ingredients found. <a href="index.php?action=add_ingredient">Add your first ingredient!</a></td></tr>
+                        if ($ingredients && is_object($ingredients)) {
+                            while ($row = $ingredients->fetch(PDO::FETCH_ASSOC)): 
+                                $ingredient_count++;
+                            ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
+                                    <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
+                                    <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
+                                    <td class="table-actions">
+                                        <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-primary" 
+                                           title="Edit <?php echo htmlspecialchars($row['name']); ?>">
+                                           ✏️ Edit
+                                        </a>
+                                        <a href="index.php?action=delete_ingredient&id=<?php echo $row['id']; ?>" 
+                                           class="btn btn-sm btn-danger" 
+                                           title="Delete <?php echo htmlspecialchars($row['name']); ?>"
+                                           onclick="return confirm('Are you sure you want to delete this item?')">
+                                           🗑️ Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endwhile;
+                        }
+                        if ($ingredient_count == 0): ?>
+                            <tr><td colspan="6" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -151,32 +168,34 @@
                         <tbody>
                             <?php
                             $food_count = 0;
-                            while ($row = $foods->fetch(PDO::FETCH_ASSOC)): 
-                                $food_count++;
-                            ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['category']); ?></td>
-                                    <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
-                                    <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                    <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
-                                    <td class="table-actions">
-                                        <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-primary" 
-                                           title="Edit <?php echo htmlspecialchars($row['name']); ?>">
-                                           ✏️ Edit
-                                        </a>
-                                        <a href="index.php?action=delete_food&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-danger" 
-                                           title="Delete <?php echo htmlspecialchars($row['name']); ?>"
-                                           onclick="return confirm('Are you sure you want to delete this item?')">
-                                           🗑️ Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                            <?php if ($food_count == 0): ?>
-                                <tr><td colspan="6" class="no-items">No food items found. <a href="index.php?action=add_food">Add your first food item!</a></td></tr>
+                            if ($foods && is_object($foods)) {
+                                while ($row = $foods->fetch(PDO::FETCH_ASSOC)): 
+                                    $food_count++;
+                                ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['category']); ?></td>
+                                        <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
+                                        <td><?php echo htmlspecialchars($row['location']); ?></td>
+                                        <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
+                                        <td class="table-actions">
+                                            <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" 
+                                               class="btn btn-sm btn-primary" 
+                                               title="Edit <?php echo htmlspecialchars($row['name']); ?>">
+                                               ✏️ Edit
+                                            </a>
+                                            <a href="index.php?action=delete_food&id=<?php echo $row['id']; ?>" 
+                                               class="btn btn-sm btn-danger" 
+                                               title="Delete <?php echo htmlspecialchars($row['name']); ?>"
+                                               onclick="return confirm('Are you sure you want to delete this item?')">
+                                               🗑️ Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile;
+                            }
+                            if ($food_count == 0): ?>
+                                <tr><td colspan="6" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
