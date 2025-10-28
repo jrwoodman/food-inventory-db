@@ -43,7 +43,7 @@ if ($user_model->getUsersCount() == 0 && $action !== 'register') {
 $public_routes = ['login', 'register'];
 
 // Route to appropriate controller
-if (in_array($action, ['login', 'logout', 'register', 'users', 'edit_user', 'delete_user', 'profile', 'revoke_session', 'revoke_all_sessions', 'access_denied'])) {
+if (in_array($action, ['login', 'logout', 'register', 'users', 'edit_user', 'delete_user', 'profile', 'revoke_session', 'revoke_all_sessions', 'access_denied', 'user_management'])) {
     $controller = new UserController();
 } else {
     $controller = new InventoryController();
