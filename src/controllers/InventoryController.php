@@ -313,39 +313,149 @@ class InventoryController {
         $default_group_id = $this->current_user->getDefaultGroupId();
         
         if ($_POST) {
-            $ingredient = new Ingredient($this->db);
+            $mode = $_POST['mode'] ?? 'single';
             
-            $ingredient->name = $_POST['name'];
-            $ingredient->category = $_POST['category'];
-            $ingredient->unit = $_POST['unit'];
-            $ingredient->cost_per_unit = $_POST['cost_per_unit'];
-            $ingredient->supplier = $_POST['supplier'];
-            $ingredient->purchase_date = $_POST['purchase_date'];
-            $ingredient->purchase_location = $_POST['purchase_location'];
-            $ingredient->expiry_date = $_POST['expiry_date'];
-            $ingredient->notes = $_POST['notes'];
-            $ingredient->user_id = $this->current_user->id;
-            $ingredient->group_id = $_POST['group_id'] ?? null;
-            
-            // Handle multiple locations
-            if (isset($_POST['locations']) && is_array($_POST['locations'])) {
-                $ingredient->locations = [];
-                foreach ($_POST['locations'] as $location_data) {
-                    if (!empty($location_data['location']) && !empty($location_data['quantity'])) {
-                        $ingredient->locations[] = [
-                            'location' => $location_data['location'],
-                            'quantity' => floatval($location_data['quantity']),
-                            'notes' => $location_data['notes'] ?? ''
-                        ];
+            if ($mode === 'bulk' && !empty($_POST['bulk_names'])) {
+                // Bulk add mode
+                $lines = array_filter(array_map('trim', explode("\n", $_POST['bulk_names'])));
+                $success_count = 0;
+                $error_count = 0;
+                $default_quantity = $_POST['default_quantity'] ?? 1;
+                $default_location = $_POST['default_location'] ?? '';
+                
+                foreach ($lines as $line) {
+                    // Parse CSV format: Name, Quantity, Expiry Date, Location
+                    $parts = array_map('trim', str_getcsv($line));
+                    $name = $parts[0] ?? '';
+                    $quantity = !empty($parts[1]) ? $parts[1] : $default_quantity;
+                    $expiry_date = !empty($parts[2]) ? $parts[2] : null;
+                    $location = !empty($parts[3]) ? $parts[3] : $default_location;
+                    
+                    if (empty($name) || empty($location)) continue; // Skip if missing required fields
+                    
+                    // Check if ingredient already exists (case-insensitive) in the same group
+                    $group_id = $_POST['group_id'] ?? null;
+                    $check_query = "SELECT id FROM ingredients WHERE LOWER(name) = LOWER(?) AND group_id = ?";
+                    $check_stmt = $this->db->prepare($check_query);
+                    $check_stmt->execute([$name, $group_id]);
+                    $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($existing) {
+                        // Update existing ingredient - add to quantity at the specified location
+                        $ingredient = new Ingredient($this->db);
+                        $ingredient->id = $existing['id'];
+                        if ($ingredient->readOne()) {
+                            // Check if location already exists for this ingredient
+                            $location_exists = false;
+                            foreach ($ingredient->locations as &$loc) {
+                                if ($loc['location'] === $location) {
+                                    $loc['quantity'] += $quantity;
+                                    $location_exists = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!$location_exists) {
+                                // Add new location for this ingredient
+                                $ingredient->locations[] = [
+                                    'location' => $location,
+                                    'quantity' => $quantity,
+                                    'notes' => ''
+                                ];
+                            }
+                            
+                            // Update expiry date if provided
+                            if ($expiry_date) {
+                                $ingredient->expiry_date = $expiry_date;
+                            }
+                            // Update purchase date
+                            if (!empty($_POST['purchase_date'])) {
+                                $ingredient->purchase_date = $_POST['purchase_date'];
+                            }
+                            $ingredient->user_id = $this->current_user->id;
+                            
+                            if ($ingredient->update()) {
+                                $success_count++;
+                            } else {
+                                $error_count++;
+                            }
+                        }
+                    } else {
+                        // Create new ingredient
+                        $ingredient = new Ingredient($this->db);
+                        $ingredient->name = $name;
+                        $ingredient->category = $_POST['category'];
+                        $ingredient->unit = $_POST['unit'];
+                        $ingredient->cost_per_unit = null;
+                        $ingredient->supplier = null;
+                        $ingredient->purchase_date = $_POST['purchase_date'] ?: null;
+                        $ingredient->purchase_location = $_POST['purchase_location'];
+                        $ingredient->expiry_date = $expiry_date;
+                        $ingredient->notes = $_POST['notes'];
+                        $ingredient->user_id = $this->current_user->id;
+                        $ingredient->group_id = $group_id;
+                        
+                        // Add location
+                        $ingredient->locations = [[
+                            'location' => $location,
+                            'quantity' => $quantity,
+                            'notes' => ''
+                        ]];
+                        
+                        if ($ingredient->create()) {
+                            $success_count++;
+                        } else {
+                            $error_count++;
+                        }
                     }
                 }
-            }
-
-            if($ingredient->create()) {
-                header('Location: index.php?action=dashboard&message=Ingredient added successfully');
-                exit();
+                
+                if ($success_count > 0) {
+                    $message = $success_count . ' item(s) added successfully';
+                    if ($error_count > 0) {
+                        $message .= ' (' . $error_count . ' failed)';
+                    }
+                    header('Location: index.php?action=dashboard&message=' . urlencode($message));
+                    exit();
+                } else {
+                    $error = "Unable to add any ingredient items.";
+                }
             } else {
-                $error = "Unable to add ingredient.";
+                // Single add mode
+                $ingredient = new Ingredient($this->db);
+                
+                $ingredient->name = $_POST['name'];
+                $ingredient->category = $_POST['category'];
+                $ingredient->unit = $_POST['unit'];
+                $ingredient->cost_per_unit = $_POST['cost_per_unit'];
+                $ingredient->supplier = $_POST['supplier'];
+                $ingredient->purchase_date = $_POST['purchase_date'];
+                $ingredient->purchase_location = $_POST['purchase_location'];
+                $ingredient->expiry_date = $_POST['expiry_date'];
+                $ingredient->notes = $_POST['notes'];
+                $ingredient->user_id = $this->current_user->id;
+                $ingredient->group_id = $_POST['group_id'] ?? null;
+                
+                // Handle multiple locations
+                if (isset($_POST['locations']) && is_array($_POST['locations'])) {
+                    $ingredient->locations = [];
+                    foreach ($_POST['locations'] as $location_data) {
+                        if (!empty($location_data['location']) && !empty($location_data['quantity'])) {
+                            $ingredient->locations[] = [
+                                'location' => $location_data['location'],
+                                'quantity' => floatval($location_data['quantity']),
+                                'notes' => $location_data['notes'] ?? ''
+                            ];
+                        }
+                    }
+                }
+
+                if($ingredient->create()) {
+                    header('Location: index.php?action=dashboard&message=Ingredient added successfully');
+                    exit();
+                } else {
+                    $error = "Unable to add ingredient.";
+                }
             }
         }
         $current_user = $this->current_user;
