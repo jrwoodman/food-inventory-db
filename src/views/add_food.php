@@ -189,10 +189,10 @@
             <div class="form-container">
                 <form method="POST" class="add-form">
                     <div class="form-group">
-                        <label for="bulk_names">Food Names (one per line) *</label>
+                        <label for="bulk_names">Food Items (one per line) *</label>
                         <textarea id="bulk_names" name="bulk_names" rows="10" required 
-                                  placeholder="e.g.:\nApples\nBananas\nOranges\nMilk\nBread"></textarea>
-                        <small class="form-help">Enter one food item name per line. All items will share the common properties below.</small>
+                                  placeholder="Format: Name, Quantity, Expiry Date\ne.g.:\nApples, 5, 2025-12-15\nBananas, 3\nOranges,,2025-11-30\nMilk, 2\nBread"></textarea>
+                        <small class="form-help">Format: <strong>Name, Quantity, Expiry Date</strong> (quantity and expiry are optional). Items without specific values will use the defaults below.</small>
                     </div>
                     
                     <div class="form-group">
@@ -225,8 +225,9 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bulk_quantity">Quantity (per item) *</label>
-                            <input type="number" id="bulk_quantity" name="quantity" step="0.01" value="1" required>
+                            <label for="bulk_quantity">Default Quantity</label>
+                            <input type="number" id="bulk_quantity" name="default_quantity" step="0.01" value="1">
+                            <small class="form-help">Used when quantity not specified per item</small>
                         </div>
                         
                         <div class="form-group">
@@ -244,16 +245,9 @@
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="bulk_purchase_date">Purchase Date</label>
-                            <input type="date" id="bulk_purchase_date" name="purchase_date">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="bulk_expiry_date">Expiry Date</label>
-                            <input type="date" id="bulk_expiry_date" name="expiry_date">
-                        </div>
+                    <div class="form-group">
+                        <label for="bulk_purchase_date">Purchase Date</label>
+                        <input type="date" id="bulk_purchase_date" name="purchase_date">
                     </div>
                     
                     <div class="form-group">

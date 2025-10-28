@@ -131,17 +131,26 @@ class InventoryController {
             
             if ($mode === 'bulk' && !empty($_POST['bulk_names'])) {
                 // Bulk add mode
-                $names = array_filter(array_map('trim', explode("\n", $_POST['bulk_names'])));
+                $lines = array_filter(array_map('trim', explode("\n", $_POST['bulk_names'])));
                 $success_count = 0;
                 $error_count = 0;
+                $default_quantity = $_POST['default_quantity'] ?? 1;
                 
-                foreach ($names as $name) {
+                foreach ($lines as $line) {
+                    // Parse CSV format: Name, Quantity, Expiry Date
+                    $parts = array_map('trim', str_getcsv($line));
+                    $name = $parts[0] ?? '';
+                    $quantity = !empty($parts[1]) ? $parts[1] : $default_quantity;
+                    $expiry_date = !empty($parts[2]) ? $parts[2] : null;
+                    
+                    if (empty($name)) continue; // Skip empty lines
+                    
                     $food = new Food($this->db);
                     $food->name = $name;
                     $food->category = $_POST['category'];
-                    $food->quantity = $_POST['quantity'];
+                    $food->quantity = $quantity;
                     $food->unit = $_POST['unit'];
-                    $food->expiry_date = $_POST['expiry_date'] ?: null;
+                    $food->expiry_date = $expiry_date;
                     $food->purchase_date = $_POST['purchase_date'] ?: null;
                     $food->purchase_location = $_POST['purchase_location'];
                     $food->location = $_POST['location'];
