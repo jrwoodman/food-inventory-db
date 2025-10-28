@@ -634,6 +634,123 @@ class InventoryController {
         exit();
     }
     
+    // Unit Management Methods
+    public function manageUnits() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $unit = new Unit($this->db);
+        $units_stmt = $unit->read();
+        
+        $units = [];
+        while ($row = $units_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $units[] = $row;
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/manage_units.php';
+    }
+    
+    public function addUnit() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $unit = new Unit($this->db);
+            
+            $unit->name = $_POST['name'];
+            $unit->abbreviation = $_POST['abbreviation'];
+            $unit->description = $_POST['description'];
+            $unit->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($unit->nameExists()) {
+                $error = "A unit with this name already exists.";
+            } else if ($unit->create()) {
+                header('Location: index.php?action=manage_units&message=Unit added successfully');
+                exit();
+            } else {
+                $error = "Unable to add unit.";
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/add_unit.php';
+    }
+    
+    public function editUnit() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $unit = new Unit($this->db);
+        $unit->id = $_GET['id'] ?? 0;
+        
+        if ($_POST) {
+            $unit->name = $_POST['name'];
+            $unit->abbreviation = $_POST['abbreviation'];
+            $unit->description = $_POST['description'];
+            $unit->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($unit->nameExists($unit->id)) {
+                $error = "A unit with this name already exists.";
+            } else if ($unit->update()) {
+                header('Location: index.php?action=manage_units&message=Unit updated successfully');
+                exit();
+            } else {
+                $error = "Unable to update unit.";
+            }
+        } else {
+            $unit->readOne();
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/edit_unit.php';
+    }
+    
+    public function deleteUnit() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $unit = new Unit($this->db);
+        $unit->id = $_GET['id'] ?? 0;
+        
+        if ($unit->delete()) {
+            header('Location: index.php?action=manage_units&message=Unit deleted successfully');
+        } else {
+            header('Location: index.php?action=manage_units&error=Unable to delete unit');
+        }
+        exit();
+    }
+    
+    public function toggleUnitStatus() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $unit = new Unit($this->db);
+        $unit->id = $_GET['id'] ?? 0;
+        
+        if ($unit->toggleActive()) {
+            header('Location: index.php?action=manage_units&message=Unit status updated successfully');
+        } else {
+            header('Location: index.php?action=manage_units&error=Unable to update unit status');
+        }
+        exit();
+    }
+    
     // Meal Tracking Methods
     public function trackMeal() {
         // Check if user can edit

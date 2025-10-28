@@ -91,6 +91,17 @@ CREATE TABLE stores (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create units table for measurement units
+CREATE TABLE units (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    abbreviation VARCHAR(20) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create categories table for better organization
 CREATE TABLE categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -230,6 +241,37 @@ INSERT INTO stores (name, address, phone, website, notes, is_active) VALUES
 ('Local Market', '987 Maple Dr, Anytown, ST 12345', '(555) 678-9012', '', 'Small local grocery store', 1),
 ('Farmers Market', 'Downtown Square, Anytown, ST 12345', '', '', 'Weekly farmers market', 1),
 ('Online Order', '', '', '', 'Various online grocery delivery services', 1);
+
+-- Insert default units
+INSERT INTO units (name, abbreviation, description, is_active) VALUES
+-- Volume
+('Cups', 'cups', 'Standard measuring cups', 1),
+('Tablespoons', 'tbsp', 'Tablespoon measurement', 1),
+('Teaspoons', 'tsp', 'Teaspoon measurement', 1),
+('Fluid Ounces', 'fl oz', 'Fluid ounces', 1),
+('Milliliters', 'ml', 'Milliliters', 1),
+('Liters', 'l', 'Liters', 1),
+('Gallons', 'gal', 'Gallons', 1),
+('Pints', 'pt', 'Pints', 1),
+('Quarts', 'qt', 'Quarts', 1),
+
+-- Weight
+('Ounces', 'oz', 'Ounces (weight)', 1),
+('Pounds', 'lbs', 'Pounds', 1),
+('Grams', 'g', 'Grams', 1),
+('Kilograms', 'kg', 'Kilograms', 1),
+
+-- Count
+('Pieces', 'pcs', 'Individual pieces or items', 1),
+('Dozen', 'doz', 'Dozen (12 items)', 1),
+('Cans', 'cans', 'Canned items', 1),
+('Boxes', 'boxes', 'Boxed items', 1),
+('Bags', 'bags', 'Bagged items', 1),
+('Bottles', 'bottles', 'Bottled items', 1),
+('Jars', 'jars', 'Jarred items', 1),
+('Packages', 'pkgs', 'Packaged items', 1),
+('Loaves', 'loaves', 'Loaves (bread, etc.)', 1),
+('Bunches', 'bunches', 'Bunches (vegetables, etc.)', 1);
 
 -- Insert default admin user (password: admin123)
 -- Note: This is a demo password and should be changed immediately in production
