@@ -191,7 +191,7 @@ class Store {
         $stmt = $this->conn->prepare($query);
         $stmt->execute($params);
         
-        return $stmt->rowCount() > 0;
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     // Toggle active status

@@ -342,6 +342,11 @@ class InventoryController {
         $store->id = $_GET['id'] ?? 0;
         
         if ($_POST) {
+            // Load original data to check if name changed
+            $original_store = new Store($this->db);
+            $original_store->id = $store->id;
+            $original_store->readOne();
+            
             $store->name = $_POST['name'];
             $store->address = $_POST['address'];
             $store->phone = $_POST['phone'];
@@ -349,7 +354,8 @@ class InventoryController {
             $store->notes = $_POST['notes'];
             $store->is_active = isset($_POST['is_active']) ? 1 : 0;
             
-            if ($store->nameExists($store->id)) {
+            // Only check for duplicate name if the name changed
+            if ($store->name !== $original_store->name && $store->nameExists($store->id)) {
                 $error = "A store with this name already exists.";
             } else if ($store->update()) {
                 header('Location: index.php?action=manage_stores&message=Store updated successfully');
