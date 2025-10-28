@@ -668,6 +668,7 @@ class InventoryController {
         }
         
         $current_user = $this->current_user;
+        $db = $this->db; // Pass database connection to view
         include '../src/views/track_meal.php';
     }
     
