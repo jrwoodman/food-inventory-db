@@ -17,6 +17,7 @@ require_once '../src/models/Store.php';
 require_once '../src/models/Location.php';
 require_once '../src/models/Group.php';
 require_once '../src/models/Unit.php';
+require_once '../src/models/Category.php';
 require_once '../src/auth/Auth.php';
 require_once '../src/controllers/InventoryController.php';
 require_once '../src/controllers/UserController.php';
@@ -152,9 +153,9 @@ switch ($action) {
         $controller->toggleLocationStatus();
         break;
         
-    // Unit management routes
-    case 'manage_units':
-        $controller->manageUnits();
+    // System settings (units and categories)
+    case 'system_settings':
+        $controller->systemSettings();
         break;
     case 'add_unit':
         $controller->addUnit();
@@ -168,6 +169,15 @@ switch ($action) {
     case 'toggle_unit_status':
         $controller->toggleUnitStatus();
         break;
+    case 'add_category':
+        $controller->addCategory();
+        break;
+    case 'edit_category':
+        $controller->editCategory();
+        break;
+    case 'delete_category':
+        $controller->deleteCategory();
+        break;
         
     // Meal tracking routes
     case 'track_meal':
@@ -177,7 +187,10 @@ switch ($action) {
         $controller->updateMealItems();
         break;
         
-    // Group management routes
+    // User and group management routes
+    case 'user_management':
+        $controller->userManagement();
+        break;
     case 'list_groups':
         $controller->listGroups();
         break;

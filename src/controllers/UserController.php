@@ -138,6 +138,13 @@ class UserController {
         include '../src/views/auth/register.php';
     }
 
+    public function userManagement() {
+        // For now, redirect to users view - we can enhance this later with tabs like system_settings
+        $this->auth->requireAdmin();
+        header('Location: index.php?action=users');
+        exit();
+    }
+    
     public function users() {
         $this->auth->requireAdmin();
 

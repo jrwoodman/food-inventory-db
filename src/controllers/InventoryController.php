@@ -680,7 +680,7 @@ class InventoryController {
             if ($unit->nameExists()) {
                 $error = "A unit with this name already exists.";
             } else if ($unit->create()) {
-                header('Location: index.php?action=manage_units&message=Unit added successfully');
+                header('Location: index.php?action=system_settings&message=Unit added successfully');
                 exit();
             } else {
                 $error = "Unable to add unit.";
@@ -710,7 +710,7 @@ class InventoryController {
             if ($unit->nameExists($unit->id)) {
                 $error = "A unit with this name already exists.";
             } else if ($unit->update()) {
-                header('Location: index.php?action=manage_units&message=Unit updated successfully');
+                header('Location: index.php?action=system_settings&message=Unit updated successfully');
                 exit();
             } else {
                 $error = "Unable to update unit.";
@@ -734,9 +734,9 @@ class InventoryController {
         $unit->id = $_GET['id'] ?? 0;
         
         if ($unit->delete()) {
-            header('Location: index.php?action=manage_units&message=Unit deleted successfully');
+            header('Location: index.php?action=system_settings&message=Unit deleted successfully');
         } else {
-            header('Location: index.php?action=manage_units&error=Unable to delete unit');
+            header('Location: index.php?action=system_settings&error=Unable to delete unit');
         }
         exit();
     }
@@ -752,9 +752,121 @@ class InventoryController {
         $unit->id = $_GET['id'] ?? 0;
         
         if ($unit->toggleActive()) {
-            header('Location: index.php?action=manage_units&message=Unit status updated successfully');
+            header('Location: index.php?action=system_settings&message=Unit status updated successfully');
         } else {
-            header('Location: index.php?action=manage_units&error=Unable to update unit status');
+            header('Location: index.php?action=system_settings&error=Unable to update unit status');
+        }
+        exit();
+    }
+    
+    // System Settings (Combined Units and Categories)
+    public function systemSettings() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        // Get units
+        $unit = new Unit($this->db);
+        $units_stmt = $unit->read();
+        $units = [];
+        while ($row = $units_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $units[] = $row;
+        }
+        
+        // Get categories
+        $category = new Category($this->db);
+        $food_categories_stmt = $category->read('food');
+        $food_categories = [];
+        while ($row = $food_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $food_categories[] = $row;
+        }
+        
+        $ingredient_categories_stmt = $category->read('ingredient');
+        $ingredient_categories = [];
+        while ($row = $ingredient_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $ingredient_categories[] = $row;
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/system_settings.php';
+    }
+    
+    // Category Management Methods
+    public function addCategory() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $category = new Category($this->db);
+            
+            $category->name = $_POST['name'];
+            $category->type = $_POST['type'];
+            $category->description = $_POST['description'];
+            
+            if ($category->nameExists($category->type)) {
+                $error = "A category with this name already exists for this type.";
+            } else if ($category->create()) {
+                header('Location: index.php?action=system_settings&message=Category added successfully');
+                exit();
+            } else {
+                $error = "Unable to add category.";
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/add_category.php';
+    }
+    
+    public function editCategory() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $category = new Category($this->db);
+        $category->id = $_GET['id'] ?? 0;
+        
+        if ($_POST) {
+            $category->name = $_POST['name'];
+            $category->type = $_POST['type'];
+            $category->description = $_POST['description'];
+            
+            if ($category->nameExists($category->type, $category->id)) {
+                $error = "A category with this name already exists for this type.";
+            } else if ($category->update()) {
+                header('Location: index.php?action=system_settings&message=Category updated successfully');
+                exit();
+            } else {
+                $error = "Unable to update category.";
+            }
+        } else {
+            $category->readOne();
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/edit_category.php';
+    }
+    
+    public function deleteCategory() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $category = new Category($this->db);
+        $category->id = $_GET['id'] ?? 0;
+        
+        if ($category->delete()) {
+            header('Location: index.php?action=system_settings&message=Category deleted successfully');
+        } else {
+            header('Location: index.php?action=system_settings&error=Unable to delete category');
         }
         exit();
     }
