@@ -67,6 +67,13 @@ class Food {
         $stmt->execute();
         return $stmt;
     }
+    
+    public function readByUser($user_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE user_id = ? ORDER BY created_at DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$user_id]);
+        return $stmt;
+    }
 
     public function readOne() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 1";
@@ -151,6 +158,18 @@ class Food {
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$days]);
+        return $stmt;
+    }
+    
+    public function getExpiringItemsByUser($user_id, $days = 7) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE user_id = ?
+                 AND expiry_date <= date('now', '+' || ? || ' days')
+                 AND expiry_date >= date('now')
+                 ORDER BY expiry_date ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$user_id, $days]);
         return $stmt;
     }
 

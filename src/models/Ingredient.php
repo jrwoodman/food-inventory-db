@@ -92,6 +92,19 @@ class Ingredient {
         return $stmt;
     }
     
+    public function readByUser($user_id) {
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  WHERE i.user_id = ?
+                  GROUP BY i.id
+                  ORDER BY i.name";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$user_id]);
+        return $stmt;
+    }
+    
     public function readWithLocations() {
         $query = "SELECT * FROM ingredient_location_details ORDER BY ingredient_name, location";
         $stmt = $this->conn->prepare($query);
@@ -209,6 +222,21 @@ class Ingredient {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":threshold", $threshold);
         $stmt->execute();
+        return $stmt;
+    }
+    
+    public function getLowStockItemsByUser($user_id, $threshold = 10) {
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  WHERE i.user_id = ?
+                  GROUP BY i.id
+                  HAVING total_quantity <= ?
+                  ORDER BY total_quantity ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$user_id, $threshold]);
         return $stmt;
     }
     
