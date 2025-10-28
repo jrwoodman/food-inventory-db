@@ -85,18 +85,30 @@
                                         
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Unit</label>
-                                            <input type="text" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][unit]" 
-                                                   value="<?php echo htmlspecialchars($result['unit']); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][unit]"
+                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                                <option value="">Select unit...</option>
+                                                <?php if (isset($units)): foreach ($units as $unit_option): ?>
+                                                    <option value="<?php echo htmlspecialchars($unit_option); ?>" 
+                                                            <?php echo ($result['unit'] == $unit_option) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($unit_option); ?>
+                                                    </option>
+                                                <?php endforeach; endif; ?>
+                                            </select>
                                         </div>
                                         
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Category</label>
-                                            <input type="text" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][category]" 
-                                                   value="<?php echo htmlspecialchars($result['category'] ?? ''); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][category]"
+                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                                <option value="">Select category...</option>
+                                                <?php if (isset($categories)): foreach ($categories as $cat_option): ?>
+                                                    <option value="<?php echo htmlspecialchars($cat_option); ?>" 
+                                                            <?php echo ($result['category'] == $cat_option) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($cat_option); ?>
+                                                    </option>
+                                                <?php endforeach; endif; ?>
+                                            </select>
                                         </div>
                                         
                                         <div class="form-group" style="margin: 0;">
@@ -111,25 +123,37 @@
                                             <label style="font-size: 0.875rem;">Purchase Date</label>
                                             <input type="date" 
                                                    name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_date]" 
-                                                   value="<?php echo $result['purchase_date'] ?? ''; ?>"
+                                                   value="<?php echo date('Y-m-d'); ?>"
                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
                                         </div>
                                         
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Purchase Location</label>
-                                            <input type="text" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_location]" 
-                                                   value="<?php echo htmlspecialchars($result['purchase_location'] ?? ''); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_location]"
+                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                                <option value="">Select store...</option>
+                                                <?php if (isset($stores)): foreach ($stores as $store): ?>
+                                                    <option value="<?php echo htmlspecialchars($store['name']); ?>" 
+                                                            <?php echo ($result['purchase_location'] == $store['name']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($store['name']); ?>
+                                                    </option>
+                                                <?php endforeach; endif; ?>
+                                            </select>
                                         </div>
                                         
                                         <?php if ($result['type'] === 'food'): ?>
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Storage Location</label>
-                                            <input type="text" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][location]" 
-                                                   value="<?php echo htmlspecialchars($result['location'] ?? ''); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][location]"
+                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
+                                                <option value="">Select location...</option>
+                                                <?php if (isset($locations)): foreach ($locations as $location): ?>
+                                                    <option value="<?php echo htmlspecialchars($location['name']); ?>" 
+                                                            <?php echo ($result['location'] == $location['name']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($location['name']); ?>
+                                                    </option>
+                                                <?php endforeach; endif; ?>
+                                            </select>
                                         </div>
                                         <?php else: ?>
                                         <div class="form-group" style="margin: 0;">
