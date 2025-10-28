@@ -121,11 +121,14 @@ class Unit {
             $query .= " AND id != ?";
         }
         
+        // Clean data the same way as in create/update
+        $clean_name = htmlspecialchars(strip_tags($this->name));
+        
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
-            $stmt->execute([$this->name, $exclude_id]);
+            $stmt->execute([$clean_name, $exclude_id]);
         } else {
-            $stmt->execute([$this->name]);
+            $stmt->execute([$clean_name]);
         }
         
         return $stmt->rowCount() > 0;
@@ -137,11 +140,14 @@ class Unit {
             $query .= " AND id != ?";
         }
         
+        // Clean data the same way as in create/update
+        $clean_abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
+        
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
-            $stmt->execute([$this->abbreviation, $exclude_id]);
+            $stmt->execute([$clean_abbreviation, $exclude_id]);
         } else {
-            $stmt->execute([$this->abbreviation]);
+            $stmt->execute([$clean_abbreviation]);
         }
         
         return $stmt->rowCount() > 0;
