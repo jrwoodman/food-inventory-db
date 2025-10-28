@@ -19,17 +19,27 @@ class InventoryController {
         $food = new Food($this->db);
         $ingredient = new Ingredient($this->db);
         
-        // Filter by current user if not admin
+        // Filter by current user's groups
+        $group_ids = $this->current_user->getGroupIds();
+        
         if ($this->current_user->isAdmin()) {
+            // Admin sees all items
             $foods = $food->read();
             $ingredients = $ingredient->read();
             $expiring_foods = $food->getExpiringItems(7);
             $low_stock_ingredients = $ingredient->getLowStockItems(10);
+        } else if (!empty($group_ids)) {
+            // Regular users see items from their groups
+            $foods = $food->readByGroups($group_ids);
+            $ingredients = $ingredient->readByGroups($group_ids);
+            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, 7);
+            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, 10);
         } else {
-            $foods = $food->readByUser($this->current_user->id);
-            $ingredients = $ingredient->readByUser($this->current_user->id);
-            $expiring_foods = $food->getExpiringItemsByUser($this->current_user->id, 7);
-            $low_stock_ingredients = $ingredient->getLowStockItemsByUser($this->current_user->id, 10);
+            // User not in any group - show empty results
+            $foods = false;
+            $ingredients = false;
+            $expiring_foods = false;
+            $low_stock_ingredients = false;
         }
 
         $current_user = $this->current_user;
@@ -47,6 +57,13 @@ class InventoryController {
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         
+        // Get user's groups for group selection
+        $user_groups = [];
+        $stmt = $this->current_user->getGroups();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $user_groups[] = $row;
+        }
+        
         if ($_POST) {
             $food = new Food($this->db);
             
@@ -60,6 +77,7 @@ class InventoryController {
             $food->location = $_POST['location'];
             $food->notes = $_POST['notes'];
             $food->user_id = $this->current_user->id;
+            $food->group_id = $_POST['group_id'] ?? null;
 
             if($food->create()) {
                 header('Location: index.php?action=dashboard&message=Food added successfully');
@@ -80,6 +98,13 @@ class InventoryController {
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         
+        // Get user's groups for group selection
+        $user_groups = [];
+        $stmt = $this->current_user->getGroups();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $user_groups[] = $row;
+        }
+        
         if ($_POST) {
             $food->name = $_POST['name'];
             $food->category = $_POST['category'];
@@ -91,6 +116,7 @@ class InventoryController {
             $food->location = $_POST['location'];
             $food->notes = $_POST['notes'];
             $food->user_id = $this->current_user->id;
+            $food->group_id = $_POST['group_id'] ?? null;
 
             if($food->update()) {
                 header('Location: index.php?action=dashboard&message=Food updated successfully');
@@ -129,6 +155,13 @@ class InventoryController {
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         
+        // Get user's groups for group selection
+        $user_groups = [];
+        $stmt = $this->current_user->getGroups();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $user_groups[] = $row;
+        }
+        
         if ($_POST) {
             $ingredient = new Ingredient($this->db);
             
@@ -142,6 +175,7 @@ class InventoryController {
             $ingredient->expiry_date = $_POST['expiry_date'];
             $ingredient->notes = $_POST['notes'];
             $ingredient->user_id = $this->current_user->id;
+            $ingredient->group_id = $_POST['group_id'] ?? null;
             
             // Handle multiple locations
             if (isset($_POST['locations']) && is_array($_POST['locations'])) {
@@ -221,6 +255,13 @@ class InventoryController {
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         
+        // Get user's groups for group selection
+        $user_groups = [];
+        $stmt = $this->current_user->getGroups();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $user_groups[] = $row;
+        }
+        
         if ($_POST) {
             $ingredient->name = $_POST['name'];
             $ingredient->category = $_POST['category'];
@@ -232,6 +273,7 @@ class InventoryController {
             $ingredient->expiry_date = $_POST['expiry_date'];
             $ingredient->notes = $_POST['notes'];
             $ingredient->user_id = $this->current_user->id;
+            $ingredient->group_id = $_POST['group_id'] ?? null;
             
             // Handle multiple locations
             if (isset($_POST['locations']) && is_array($_POST['locations'])) {
@@ -701,6 +743,207 @@ class InventoryController {
             }
         } else {
             header('Location: index.php?action=track_meal');
+        }
+        exit();
+    }
+    
+    // Group Management Methods
+    public function listGroups() {
+        $group = new Group($this->db);
+        $stmt = $this->current_user->getGroups();
+        $groups = [];
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $group->id = $row['id'];
+            $row['member_count'] = $group->getMemberCount();
+            $row['inventory_counts'] = $group->getInventoryCounts();
+            $groups[] = $row;
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/groups/list_groups.php';
+    }
+    
+    public function createGroup() {
+        // Check if user can create groups (admin or user role)
+        if (!$this->current_user->canEdit()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $group = new Group($this->db);
+            
+            $group->name = $_POST['name'];
+            $group->description = $_POST['description'];
+            
+            if ($group->create()) {
+                // Add the creator as owner
+                $group->addMember($this->current_user->id, 'owner');
+                
+                header('Location: index.php?action=list_groups&message=Group created successfully');
+                exit();
+            } else {
+                $error = "Unable to create group.";
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/groups/create_group.php';
+    }
+    
+    public function editGroup() {
+        $group = new Group($this->db);
+        $group->id = $_GET['id'] ?? 0;
+        
+        // Check if user is group owner or admin
+        $membership = $this->current_user->isMemberOfGroup($group->id);
+        if (!$this->current_user->isAdmin() && (!$membership || !in_array($membership['role'], ['owner', 'admin']))) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($_POST) {
+            $group->name = $_POST['name'];
+            $group->description = $_POST['description'];
+            
+            if ($group->update()) {
+                header('Location: index.php?action=list_groups&message=Group updated successfully');
+                exit();
+            } else {
+                $error = "Unable to update group.";
+            }
+        } else {
+            $group->readOne();
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/groups/edit_group.php';
+    }
+    
+    public function deleteGroup() {
+        $group = new Group($this->db);
+        $group->id = $_GET['id'] ?? 0;
+        
+        // Check if user is group owner or admin
+        $membership = $this->current_user->isMemberOfGroup($group->id);
+        if (!$this->current_user->isAdmin() && (!$membership || $membership['role'] !== 'owner')) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($group->delete()) {
+            header('Location: index.php?action=list_groups&message=Group deleted successfully');
+        } else {
+            header('Location: index.php?action=list_groups&error=Unable to delete group');
+        }
+        exit();
+    }
+    
+    public function manageGroupMembers() {
+        $group = new Group($this->db);
+        $group->id = $_GET['id'] ?? 0;
+        $group->readOne();
+        
+        // Check if user is group owner/admin or system admin
+        $membership = $this->current_user->isMemberOfGroup($group->id);
+        if (!$this->current_user->isAdmin() && (!$membership || !in_array($membership['role'], ['owner', 'admin']))) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $members_stmt = $group->getMembers();
+        $members = [];
+        while ($row = $members_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $members[] = $row;
+        }
+        
+        // Get all users for add member dropdown
+        $user = new User($this->db);
+        $users_stmt = $user->read();
+        $all_users = [];
+        while ($row = $users_stmt->fetch(PDO::FETCH_ASSOC)) {
+            // Exclude users who are already members
+            $is_member = false;
+            foreach ($members as $member) {
+                if ($member['id'] == $row['id']) {
+                    $is_member = true;
+                    break;
+                }
+            }
+            if (!$is_member) {
+                $all_users[] = $row;
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/groups/manage_members.php';
+    }
+    
+    public function addGroupMember() {
+        if ($_POST) {
+            $group = new Group($this->db);
+            $group->id = $_POST['group_id'] ?? 0;
+            
+            // Check if user is group owner/admin or system admin
+            $membership = $this->current_user->isMemberOfGroup($group->id);
+            if (!$this->current_user->isAdmin() && (!$membership || !in_array($membership['role'], ['owner', 'admin']))) {
+                header('Location: index.php?action=access_denied');
+                exit();
+            }
+            
+            $user_id = $_POST['user_id'];
+            $role = $_POST['role'] ?? 'member';
+            
+            if ($group->addMember($user_id, $role)) {
+                header('Location: index.php?action=manage_group_members&id=' . $group->id . '&message=Member added successfully');
+            } else {
+                header('Location: index.php?action=manage_group_members&id=' . $group->id . '&error=Unable to add member');
+            }
+        }
+        exit();
+    }
+    
+    public function updateGroupMemberRole() {
+        if ($_POST) {
+            $group = new Group($this->db);
+            $group->id = $_POST['group_id'] ?? 0;
+            
+            // Check if user is group owner/admin or system admin
+            $membership = $this->current_user->isMemberOfGroup($group->id);
+            if (!$this->current_user->isAdmin() && (!$membership || !in_array($membership['role'], ['owner', 'admin']))) {
+                header('Location: index.php?action=access_denied');
+                exit();
+            }
+            
+            $user_id = $_POST['user_id'];
+            $role = $_POST['role'];
+            
+            if ($group->updateMemberRole($user_id, $role)) {
+                header('Location: index.php?action=manage_group_members&id=' . $group->id . '&message=Role updated successfully');
+            } else {
+                header('Location: index.php?action=manage_group_members&id=' . $group->id . '&error=Unable to update role');
+            }
+        }
+        exit();
+    }
+    
+    public function removeGroupMember() {
+        $group = new Group($this->db);
+        $group->id = $_GET['group_id'] ?? 0;
+        $user_id = $_GET['user_id'] ?? 0;
+        
+        // Check if user is group owner/admin or system admin
+        $membership = $this->current_user->isMemberOfGroup($group->id);
+        if (!$this->current_user->isAdmin() && (!$membership || !in_array($membership['role'], ['owner', 'admin']))) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        if ($group->removeMember($user_id)) {
+            header('Location: index.php?action=manage_group_members&id=' . $group->id . '&message=Member removed successfully');
+        } else {
+            header('Location: index.php?action=manage_group_members&id=' . $group->id . '&error=Unable to remove member');
         }
         exit();
     }

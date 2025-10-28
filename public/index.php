@@ -15,6 +15,7 @@ require_once '../src/models/Ingredient.php';
 require_once '../src/models/User.php';
 require_once '../src/models/Store.php';
 require_once '../src/models/Location.php';
+require_once '../src/models/Group.php';
 require_once '../src/auth/Auth.php';
 require_once '../src/controllers/InventoryController.php';
 require_once '../src/controllers/UserController.php';
@@ -156,6 +157,32 @@ switch ($action) {
         break;
     case 'update_meal_items':
         $controller->updateMealItems();
+        break;
+        
+    // Group management routes
+    case 'list_groups':
+        $controller->listGroups();
+        break;
+    case 'create_group':
+        $controller->createGroup();
+        break;
+    case 'edit_group':
+        $controller->editGroup();
+        break;
+    case 'delete_group':
+        $controller->deleteGroup();
+        break;
+    case 'manage_group_members':
+        $controller->manageGroupMembers();
+        break;
+    case 'add_group_member':
+        $controller->addGroupMember();
+        break;
+    case 'update_group_member_role':
+        $controller->updateGroupMemberRole();
+        break;
+    case 'remove_group_member':
+        $controller->removeGroupMember();
         break;
         
     default:

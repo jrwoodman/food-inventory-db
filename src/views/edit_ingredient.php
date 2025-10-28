@@ -51,6 +51,21 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="group_id">Group *</label>
+                    <select id="group_id" name="group_id" required>
+                        <option value="">Select Group</option>
+                        <?php if(isset($user_groups) && !empty($user_groups)): ?>
+                            <?php foreach($user_groups as $group): ?>
+                                <option value="<?php echo $group['id']; ?>" <?php echo ($ingredient->group_id ?? '') == $group['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($group['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="form-help">Select which group this ingredient belongs to</small>
+                </div>
+
+                <div class="form-group">
                     <label for="unit">Unit</label>
                     <select id="unit" name="unit">
                         <option value="oz" <?php echo ($ingredient->unit ?? '') === 'oz' ? 'selected' : ''; ?>>Ounces</option>

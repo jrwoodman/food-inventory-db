@@ -14,6 +14,7 @@ class Food {
     public $location;
     public $notes;
     public $user_id;
+    public $group_id;
     public $created_at;
     public $updated_at;
 
@@ -24,8 +25,8 @@ class Food {
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
                  (name, category, quantity, unit, expiry_date, purchase_date, 
-                  purchase_location, location, notes, user_id, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                  purchase_location, location, notes, user_id, group_id, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -40,6 +41,7 @@ class Food {
         $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
         $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
         $this->user_id = $this->user_id ?? null;
+        $this->group_id = $this->group_id ?? null;
 
         $stmt->execute([
             $this->name,
@@ -51,7 +53,8 @@ class Food {
             $this->purchase_location,
             $this->location,
             $this->notes,
-            $this->user_id
+            $this->user_id,
+            $this->group_id
         ]);
 
         if($stmt->rowCount()) {
@@ -75,6 +78,21 @@ class Food {
         return $stmt;
     }
 
+    public function readByGroups($group_ids) {
+        if (empty($group_ids)) {
+            return false;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE group_id IN ($placeholders) 
+                  ORDER BY created_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($group_ids);
+        return $stmt;
+    }
+
     public function readOne() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 1";
         $stmt = $this->conn->prepare($query);
@@ -94,6 +112,7 @@ class Food {
             $this->location = $row['location'];
             $this->notes = $row['notes'];
             $this->user_id = $row['user_id'];
+            $this->group_id = $row['group_id'];
             $this->created_at = $row['created_at'];
             $this->updated_at = $row['updated_at'];
             return true;
@@ -105,7 +124,7 @@ class Food {
         $query = "UPDATE " . $this->table_name . "
                  SET name = ?, category = ?, quantity = ?, unit = ?, 
                      expiry_date = ?, purchase_date = ?, purchase_location = ?,
-                     location = ?, notes = ?, user_id = ?, updated_at = CURRENT_TIMESTAMP
+                     location = ?, notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
                  WHERE id = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -121,6 +140,7 @@ class Food {
         $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
         $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
         $this->user_id = $this->user_id ?? null;
+        $this->group_id = $this->group_id ?? null;
 
         $stmt->execute([
             $this->name,
@@ -133,6 +153,7 @@ class Food {
             $this->location,
             $this->notes,
             $this->user_id,
+            $this->group_id,
             $this->id
         ]);
 
@@ -170,6 +191,24 @@ class Food {
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id, $days]);
+        return $stmt;
+    }
+
+    public function getExpiringItemsByGroups($group_ids, $days = 7) {
+        if (empty($group_ids)) {
+            return false;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE group_id IN ($placeholders)
+                 AND expiry_date <= date('now', '+' || ? || ' days')
+                 AND expiry_date >= date('now')
+                 ORDER BY expiry_date ASC";
+        
+        $params = array_merge($group_ids, [$days]);
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
         return $stmt;
     }
 

@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS foods;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS stores;
+DROP TABLE IF EXISTS user_groups;
+DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS users;
 
@@ -41,6 +43,27 @@ CREATE TABLE user_sessions (
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create groups table for shared inventory management
+CREATE TABLE groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create user_groups junction table for many-to-many relationship
+CREATE TABLE user_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    group_id INTEGER NOT NULL,
+    role TEXT CHECK(role IN ('owner', 'admin', 'member')) DEFAULT 'member',
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    UNIQUE(user_id, group_id)
 );
 
 -- Create locations table for storage locations
@@ -89,9 +112,11 @@ CREATE TABLE foods (
     location VARCHAR(255),
     notes TEXT,
     user_id INTEGER,
+    group_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
 );
 
 -- Create ingredients table (master ingredient info)
@@ -107,9 +132,11 @@ CREATE TABLE ingredients (
     expiry_date DATE,
     notes TEXT,
     user_id INTEGER,
+    group_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
 );
 
 -- Create ingredient_locations table (quantities per location)
@@ -207,16 +234,24 @@ INSERT INTO stores (name, address, phone, website, notes, is_active) VALUES
 INSERT INTO users (username, email, password_hash, first_name, last_name, role, is_active) VALUES
 ('admin', 'admin@foodinventory.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System', 'Administrator', 'admin', 1);
 
--- Insert some sample data for demonstration
-INSERT INTO foods (name, category, quantity, unit, expiry_date, purchase_date, purchase_location, location, notes) VALUES
-('Bananas', 'Fruits', 6, 'pieces', date('now', '+5 days'), date('now'), 'Walmart', 'Counter', 'Yellow, ripe'),
-('Milk', 'Dairy', 1, 'liter', date('now', '+7 days'), date('now'), 'Kroger', 'Refrigerator', '2% fat'),
-('Bread', 'Grains', 1, 'loaf', date('now', '+3 days'), date('now'), 'Local Market', 'Pantry', 'Whole wheat');
+-- Insert default group for existing users and data
+INSERT INTO groups (name, description) VALUES
+('Default Group', 'Default group for existing users and inventory items');
 
-INSERT INTO ingredients (name, category, unit, cost_per_unit, supplier, purchase_date, purchase_location, expiry_date, notes) VALUES
-('Salt', 'Salt', 'g', 0.002, 'Local Grocery', date('now'), 'Local Market', date('now', '+365 days'), 'Table salt'),
-('Black Pepper', 'Spices', 'g', 0.20, 'Spice Shop', date('now'), 'Whole Foods', date('now', '+180 days'), 'Freshly ground'),
-('Olive Oil', 'Oils', 'ml', 0.02, 'Market', date('now'), 'Costco', date('now', '+730 days'), 'Extra virgin');
+-- Assign admin user to default group as owner
+INSERT INTO user_groups (user_id, group_id, role) VALUES
+(1, 1, 'owner');
+
+-- Insert some sample data for demonstration (assigned to default group)
+INSERT INTO foods (name, category, quantity, unit, expiry_date, purchase_date, purchase_location, location, notes, group_id) VALUES
+('Bananas', 'Fruits', 6, 'pieces', date('now', '+5 days'), date('now'), 'Walmart', 'Counter', 'Yellow, ripe', 1),
+('Milk', 'Dairy', 1, 'liter', date('now', '+7 days'), date('now'), 'Kroger', 'Refrigerator', '2% fat', 1),
+('Bread', 'Grains', 1, 'loaf', date('now', '+3 days'), date('now'), 'Local Market', 'Pantry', 'Whole wheat', 1);
+
+INSERT INTO ingredients (name, category, unit, cost_per_unit, supplier, purchase_date, purchase_location, expiry_date, notes, group_id) VALUES
+('Salt', 'Salt', 'g', 0.002, 'Local Grocery', date('now'), 'Local Market', date('now', '+365 days'), 'Table salt', 1),
+('Black Pepper', 'Spices', 'g', 0.20, 'Spice Shop', date('now'), 'Whole Foods', date('now', '+180 days'), 'Freshly ground', 1),
+('Olive Oil', 'Oils', 'ml', 0.02, 'Market', date('now'), 'Costco', date('now', '+730 days'), 'Extra virgin', 1);
 
 -- Insert ingredient location data
 INSERT INTO ingredient_locations (ingredient_id, location, quantity, notes) VALUES

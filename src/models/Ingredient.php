@@ -15,6 +15,7 @@ class Ingredient {
     public $expiry_date;
     public $notes;
     public $user_id;
+    public $group_id;
     public $created_at;
     public $updated_at;
     
@@ -32,8 +33,8 @@ class Ingredient {
             // Insert into ingredients table (without quantity/location)
             $query = "INSERT INTO " . $this->table_name . "
                      (name, category, unit, cost_per_unit, supplier, purchase_date, 
-                      purchase_location, expiry_date, notes, user_id, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                      purchase_location, expiry_date, notes, user_id, group_id, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
             $stmt = $this->conn->prepare($query);
 
@@ -48,6 +49,7 @@ class Ingredient {
             $this->expiry_date = $this->expiry_date ?: null;
             $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
             $this->user_id = $this->user_id ?? null;
+            $this->group_id = $this->group_id ?? null;
 
             $stmt->execute([
                 $this->name,
@@ -59,7 +61,8 @@ class Ingredient {
                 $this->purchase_location,
                 $this->expiry_date,
                 $this->notes,
-                $this->user_id
+                $this->user_id,
+                $this->group_id
             ]);
 
             if(!$stmt->rowCount()) {
@@ -104,6 +107,25 @@ class Ingredient {
         $stmt->execute([$user_id]);
         return $stmt;
     }
+
+    public function readByGroups($group_ids) {
+        if (empty($group_ids)) {
+            return false;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  WHERE i.group_id IN ($placeholders)
+                  GROUP BY i.id
+                  ORDER BY i.name";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($group_ids);
+        return $stmt;
+    }
     
     public function readWithLocations() {
         $query = "SELECT * FROM ingredient_location_details ORDER BY ingredient_name, location";
@@ -131,6 +153,7 @@ class Ingredient {
             $this->expiry_date = $row['expiry_date'];
             $this->notes = $row['notes'];
             $this->user_id = $row['user_id'];
+            $this->group_id = $row['group_id'];
             $this->created_at = $row['created_at'];
             $this->updated_at = $row['updated_at'];
             
@@ -150,7 +173,7 @@ class Ingredient {
             $query = "UPDATE " . $this->table_name . "
                      SET name = ?, category = ?, unit = ?, cost_per_unit = ?, 
                          supplier = ?, purchase_date = ?, purchase_location = ?,
-                         expiry_date = ?, notes = ?, user_id = ?, updated_at = CURRENT_TIMESTAMP
+                         expiry_date = ?, notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
                      WHERE id = ?";
 
             $stmt = $this->conn->prepare($query);
@@ -166,6 +189,7 @@ class Ingredient {
             $this->expiry_date = $this->expiry_date ?: null;
             $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
             $this->user_id = $this->user_id ?? null;
+            $this->group_id = $this->group_id ?? null;
 
             $stmt->execute([
                 $this->name,
@@ -178,6 +202,7 @@ class Ingredient {
                 $this->expiry_date,
                 $this->notes,
                 $this->user_id,
+                $this->group_id,
                 $this->id
             ]);
 
@@ -237,6 +262,27 @@ class Ingredient {
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id, $threshold]);
+        return $stmt;
+    }
+
+    public function getLowStockItemsByGroups($group_ids, $threshold = 10) {
+        if (empty($group_ids)) {
+            return false;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  WHERE i.group_id IN ($placeholders)
+                  GROUP BY i.id
+                  HAVING total_quantity <= ?
+                  ORDER BY total_quantity ASC";
+        
+        $params = array_merge($group_ids, [$threshold]);
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
         return $stmt;
     }
     

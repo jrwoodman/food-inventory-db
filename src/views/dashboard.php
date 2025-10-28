@@ -18,12 +18,13 @@
                     <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
                     <a href="index.php?action=track_meal">🍴 Track Meal</a>
                 <?php endif; ?>
+                <a href="index.php?action=list_groups">👥 Groups</a>
                 <?php if ($current_user->isAdmin()): ?>
-                    <a href="index.php?action=users">👥 Users</a>
+                    <a href="index.php?action=users">👤 Users</a>
                     <a href="index.php?action=manage_locations">📍 Locations</a>
                     <a href="index.php?action=manage_stores">🏪 Stores</a>
                 <?php endif; ?>
-                <a href="index.php?action=profile">👤 Profile</a>
+                <a href="index.php?action=profile">⚙️ Profile</a>
                 <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>

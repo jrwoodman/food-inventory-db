@@ -207,5 +207,63 @@ class User {
     public function canView() {
         return in_array($this->role, ['admin', 'user', 'viewer']);
     }
+
+    /**
+     * Get all groups the user belongs to
+     */
+    public function getGroups() {
+        $query = "SELECT g.id, g.name, g.description, ug.role, ug.joined_at
+                  FROM groups g
+                  INNER JOIN user_groups ug ON g.id = ug.group_id
+                  WHERE ug.user_id = :user_id
+                  ORDER BY g.name ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $this->id);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+    /**
+     * Get group IDs for the user (for filtering inventory)
+     */
+    public function getGroupIds() {
+        $query = "SELECT group_id FROM user_groups WHERE user_id = :user_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $this->id);
+        $stmt->execute();
+        
+        $group_ids = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $group_ids[] = $row['group_id'];
+        }
+        
+        return $group_ids;
+    }
+
+    /**
+     * Check if user is member of a specific group
+     */
+    public function isMemberOfGroup($group_id) {
+        $query = "SELECT role FROM user_groups 
+                  WHERE user_id = :user_id AND group_id = :group_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $this->id);
+        $stmt->bindParam(":group_id", $group_id);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get user's role in a specific group
+     */
+    public function getGroupRole($group_id) {
+        $membership = $this->isMemberOfGroup($group_id);
+        return $membership ? $membership['role'] : null;
+    }
 }
 ?>
