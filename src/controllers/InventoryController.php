@@ -208,26 +208,61 @@ class InventoryController {
                     $error = "Unable to add any food items.";
                 }
             } else {
-                // Single add mode
-                $food = new Food($this->db);
+                // Single add mode - check for duplicates
+                $name = $_POST['name'];
+                $location = $_POST['location'];
+                $group_id = $_POST['group_id'] ?? null;
                 
-                $food->name = $_POST['name'];
-                $food->category = $_POST['category'];
-                $food->quantity = $_POST['quantity'];
-                $food->unit = $_POST['unit'];
-                $food->expiry_date = $_POST['expiry_date'];
-                $food->purchase_date = $_POST['purchase_date'];
-                $food->purchase_location = $_POST['purchase_location'];
-                $food->location = $_POST['location'];
-                $food->notes = $_POST['notes'];
-                $food->user_id = $this->current_user->id;
-                $food->group_id = $_POST['group_id'] ?? null;
-
-                if($food->create()) {
-                    header('Location: index.php?action=dashboard&message=Food added successfully');
-                    exit();
+                // Check if item with same name and location already exists in this group
+                $check_query = "SELECT id, quantity FROM foods WHERE LOWER(name) = LOWER(?) AND location = ? AND group_id = ?";
+                $check_stmt = $this->db->prepare($check_query);
+                $check_stmt->execute([$name, $location, $group_id]);
+                $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($existing) {
+                    // Update existing item - add to quantity
+                    $food = new Food($this->db);
+                    $food->id = $existing['id'];
+                    if ($food->readOne()) {
+                        $food->quantity = $existing['quantity'] + $_POST['quantity'];
+                        // Update other fields
+                        if (!empty($_POST['expiry_date'])) {
+                            $food->expiry_date = $_POST['expiry_date'];
+                        }
+                        if (!empty($_POST['purchase_date'])) {
+                            $food->purchase_date = $_POST['purchase_date'];
+                        }
+                        $food->user_id = $this->current_user->id;
+                        
+                        if ($food->update()) {
+                            header('Location: index.php?action=dashboard&message=Food quantity updated successfully');
+                            exit();
+                        } else {
+                            $error = "Unable to update food item.";
+                        }
+                    }
                 } else {
-                    $error = "Unable to add food item.";
+                    // Create new item
+                    $food = new Food($this->db);
+                    
+                    $food->name = $name;
+                    $food->category = $_POST['category'];
+                    $food->quantity = $_POST['quantity'];
+                    $food->unit = $_POST['unit'];
+                    $food->expiry_date = $_POST['expiry_date'];
+                    $food->purchase_date = $_POST['purchase_date'];
+                    $food->purchase_location = $_POST['purchase_location'];
+                    $food->location = $location;
+                    $food->notes = $_POST['notes'];
+                    $food->user_id = $this->current_user->id;
+                    $food->group_id = $group_id;
+
+                    if($food->create()) {
+                        header('Location: index.php?action=dashboard&message=Food added successfully');
+                        exit();
+                    } else {
+                        $error = "Unable to add food item.";
+                    }
                 }
             }
         }
