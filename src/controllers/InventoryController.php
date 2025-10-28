@@ -145,23 +145,55 @@ class InventoryController {
                     
                     if (empty($name)) continue; // Skip empty lines
                     
-                    $food = new Food($this->db);
-                    $food->name = $name;
-                    $food->category = $_POST['category'];
-                    $food->quantity = $quantity;
-                    $food->unit = $_POST['unit'];
-                    $food->expiry_date = $expiry_date;
-                    $food->purchase_date = $_POST['purchase_date'] ?: null;
-                    $food->purchase_location = $_POST['purchase_location'];
-                    $food->location = $_POST['location'];
-                    $food->notes = $_POST['notes'];
-                    $food->user_id = $this->current_user->id;
-                    $food->group_id = $_POST['group_id'] ?? null;
+                    // Check if item already exists (case-insensitive) in the same group
+                    $group_id = $_POST['group_id'] ?? null;
+                    $check_query = "SELECT id, quantity FROM foods WHERE LOWER(name) = LOWER(?) AND group_id = ?";
+                    $check_stmt = $this->db->prepare($check_query);
+                    $check_stmt->execute([$name, $group_id]);
+                    $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
                     
-                    if ($food->create()) {
-                        $success_count++;
+                    if ($existing) {
+                        // Update existing item - add to quantity
+                        $food = new Food($this->db);
+                        $food->id = $existing['id'];
+                        if ($food->readOne()) {
+                            $food->quantity = $existing['quantity'] + $quantity;
+                            // Update expiry date if provided
+                            if ($expiry_date) {
+                                $food->expiry_date = $expiry_date;
+                            }
+                            // Update purchase date
+                            if (!empty($_POST['purchase_date'])) {
+                                $food->purchase_date = $_POST['purchase_date'];
+                            }
+                            $food->user_id = $this->current_user->id;
+                            
+                            if ($food->update()) {
+                                $success_count++;
+                            } else {
+                                $error_count++;
+                            }
+                        }
                     } else {
-                        $error_count++;
+                        // Create new item
+                        $food = new Food($this->db);
+                        $food->name = $name;
+                        $food->category = $_POST['category'];
+                        $food->quantity = $quantity;
+                        $food->unit = $_POST['unit'];
+                        $food->expiry_date = $expiry_date;
+                        $food->purchase_date = $_POST['purchase_date'] ?: null;
+                        $food->purchase_location = $_POST['purchase_location'];
+                        $food->location = $_POST['location'];
+                        $food->notes = $_POST['notes'];
+                        $food->user_id = $this->current_user->id;
+                        $food->group_id = $group_id;
+                        
+                        if ($food->create()) {
+                            $success_count++;
+                        } else {
+                            $error_count++;
+                        }
                     }
                 }
                 
