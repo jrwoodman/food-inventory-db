@@ -16,6 +16,7 @@ require_once '../src/models/User.php';
 require_once '../src/models/Store.php';
 require_once '../src/models/Location.php';
 require_once '../src/models/Group.php';
+require_once '../src/models/Unit.php';
 require_once '../src/auth/Auth.php';
 require_once '../src/controllers/InventoryController.php';
 require_once '../src/controllers/UserController.php';
@@ -149,6 +150,23 @@ switch ($action) {
         break;
     case 'toggle_location_status':
         $controller->toggleLocationStatus();
+        break;
+        
+    // Unit management routes
+    case 'manage_units':
+        $controller->manageUnits();
+        break;
+    case 'add_unit':
+        $controller->addUnit();
+        break;
+    case 'edit_unit':
+        $controller->editUnit();
+        break;
+    case 'delete_unit':
+        $controller->deleteUnit();
+        break;
+    case 'toggle_unit_status':
+        $controller->toggleUnitStatus();
         break;
         
     // Meal tracking routes

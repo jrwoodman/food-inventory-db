@@ -23,6 +23,7 @@
                     <a href="index.php?action=users">👤 Users</a>
                     <a href="index.php?action=manage_locations">📍 Locations</a>
                     <a href="index.php?action=manage_stores">🏪 Stores</a>
+                    <a href="index.php?action=manage_units">📏 Units</a>
                 <?php endif; ?>
                 <a href="index.php?action=profile">⚙️ Profile</a>
                 <a href="index.php?action=logout">🚪 Logout</a>
