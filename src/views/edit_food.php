@@ -36,17 +36,16 @@
                     <label for="category">Category</label>
                     <select id="category" name="category">
                         <option value="">Select Category</option>
-                        <option value="Fruits" <?php echo ($food->category ?? '') === 'Fruits' ? 'selected' : ''; ?>>Fruits</option>
-                        <option value="Vegetables" <?php echo ($food->category ?? '') === 'Vegetables' ? 'selected' : ''; ?>>Vegetables</option>
-                        <option value="Meat" <?php echo ($food->category ?? '') === 'Meat' ? 'selected' : ''; ?>>Meat</option>
-                        <option value="Dairy" <?php echo ($food->category ?? '') === 'Dairy' ? 'selected' : ''; ?>>Dairy</option>
-                        <option value="Grains" <?php echo ($food->category ?? '') === 'Grains' ? 'selected' : ''; ?>>Grains</option>
-                        <option value="Beverages" <?php echo ($food->category ?? '') === 'Beverages' ? 'selected' : ''; ?>>Beverages</option>
-                        <option value="Snacks" <?php echo ($food->category ?? '') === 'Snacks' ? 'selected' : ''; ?>>Snacks</option>
-                        <option value="Frozen" <?php echo ($food->category ?? '') === 'Frozen' ? 'selected' : ''; ?>>Frozen</option>
-                        <option value="Canned" <?php echo ($food->category ?? '') === 'Canned' ? 'selected' : ''; ?>>Canned</option>
-                        <option value="Other" <?php echo ($food->category ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                        <?php if(isset($food_categories) && !empty($food_categories)): ?>
+                            <?php foreach($food_categories as $category): ?>
+                                <option value="<?php echo htmlspecialchars($category['name']); ?>"
+                                    <?php echo ($food->category ?? '') === $category['name'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($category['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">Categories can be managed by admins</small>
                 </div>
 
                 <div class="form-group">
@@ -73,16 +72,18 @@
                     <div class="form-group">
                         <label for="unit">Unit</label>
                         <select id="unit" name="unit">
-                            <option value="pieces" <?php echo ($food->unit ?? '') === 'pieces' ? 'selected' : ''; ?>>Pieces</option>
-                            <option value="lbs" <?php echo ($food->unit ?? '') === 'lbs' ? 'selected' : ''; ?>>Pounds</option>
-                            <option value="kg" <?php echo ($food->unit ?? '') === 'kg' ? 'selected' : ''; ?>>Kilograms</option>
-                            <option value="oz" <?php echo ($food->unit ?? '') === 'oz' ? 'selected' : ''; ?>>Ounces</option>
-                            <option value="g" <?php echo ($food->unit ?? '') === 'g' ? 'selected' : ''; ?>>Grams</option>
-                            <option value="cups" <?php echo ($food->unit ?? '') === 'cups' ? 'selected' : ''; ?>>Cups</option>
-                            <option value="liters" <?php echo ($food->unit ?? '') === 'liters' ? 'selected' : ''; ?>>Liters</option>
-                            <option value="ml" <?php echo ($food->unit ?? '') === 'ml' ? 'selected' : ''; ?>>Milliliters</option>
-                            <option value="cans" <?php echo ($food->unit ?? '') === 'cans' ? 'selected' : ''; ?>>Cans</option>
-                            <option value="boxes" <?php echo ($food->unit ?? '') === 'boxes' ? 'selected' : ''; ?>>Boxes</option>
+                            <option value="">Select Unit</option>
+                            <?php if(isset($units) && !empty($units)): ?>
+                                <?php foreach($units as $unit): ?>
+                                    <option value="<?php echo htmlspecialchars($unit['measurement']); ?>"
+                                        <?php echo ($food->unit ?? '') === $unit['measurement'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($unit['measurement']); ?>
+                                        <?php if(!empty($unit['description'])): ?>
+                                            - <?php echo htmlspecialchars($unit['description']); ?>
+                                        <?php endif; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>

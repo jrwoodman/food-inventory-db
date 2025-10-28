@@ -36,18 +36,15 @@
                     <label for="category">Category</label>
                     <select id="category" name="category">
                         <option value="">Select Category</option>
-                        <option value="Spices">Spices</option>
-                        <option value="Herbs">Herbs</option>
-                        <option value="Oils">Oils</option>
-                        <option value="Vinegars">Vinegars</option>
-                        <option value="Flour">Flour</option>
-                        <option value="Sugar">Sugar</option>
-                        <option value="Salt">Salt</option>
-                        <option value="Baking">Baking</option>
-                        <option value="Sauces">Sauces</option>
-                        <option value="Condiments">Condiments</option>
-                        <option value="Other">Other</option>
+                        <?php if(isset($ingredient_categories) && !empty($ingredient_categories)): ?>
+                            <?php foreach($ingredient_categories as $category): ?>
+                                <option value="<?php echo htmlspecialchars($category['name']); ?>">
+                                    <?php echo htmlspecialchars($category['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">Categories can be managed by admins</small>
                 </div>
 
                 <div class="form-group">
@@ -68,18 +65,17 @@
                 <div class="form-group">
                     <label for="unit">Unit</label>
                     <select id="unit" name="unit">
-                        <option value="oz">Ounces</option>
-                        <option value="g">Grams</option>
-                        <option value="lbs">Pounds</option>
-                        <option value="kg">Kilograms</option>
-                        <option value="cups">Cups</option>
-                        <option value="tbsp">Tablespoons</option>
-                        <option value="tsp">Teaspoons</option>
-                        <option value="ml">Milliliters</option>
-                        <option value="liters">Liters</option>
-                        <option value="bottles">Bottles</option>
-                        <option value="jars">Jars</option>
-                        <option value="packages">Packages</option>
+                        <option value="">Select Unit</option>
+                        <?php if(isset($units) && !empty($units)): ?>
+                            <?php foreach($units as $unit): ?>
+                                <option value="<?php echo htmlspecialchars($unit['measurement']); ?>">
+                                    <?php echo htmlspecialchars($unit['measurement']); ?>
+                                    <?php if(!empty($unit['description'])): ?>
+                                        - <?php echo htmlspecialchars($unit['description']); ?>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 

@@ -36,18 +36,16 @@
                     <label for="category">Category</label>
                     <select id="category" name="category">
                         <option value="">Select Category</option>
-                        <option value="Spices" <?php echo ($ingredient->category ?? '') === 'Spices' ? 'selected' : ''; ?>>Spices</option>
-                        <option value="Herbs" <?php echo ($ingredient->category ?? '') === 'Herbs' ? 'selected' : ''; ?>>Herbs</option>
-                        <option value="Oils" <?php echo ($ingredient->category ?? '') === 'Oils' ? 'selected' : ''; ?>>Oils</option>
-                        <option value="Vinegars" <?php echo ($ingredient->category ?? '') === 'Vinegars' ? 'selected' : ''; ?>>Vinegars</option>
-                        <option value="Flour" <?php echo ($ingredient->category ?? '') === 'Flour' ? 'selected' : ''; ?>>Flour</option>
-                        <option value="Sugar" <?php echo ($ingredient->category ?? '') === 'Sugar' ? 'selected' : ''; ?>>Sugar</option>
-                        <option value="Salt" <?php echo ($ingredient->category ?? '') === 'Salt' ? 'selected' : ''; ?>>Salt</option>
-                        <option value="Baking" <?php echo ($ingredient->category ?? '') === 'Baking' ? 'selected' : ''; ?>>Baking</option>
-                        <option value="Sauces" <?php echo ($ingredient->category ?? '') === 'Sauces' ? 'selected' : ''; ?>>Sauces</option>
-                        <option value="Condiments" <?php echo ($ingredient->category ?? '') === 'Condiments' ? 'selected' : ''; ?>>Condiments</option>
-                        <option value="Other" <?php echo ($ingredient->category ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                        <?php if(isset($ingredient_categories) && !empty($ingredient_categories)): ?>
+                            <?php foreach($ingredient_categories as $category): ?>
+                                <option value="<?php echo htmlspecialchars($category['name']); ?>"
+                                    <?php echo ($ingredient->category ?? '') === $category['name'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($category['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">Categories can be managed by admins</small>
                 </div>
 
                 <div class="form-group">
@@ -68,18 +66,18 @@
                 <div class="form-group">
                     <label for="unit">Unit</label>
                     <select id="unit" name="unit">
-                        <option value="oz" <?php echo ($ingredient->unit ?? '') === 'oz' ? 'selected' : ''; ?>>Ounces</option>
-                        <option value="g" <?php echo ($ingredient->unit ?? '') === 'g' ? 'selected' : ''; ?>>Grams</option>
-                        <option value="lbs" <?php echo ($ingredient->unit ?? '') === 'lbs' ? 'selected' : ''; ?>>Pounds</option>
-                        <option value="kg" <?php echo ($ingredient->unit ?? '') === 'kg' ? 'selected' : ''; ?>>Kilograms</option>
-                        <option value="cups" <?php echo ($ingredient->unit ?? '') === 'cups' ? 'selected' : ''; ?>>Cups</option>
-                        <option value="tbsp" <?php echo ($ingredient->unit ?? '') === 'tbsp' ? 'selected' : ''; ?>>Tablespoons</option>
-                        <option value="tsp" <?php echo ($ingredient->unit ?? '') === 'tsp' ? 'selected' : ''; ?>>Teaspoons</option>
-                        <option value="ml" <?php echo ($ingredient->unit ?? '') === 'ml' ? 'selected' : ''; ?>>Milliliters</option>
-                        <option value="liters" <?php echo ($ingredient->unit ?? '') === 'liters' ? 'selected' : ''; ?>>Liters</option>
-                        <option value="bottles" <?php echo ($ingredient->unit ?? '') === 'bottles' ? 'selected' : ''; ?>>Bottles</option>
-                        <option value="jars" <?php echo ($ingredient->unit ?? '') === 'jars' ? 'selected' : ''; ?>>Jars</option>
-                        <option value="packages" <?php echo ($ingredient->unit ?? '') === 'packages' ? 'selected' : ''; ?>>Packages</option>
+                        <option value="">Select Unit</option>
+                        <?php if(isset($units) && !empty($units)): ?>
+                            <?php foreach($units as $unit): ?>
+                                <option value="<?php echo htmlspecialchars($unit['measurement']); ?>"
+                                    <?php echo ($ingredient->unit ?? '') === $unit['measurement'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($unit['measurement']); ?>
+                                    <?php if(!empty($unit['description'])): ?>
+                                        - <?php echo htmlspecialchars($unit['description']); ?>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 

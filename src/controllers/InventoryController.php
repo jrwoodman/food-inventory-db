@@ -98,9 +98,11 @@ class InventoryController {
             exit();
         }
         
-        // Get stores and locations for dropdowns
+        // Get stores, locations, units and categories for dropdowns
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
+        $food_categories = Category::getCategoryOptions($this->db, 'food');
         
         // Get user's groups for group selection
         $user_groups = [];
@@ -140,9 +142,11 @@ class InventoryController {
         $food = new Food($this->db);
         $food->id = $_GET['id'] ?? 0;
         
-        // Get stores and locations for dropdowns
+        // Get stores, locations, units and categories for dropdowns
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
+        $food_categories = Category::getCategoryOptions($this->db, 'food');
         
         // Get user's groups for group selection
         $user_groups = [];
@@ -197,9 +201,11 @@ class InventoryController {
             exit();
         }
         
-        // Get stores and locations for dropdowns
+        // Get stores, locations, units and categories for dropdowns
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
+        $ingredient_categories = Category::getCategoryOptions($this->db, 'ingredient');
         
         // Get user's groups for group selection
         $user_groups = [];
@@ -298,9 +304,11 @@ class InventoryController {
         $ingredient = new Ingredient($this->db);
         $ingredient->id = $_GET['id'] ?? 0;
         
-        // Get stores and locations for dropdowns
+        // Get stores, locations, units and categories for dropdowns
         $stores = Store::getStoreOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
+        $units = Unit::getUnitOptions($this->db, true);
+        $ingredient_categories = Category::getCategoryOptions($this->db, 'ingredient');
         
         // Get user's groups for group selection
         $user_groups = [];

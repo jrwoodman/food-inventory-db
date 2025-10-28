@@ -1,13 +1,12 @@
 <?php
-class Unit {
+class Category {
     private $conn;
-    private $table_name = "units";
+    private $table_name = "categories";
 
     public $id;
     public $name;
-    public $abbreviation;
+    public $type;
     public $description;
-    public $is_active;
     public $created_at;
     public $updated_at;
 
@@ -17,22 +16,20 @@ class Unit {
 
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                 (name, abbreviation, description, is_active, created_at)
-                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                 (name, type, description, created_at)
+                 VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
 
         $stmt = $this->conn->prepare($query);
 
         // Clean data
         $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
+        $this->type = htmlspecialchars(strip_tags($this->type));
         $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
-        $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([
             $this->name,
-            $this->abbreviation,
-            $this->description,
-            $this->is_active
+            $this->type,
+            $this->description
         ]);
 
         if($stmt->rowCount()) {
@@ -42,10 +39,19 @@ class Unit {
         return false;
     }
 
-    public function read() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY name ASC";
+    public function read($type = null) {
+        $query = "SELECT * FROM " . $this->table_name;
+        if ($type) {
+            $query .= " WHERE type = ?";
+        }
+        $query .= " ORDER BY name ASC";
+        
         $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        if ($type) {
+            $stmt->execute([$type]);
+        } else {
+            $stmt->execute();
+        }
         return $stmt;
     }
 
@@ -59,9 +65,8 @@ class Unit {
 
         if($row) {
             $this->name = $row['name'];
-            $this->abbreviation = $row['abbreviation'];
+            $this->type = $row['type'];
             $this->description = $row['description'];
-            $this->is_active = $row['is_active'];
             $this->created_at = $row['created_at'];
             $this->updated_at = $row['updated_at'];
             return true;
@@ -71,22 +76,20 @@ class Unit {
 
     public function update() {
         $query = "UPDATE " . $this->table_name . "
-                 SET name = ?, abbreviation = ?, description = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+                 SET name = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
                  WHERE id = ?";
 
         $stmt = $this->conn->prepare($query);
 
         // Clean data
         $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
+        $this->type = htmlspecialchars(strip_tags($this->type));
         $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
-        $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([
             $this->name,
-            $this->abbreviation,
+            $this->type,
             $this->description,
-            $this->is_active,
             $this->id
         ]);
 
@@ -104,42 +107,39 @@ class Unit {
         return false;
     }
 
-    public function toggleActive() {
-        $query = "UPDATE " . $this->table_name . "
-                 SET is_active = NOT is_active, updated_at = CURRENT_TIMESTAMP
-                 WHERE id = ?";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id);
-        
-        return $stmt->execute();
-    }
-
-    public function nameExists($exclude_id = null) {
+    public function nameExists($type = null, $exclude_id = null) {
         $query = "SELECT id FROM " . $this->table_name . " WHERE name = ?";
+        $params = [$this->name];
+        
+        if ($type) {
+            $query .= " AND type = ?";
+            $params[] = $type;
+        }
+        
         if ($exclude_id) {
             $query .= " AND id != ?";
+            $params[] = $exclude_id;
         }
         
         $stmt = $this->conn->prepare($query);
-        if ($exclude_id) {
-            $stmt->execute([$this->name, $exclude_id]);
-        } else {
-            $stmt->execute([$this->name]);
-        }
+        $stmt->execute($params);
         
         return $stmt->rowCount() > 0;
     }
 
-    public static function getUnitOptions($db, $active_only = false) {
-        $query = "SELECT id, name, abbreviation as measurement, description FROM units";
-        if ($active_only) {
-            $query .= " WHERE is_active = 1";
+    public static function getCategoryOptions($db, $type = null) {
+        $query = "SELECT id, name, type, description FROM categories";
+        if ($type) {
+            $query .= " WHERE type = ?";
         }
         $query .= " ORDER BY name ASC";
         
         $stmt = $db->prepare($query);
-        $stmt->execute();
+        if ($type) {
+            $stmt->execute([$type]);
+        } else {
+            $stmt->execute();
+        }
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
