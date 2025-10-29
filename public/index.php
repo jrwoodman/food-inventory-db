@@ -14,6 +14,8 @@ require_once '../src/models/Food.php';
 require_once '../src/models/Ingredient.php';
 require_once '../src/models/User.php';
 require_once '../src/models/Store.php';
+require_once '../src/models/StoreChain.php';
+require_once '../src/models/StoreLocation.php';
 require_once '../src/models/Location.php';
 require_once '../src/models/Group.php';
 require_once '../src/models/Unit.php';
@@ -134,6 +136,18 @@ switch ($action) {
         break;
     case 'toggle_store_status':
         $controller->toggleStoreStatus();
+        break;
+    case 'add_store_location':
+        $controller->addStoreLocation();
+        break;
+    case 'edit_store_location':
+        $controller->editStoreLocation();
+        break;
+    case 'delete_store_location':
+        $controller->deleteStoreLocation();
+        break;
+    case 'toggle_store_location_status':
+        $controller->toggleStoreLocationStatus();
         break;
         
     // Location management routes
