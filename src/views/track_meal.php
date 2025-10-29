@@ -147,7 +147,7 @@
                                                    name="food_updates[<?php echo $item['id']; ?>][decrement]" 
                                                    step="0.1" 
                                                    min="0"
-                                                   max="<?php echo $item['quantity']; ?>"
+                                                   max="<?php echo htmlspecialchars($item['quantity'] ?? '999'); ?>"
                                                    placeholder="0"
                                                    style="width: 80px;">
                                         <?php else: ?>
