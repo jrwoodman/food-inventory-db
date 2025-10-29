@@ -60,7 +60,7 @@
                 <h3>🔍 Quick Search & Update</h3>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">Enter item names separated by commas to search and update multiple items at once.</p>
                 <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                    <strong>Note:</strong> For foods stored in multiple locations, this shows aggregated quantities. Use the edit button on individual items for location-specific updates.
+                    <strong>Note:</strong> For items stored in multiple locations, this shows aggregated quantities. Use the ✏️ Edit button on each item for location-specific updates.
                 </p>
                 <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                     <input type="hidden" name="action" value="bulk_search">
