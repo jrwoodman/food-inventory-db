@@ -321,7 +321,7 @@ class User {
      * @param string $default Default image type (404, mp, identicon, monsterid, wavatar, retro, robohash, blank)
      * @return string Gravatar URL
      */
-    public function getGravatarUrl($size = 80, $default = 'identicon') {
+    public function getGravatarUrl($size = 80, $default = 'robohash') {
         $hash = md5(strtolower(trim($this->email)));
         return "https://www.gravatar.com/avatar/{$hash}?s={$size}&d={$default}";
     }
