@@ -13,7 +13,7 @@
     <!-- Header for existing system (admin adding user) -->
     <header class="header">
         <div class="header-content">
-            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <a href="index.php?action=dashboard" class="logo"><?php echo APP_TITLE; ?></a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <a href="index.php?action=profile">👤 Profile</a>
@@ -28,7 +28,7 @@
     <!-- First-time setup -->
     <div class="login-container">
         <div class="login-card" style="max-width: 600px;">
-            <h1>🍽️ Food Inventory</h1>
+            <h1><?php echo APP_TITLE; ?></h1>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
                 Welcome! Create your admin account to get started.
             </p>

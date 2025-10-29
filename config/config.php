@@ -10,6 +10,7 @@ define('DB_PASS', '');
 
 // Application Configuration
 define('APP_NAME', 'Food & Ingredient Inventory');
+define('APP_TITLE', '🍽️ Food Inventory'); // Title shown in navigation/header
 define('APP_VERSION', '1.0.0');
 define('APP_DESCRIPTION', 'A comprehensive food and ingredient inventory management system');
 

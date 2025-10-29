@@ -11,7 +11,7 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <a href="index.php?action=dashboard" class="logo"><?php echo APP_TITLE; ?></a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <a href="index.php?action=profile">👤 Profile</a>

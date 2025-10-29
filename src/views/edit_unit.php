@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Unit - Food Inventory</title>
+    <title>Edit Unit - <?php echo APP_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <a href="index.php?action=dashboard" class="logo"><?php echo APP_TITLE; ?></a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <a href="index.php?action=manage_units">📏 Units</a>

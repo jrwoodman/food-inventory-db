@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User & Group Management - Food Inventory</title>
+    <title>User & Group Management - <?php echo APP_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/dark-theme.css">
     <style>
         .tabs {
@@ -40,7 +40,7 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
+            <a href="index.php?action=dashboard" class="logo"><?php echo APP_TITLE; ?></a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <?php if ($current_user->canEdit()): ?>

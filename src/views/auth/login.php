@@ -11,7 +11,7 @@
 <body>
     <div class="login-container">
         <div class="login-card">
-            <h1>🍽️ Food Inventory</h1>
+            <h1><?php echo APP_TITLE; ?></h1>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Please sign in to your account</p>
 
             <?php if(isset($_GET['message'])): ?>
