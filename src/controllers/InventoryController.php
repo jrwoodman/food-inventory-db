@@ -147,48 +147,53 @@ class InventoryController {
                     
                     // Check if item already exists (case-insensitive) in the same group
                     $group_id = $_POST['group_id'] ?? null;
-                    $check_query = "SELECT id, quantity FROM foods WHERE LOWER(name) = LOWER(?) AND group_id = ?";
+                    $location = $_POST['location'];
+                    $check_query = "SELECT f.id, COALESCE(fl.quantity, 0) as quantity FROM foods f LEFT JOIN food_locations fl ON f.id = fl.food_id AND fl.location = ? WHERE LOWER(f.name) = LOWER(?) AND f.group_id = ?";
                     $check_stmt = $this->db->prepare($check_query);
-                    $check_stmt->execute([$name, $group_id]);
+                    $check_stmt->execute([$location, $name, $group_id]);
                     $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
                     
-                    if ($existing) {
-                        // Update existing item - add to quantity
+                    if ($existing && $existing['id']) {
+                        // Food exists - update location quantity
                         $food = new Food($this->db);
                         $food->id = $existing['id'];
                         if ($food->readOne()) {
-                            $food->quantity = $existing['quantity'] + $quantity;
-                            // Update expiry date if provided
+                            // Update food metadata
                             if ($expiry_date) {
                                 $food->expiry_date = $expiry_date;
                             }
-                            // Update purchase date
                             if (!empty($_POST['purchase_date'])) {
                                 $food->purchase_date = $_POST['purchase_date'];
                             }
                             $food->user_id = $this->current_user->id;
                             
+                            // Update the food record
                             if ($food->update()) {
-                                $success_count++;
+                                // Update location quantity (add to existing)
+                                $new_quantity = $existing['quantity'] + $quantity;
+                                if ($food->updateLocationQuantity($location, $new_quantity)) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
                             } else {
                                 $error_count++;
                             }
                         }
                     } else {
-                        // Create new item
+                        // Create new food with location
                         $food = new Food($this->db);
                         $food->name = $name;
                         $food->category = $_POST['category'];
                         $food->brand = $_POST['brand'];
-                        $food->quantity = $quantity;
                         $food->unit = $_POST['unit'];
                         $food->expiry_date = $expiry_date;
                         $food->purchase_date = $_POST['purchase_date'] ?: null;
                         $food->purchase_location = $_POST['purchase_location'];
-                        $food->location = $_POST['location'];
                         $food->notes = $_POST['notes'];
                         $food->user_id = $this->current_user->id;
                         $food->group_id = $group_id;
+                        $food->locations = [['location' => $location, 'quantity' => $quantity]];
                         
                         if ($food->create()) {
                             $success_count++;
@@ -226,18 +231,17 @@ class InventoryController {
                         $quantity = floatval($location_data['quantity']);
                         
                         // Check if item with same name and location already exists
-                        $check_query = "SELECT id, quantity FROM foods WHERE LOWER(name) = LOWER(?) AND location = ? AND group_id = ?";
+                        $check_query = "SELECT f.id, COALESCE(fl.quantity, 0) as quantity, fl.id as location_id FROM foods f LEFT JOIN food_locations fl ON f.id = fl.food_id AND fl.location = ? WHERE LOWER(f.name) = LOWER(?) AND f.group_id = ?";
                         $check_stmt = $this->db->prepare($check_query);
-                        $check_stmt->execute([$name, $location, $group_id]);
+                        $check_stmt->execute([$location, $name, $group_id]);
                         $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
                         
-                        if ($existing) {
-                            // Update existing item - add to quantity
+                        if ($existing && $existing['id']) {
+                            // Food exists
                             $food = new Food($this->db);
                             $food->id = $existing['id'];
                             if ($food->readOne()) {
-                                $food->quantity = $existing['quantity'] + $quantity;
-                                // Update other fields
+                                // Update food metadata
                                 if (!empty($_POST['expiry_date'])) {
                                     $food->expiry_date = $_POST['expiry_date'];
                                 }
@@ -247,27 +251,41 @@ class InventoryController {
                                 $food->user_id = $this->current_user->id;
                                 
                                 if ($food->update()) {
-                                    $success_count++;
+                                    // Check if location exists for this food
+                                    if ($existing['location_id']) {
+                                        // Location exists - add to quantity
+                                        $new_quantity = $existing['quantity'] + $quantity;
+                                        if ($food->updateLocationQuantity($location, $new_quantity)) {
+                                            $success_count++;
+                                        } else {
+                                            $error_count++;
+                                        }
+                                    } else {
+                                        // Location doesn't exist - add new location
+                                        if ($food->addLocation($location, $quantity)) {
+                                            $success_count++;
+                                        } else {
+                                            $error_count++;
+                                        }
+                                    }
                                 } else {
                                     $error_count++;
                                 }
                             }
                         } else {
-                            // Create new item
+                            // Create new food with location
                             $food = new Food($this->db);
-                            
                             $food->name = $name;
                             $food->category = $_POST['category'];
                             $food->brand = $_POST['brand'];
-                            $food->quantity = $quantity;
                             $food->unit = $_POST['unit'];
                             $food->expiry_date = $_POST['expiry_date'];
                             $food->purchase_date = $_POST['purchase_date'];
                             $food->purchase_location = $_POST['purchase_location'];
-                            $food->location = $location;
                             $food->notes = $_POST['notes'];
                             $food->user_id = $this->current_user->id;
                             $food->group_id = $group_id;
+                            $food->locations = [['location' => $location, 'quantity' => $quantity]];
 
                             if($food->create()) {
                                 $success_count++;
@@ -317,15 +335,27 @@ class InventoryController {
             $food->name = $_POST['name'];
             $food->category = $_POST['category'];
             $food->brand = $_POST['brand'];
-            $food->quantity = $_POST['quantity'];
             $food->unit = $_POST['unit'];
             $food->expiry_date = $_POST['expiry_date'];
             $food->purchase_date = $_POST['purchase_date'];
             $food->purchase_location = $_POST['purchase_location'];
-            $food->location = $_POST['location'];
             $food->notes = $_POST['notes'];
             $food->user_id = $this->current_user->id;
             $food->group_id = $_POST['group_id'] ?? null;
+            
+            // Handle locations
+            if (isset($_POST['locations']) && is_array($_POST['locations'])) {
+                $food->locations = [];
+                foreach ($_POST['locations'] as $location_data) {
+                    if (!empty($location_data['location'])) {
+                        $food->locations[] = [
+                            'location' => $location_data['location'],
+                            'quantity' => floatval($location_data['quantity'] ?? 0),
+                            'notes' => $location_data['notes'] ?? ''
+                        ];
+                    }
+                }
+            }
 
             if($food->update()) {
                 header('Location: index.php?action=dashboard&message=Food updated successfully');
