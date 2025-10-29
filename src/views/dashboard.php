@@ -59,6 +59,9 @@
             <div class="card" style="margin-bottom: 1.5rem;">
                 <h3>🔍 Quick Search & Update</h3>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">Enter item names separated by commas to search and update multiple items at once.</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                    <strong>Note:</strong> For foods stored in multiple locations, this shows aggregated quantities. Use the edit button on individual items for location-specific updates.
+                </p>
                 <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                     <input type="hidden" name="action" value="bulk_search">
                     <input type="text" 
@@ -156,21 +159,7 @@
                                             </select>
                                         </div>
                                         
-                                        <?php if ($result['type'] === 'food'): ?>
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Storage Location</label>
-                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][location]"
-                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                                <option value="">Select location...</option>
-                                                <?php if (isset($locations)): foreach ($locations as $location): ?>
-                                                    <option value="<?php echo htmlspecialchars($location['name']); ?>" 
-                                                            <?php echo ($result['location'] == $location['name']) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($location['name']); ?>
-                                                    </option>
-                                                <?php endforeach; endif; ?>
-                                            </select>
-                                        </div>
-                                        <?php else: ?>
+                                        <?php if ($result['type'] === 'ingredient'): ?>
                                         <div class="form-group" style="margin: 0;">
                                             <label style="font-size: 0.875rem;">Supplier</label>
                                             <input type="text" 
