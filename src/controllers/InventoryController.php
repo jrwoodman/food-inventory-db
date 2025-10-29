@@ -20,7 +20,7 @@ class InventoryController {
         $ingredient = new Ingredient($this->db);
         
         // Get dropdown options for the bulk update form
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         
@@ -113,7 +113,7 @@ class InventoryController {
         }
         
         // Get stores, locations, units and categories for dropdowns
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         $food_categories = Category::getCategoryOptions($this->db, 'food');
@@ -727,22 +727,20 @@ class InventoryController {
         }
         
         if ($_POST) {
-            $store = new Store($this->db);
+            $storeChain = new StoreChain($this->db);
             
-            $store->name = $_POST['name'];
-            $store->address = $_POST['address'];
-            $store->phone = $_POST['phone'];
-            $store->website = $_POST['website'];
-            $store->notes = $_POST['notes'];
-            $store->is_active = isset($_POST['is_active']) ? 1 : 0;
+            $storeChain->name = $_POST['name'];
+            $storeChain->website = $_POST['website'];
+            $storeChain->notes = $_POST['notes'];
+            $storeChain->is_active = isset($_POST['is_active']) ? 1 : 0;
             
-            if ($store->nameExists()) {
-                $error = "A store with this name already exists.";
-            } else if ($store->create()) {
-                header('Location: index.php?action=system_settings&message=Store#stores added successfully');
+            if ($storeChain->nameExists()) {
+                $error = "A store chain with this name already exists.";
+            } else if ($storeChain->create()) {
+                header('Location: index.php?action=system_settings&message=Store chain#stores added successfully');
                 exit();
             } else {
-                $error = "Unable to add store.";
+                $error = "Unable to add store chain.";
             }
         }
         
@@ -757,36 +755,35 @@ class InventoryController {
             exit();
         }
         
-        $store = new Store($this->db);
-        $store->id = $_GET['id'] ?? 0;
+        $storeChain = new StoreChain($this->db);
+        $storeChain->id = $_GET['id'] ?? 0;
         
         if ($_POST) {
             // Load original data to check if name changed
-            $original_store = new Store($this->db);
-            $original_store->id = $store->id;
-            $original_store->readOne();
+            $original_chain = new StoreChain($this->db);
+            $original_chain->id = $storeChain->id;
+            $original_chain->readOne();
             
-            $store->name = $_POST['name'];
-            $store->address = $_POST['address'];
-            $store->phone = $_POST['phone'];
-            $store->website = $_POST['website'];
-            $store->notes = $_POST['notes'];
-            $store->is_active = isset($_POST['is_active']) ? 1 : 0;
+            $storeChain->name = $_POST['name'];
+            $storeChain->website = $_POST['website'];
+            $storeChain->notes = $_POST['notes'];
+            $storeChain->is_active = isset($_POST['is_active']) ? 1 : 0;
             
             // Only check for duplicate name if the name changed
-            if ($store->name !== $original_store->name && $store->nameExists($store->id)) {
-                $error = "A store with this name already exists.";
-            } else if ($store->update()) {
-                header('Location: index.php?action=system_settings&message=Store#stores updated successfully');
+            if ($storeChain->name !== $original_chain->name && $storeChain->nameExists($storeChain->id)) {
+                $error = "A store chain with this name already exists.";
+            } else if ($storeChain->update()) {
+                header('Location: index.php?action=system_settings&message=Store chain#stores updated successfully');
                 exit();
             } else {
-                $error = "Unable to update store.";
+                $error = "Unable to update store chain.";
             }
         } else {
-            $store->readOne();
+            $storeChain->readOne();
         }
         
         $current_user = $this->current_user;
+        $store = $storeChain; // For backward compatibility with view
         include '../src/views/edit_store.php';
     }
     
@@ -797,13 +794,13 @@ class InventoryController {
             exit();
         }
         
-        $store = new Store($this->db);
-        $store->id = $_GET['id'] ?? 0;
+        $storeChain = new StoreChain($this->db);
+        $storeChain->id = $_GET['id'] ?? 0;
         
-        if ($store->hardDelete()) {
-            header('Location: index.php?action=system_settings&message=Store#stores deleted successfully');
+        if ($storeChain->delete()) {
+            header('Location: index.php?action=system_settings&message=Store chain#stores deleted successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to delete store#stores');
+            header('Location: index.php?action=system_settings&error=Unable to delete store chain#stores');
         }
         exit();
     }
@@ -815,18 +812,130 @@ class InventoryController {
             exit();
         }
         
-        $store = new Store($this->db);
-        $store->id = $_GET['id'] ?? 0;
+        $storeChain = new StoreChain($this->db);
+        $storeChain->id = $_GET['id'] ?? 0;
         
-        if ($store->toggleActive()) {
-            header('Location: index.php?action=system_settings&message=Store#stores status updated successfully');
+        if ($storeChain->toggleActive()) {
+            header('Location: index.php?action=system_settings&message=Store chain#stores status updated successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to update store#stores status');
+            header('Location: index.php?action=system_settings&error=Unable to update store chain#stores status');
         }
         exit();
     }
     
-    // Location Management Methods
+    // Store Location Management Methods
+    public function addStoreLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        // Get store chains for dropdown
+        $storeChain = new StoreChain($this->db);
+        $chains = $storeChain->readActive();
+        
+        if ($_POST) {
+            $storeLocation = new StoreLocation($this->db);
+            
+            $storeLocation->chain_id = $_POST['chain_id'];
+            $storeLocation->location_name = $_POST['location_name'];
+            $storeLocation->address = $_POST['address'];
+            $storeLocation->phone = $_POST['phone'];
+            $storeLocation->hours = $_POST['hours'];
+            $storeLocation->notes = $_POST['notes'];
+            $storeLocation->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($storeLocation->locationExists($_POST['chain_id'])) {
+                $error = "A location with this name already exists for this store chain.";
+            } else if ($storeLocation->create()) {
+                header('Location: index.php?action=system_settings&message=Store location#stores added successfully');
+                exit();
+            } else {
+                $error = "Unable to add store location.";
+            }
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/add_store_location.php';
+    }
+    
+    public function editStoreLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $storeLocation = new StoreLocation($this->db);
+        $storeLocation->id = $_GET['id'] ?? 0;
+        
+        // Get store chains for dropdown
+        $storeChain = new StoreChain($this->db);
+        $chains = $storeChain->readActive();
+        
+        if ($_POST) {
+            $storeLocation->chain_id = $_POST['chain_id'];
+            $storeLocation->location_name = $_POST['location_name'];
+            $storeLocation->address = $_POST['address'];
+            $storeLocation->phone = $_POST['phone'];
+            $storeLocation->hours = $_POST['hours'];
+            $storeLocation->notes = $_POST['notes'];
+            $storeLocation->is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            if ($storeLocation->locationExists($_POST['chain_id'], $storeLocation->id)) {
+                $error = "A location with this name already exists for this store chain.";
+            } else if ($storeLocation->update()) {
+                header('Location: index.php?action=system_settings&message=Store location#stores updated successfully');
+                exit();
+            } else {
+                $error = "Unable to update store location.";
+            }
+        } else {
+            $storeLocation->readOne();
+        }
+        
+        $current_user = $this->current_user;
+        include '../src/views/edit_store_location.php';
+    }
+    
+    public function deleteStoreLocation() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $storeLocation = new StoreLocation($this->db);
+        $storeLocation->id = $_GET['id'] ?? 0;
+        
+        if ($storeLocation->delete()) {
+            header('Location: index.php?action=system_settings&message=Store location#stores deleted successfully');
+        } else {
+            header('Location: index.php?action=system_settings&error=Unable to delete store location#stores');
+        }
+        exit();
+    }
+    
+    public function toggleStoreLocationStatus() {
+        // Check if user is admin
+        if (!$this->current_user->isAdmin()) {
+            header('Location: index.php?action=access_denied');
+            exit();
+        }
+        
+        $storeLocation = new StoreLocation($this->db);
+        $storeLocation->id = $_GET['id'] ?? 0;
+        
+        if ($storeLocation->toggleActive()) {
+            header('Location: index.php?action=system_settings&message=Store location#stores status updated successfully');
+        } else {
+            header('Location: index.php?action=system_settings&error=Unable to update store location#stores status');
+        }
+        exit();
+    }
+    
+    // Storage Location Management Methods
     public function manageLocations() {
         // Check if user is admin
         if (!$this->current_user->isAdmin()) {
@@ -1114,10 +1223,14 @@ class InventoryController {
                 $ingredient_categories[] = $row;
             }
             
-            // Get stores
-            $store = new Store($this->db);
-            $stores_stmt = $store->read();
+            // Get store chains with location counts
+            $storeChain = new StoreChain($this->db);
+            $stores_stmt = $storeChain->readWithLocationCount();
             while ($row = $stores_stmt->fetch(PDO::FETCH_ASSOC)) {
+                // Load locations for each chain
+                $chain = new StoreChain($this->db);
+                $chain->id = $row['id'];
+                $row['locations'] = $chain->loadLocations();
                 $stores[] = $row;
             }
             
