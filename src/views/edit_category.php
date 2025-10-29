@@ -12,7 +12,7 @@
             <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
-                <a href="index.php?action=system_settings">⚙️ System Settings</a>
+                <a href="index.php?action=system_settings">⚙️ Settings</a>
                 <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>

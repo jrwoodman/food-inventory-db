@@ -17,11 +17,11 @@
                     <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
                     <a href="index.php?action=track_meal" class="active">🍴 Track Meal</a>
                 <?php endif; ?>
-                <a href="index.php?action=system_settings">⚙️ System Settings</a>
-                <a href="index.php?action=profile" style="display: flex; align-items: center; gap: 0.25rem;">
-                    <img src="<?php echo $current_user->getGravatarUrl(48); ?>" 
+                <a href="index.php?action=system_settings">⚙️ Settings</a>
+                <a href="index.php?action=profile" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <img src="<?php echo $current_user->getGravatarUrl(64); ?>" 
                          alt="<?php echo htmlspecialchars($current_user->username); ?>" 
-                         style="width: 24px; height: 24px; border-radius: 50%;">
+                         style="width: 32px; height: 32px; border-radius: 50%;">
                     <?php echo htmlspecialchars($current_user->username); ?>
                 </a>
                 <a href="index.php?action=logout">🚪 Logout</a>
