@@ -223,10 +223,13 @@ class Food {
     }
 
     public function getExpiringItems($days = 7) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE expiry_date <= date('now', '+' || ? || ' days')
-                 AND expiry_date >= date('now')
-                 ORDER BY expiry_date ASC";
+        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+                 FROM " . $this->table_name . " f
+                 LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                 WHERE f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND f.expiry_date >= date('now')
+                 GROUP BY f.id
+                 ORDER BY f.expiry_date ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$days]);
@@ -234,11 +237,14 @@ class Food {
     }
     
     public function getExpiringItemsByUser($user_id, $days = 7) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE user_id = ?
-                 AND expiry_date <= date('now', '+' || ? || ' days')
-                 AND expiry_date >= date('now')
-                 ORDER BY expiry_date ASC";
+        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+                 FROM " . $this->table_name . " f
+                 LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                 WHERE f.user_id = ?
+                 AND f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND f.expiry_date >= date('now')
+                 GROUP BY f.id
+                 ORDER BY f.expiry_date ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id, $days]);
@@ -251,11 +257,14 @@ class Food {
         }
         
         $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE group_id IN ($placeholders)
-                 AND expiry_date <= date('now', '+' || ? || ' days')
-                 AND expiry_date >= date('now')
-                 ORDER BY expiry_date ASC";
+        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+                 FROM " . $this->table_name . " f
+                 LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                 WHERE f.group_id IN ($placeholders)
+                 AND f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND f.expiry_date >= date('now')
+                 GROUP BY f.id
+                 ORDER BY f.expiry_date ASC";
         
         $params = array_merge($group_ids, [$days]);
         $stmt = $this->conn->prepare($query);
@@ -264,9 +273,12 @@ class Food {
     }
 
     public function getLowStockItems($threshold = 10) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE quantity <= ?
-                 ORDER BY quantity ASC, name ASC";
+        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+                 FROM " . $this->table_name . " f
+                 LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                 GROUP BY f.id
+                 HAVING total_quantity <= ?
+                 ORDER BY total_quantity ASC, f.name ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$threshold]);
@@ -279,10 +291,13 @@ class Food {
         }
         
         $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE group_id IN ($placeholders)
-                 AND quantity <= ?
-                 ORDER BY quantity ASC, name ASC";
+        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+                 FROM " . $this->table_name . " f
+                 LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                 WHERE f.group_id IN ($placeholders)
+                 GROUP BY f.id
+                 HAVING total_quantity <= ?
+                 ORDER BY total_quantity ASC, f.name ASC";
         
         $params = array_merge($group_ids, [$threshold]);
         $stmt = $this->conn->prepare($query);
