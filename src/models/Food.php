@@ -2,72 +2,94 @@
 class Food {
     private $conn;
     private $table_name = "foods";
+    private $locations_table = "food_locations";
 
     public $id;
     public $name;
     public $category;
-    public $quantity;
     public $unit;
     public $expiry_date;
     public $purchase_date;
     public $purchase_location;
-    public $location;
     public $notes;
     public $user_id;
     public $group_id;
     public $created_at;
     public $updated_at;
+    
+    // For handling locations
+    public $locations = []; // Array of location data
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . "
-                 (name, category, quantity, unit, expiry_date, purchase_date, 
-                  purchase_location, location, notes, user_id, group_id, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        try {
+            $this->conn->beginTransaction();
+            
+            // Insert into foods table (without location and quantity)
+            $query = "INSERT INTO " . $this->table_name . "
+                     (name, category, unit, expiry_date, purchase_date, 
+                      purchase_location, notes, user_id, group_id, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
-        $this->quantity = $this->quantity ?? 0;
-        $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
-        $this->expiry_date = $this->expiry_date ?: null;
-        $this->purchase_date = $this->purchase_date ?: null;
-        $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
-        $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
-        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
-        $this->user_id = $this->user_id ?? null;
-        $this->group_id = $this->group_id ?? null;
+            // Clean data
+            $this->name = htmlspecialchars(strip_tags($this->name));
+            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+            $this->expiry_date = $this->expiry_date ?: null;
+            $this->purchase_date = $this->purchase_date ?: null;
+            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->user_id = $this->user_id ?? null;
+            $this->group_id = $this->group_id ?? null;
 
-        $stmt->execute([
-            $this->name,
-            $this->category,
-            $this->quantity,
-            $this->unit,
-            $this->expiry_date,
-            $this->purchase_date,
-            $this->purchase_location,
-            $this->location,
-            $this->notes,
-            $this->user_id,
-            $this->group_id
-        ]);
+            $stmt->execute([
+                $this->name,
+                $this->category,
+                $this->unit,
+                $this->expiry_date,
+                $this->purchase_date,
+                $this->purchase_location,
+                $this->notes,
+                $this->user_id,
+                $this->group_id
+            ]);
 
-        if($stmt->rowCount()) {
-            $this->id = $this->conn->lastInsertId();
+            if(!$stmt->rowCount()) {
+                $this->conn->rollBack();
+                return false;
+            }
+            
+            $food_id = $this->conn->lastInsertId();
+            $this->id = $food_id;
+            
+            // Insert location data if provided
+            if (!empty($this->locations)) {
+                foreach ($this->locations as $location_data) {
+                    $this->addLocation($location_data['location'], $location_data['quantity'], $location_data['notes'] ?? '');
+                }
+            }
+            
+            $this->conn->commit();
             return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
         }
-        return false;
     }
 
     public function read() {
-        $query = "SELECT f.*, g.name as group_name 
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity,
+                  g.name as group_name
                   FROM " . $this->table_name . " f
+                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                   LEFT JOIN groups g ON f.group_id = g.id
+                  GROUP BY f.id
                   ORDER BY f.created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -75,7 +97,13 @@ class Food {
     }
     
     public function readByUser($user_id) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE user_id = ? ORDER BY created_at DESC";
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " f
+                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                  WHERE f.user_id = ?
+                  GROUP BY f.id
+                  ORDER BY f.created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id]);
         return $stmt;
@@ -87,9 +115,13 @@ class Food {
         }
         
         $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
-        $query = "SELECT * FROM " . $this->table_name . " 
-                  WHERE group_id IN ($placeholders) 
-                  ORDER BY created_at DESC";
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " f
+                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                  WHERE f.group_id IN ($placeholders)
+                  GROUP BY f.id
+                  ORDER BY f.created_at DESC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute($group_ids);
@@ -107,60 +139,76 @@ class Food {
         if($row) {
             $this->name = $row['name'];
             $this->category = $row['category'];
-            $this->quantity = $row['quantity'];
             $this->unit = $row['unit'];
             $this->expiry_date = $row['expiry_date'];
             $this->purchase_date = $row['purchase_date'];
             $this->purchase_location = $row['purchase_location'];
-            $this->location = $row['location'];
             $this->notes = $row['notes'];
             $this->user_id = $row['user_id'];
             $this->group_id = $row['group_id'];
             $this->created_at = $row['created_at'];
             $this->updated_at = $row['updated_at'];
+            
+            // Load location data
+            $this->loadLocations();
+            
             return true;
         }
         return false;
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table_name . "
-                 SET name = ?, category = ?, quantity = ?, unit = ?, 
-                     expiry_date = ?, purchase_date = ?, purchase_location = ?,
-                     location = ?, notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
-                 WHERE id = ?";
+        try {
+            $this->conn->beginTransaction();
+            
+            // Update foods table (without location and quantity)
+            $query = "UPDATE " . $this->table_name . "
+                     SET name = ?, category = ?, unit = ?, 
+                         expiry_date = ?, purchase_date = ?, purchase_location = ?,
+                         notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
+                     WHERE id = ?";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
-        $this->quantity = $this->quantity ?? 0;
-        $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
-        $this->expiry_date = $this->expiry_date ?: null;
-        $this->purchase_date = $this->purchase_date ?: null;
-        $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
-        $this->location = htmlspecialchars(strip_tags($this->location ?? ''));
-        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
-        $this->user_id = $this->user_id ?? null;
-        $this->group_id = $this->group_id ?? null;
+            // Clean data
+            $this->name = htmlspecialchars(strip_tags($this->name));
+            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+            $this->expiry_date = $this->expiry_date ?: null;
+            $this->purchase_date = $this->purchase_date ?: null;
+            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
+            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->user_id = $this->user_id ?? null;
+            $this->group_id = $this->group_id ?? null;
 
-        $stmt->execute([
-            $this->name,
-            $this->category,
-            $this->quantity,
-            $this->unit,
-            $this->expiry_date,
-            $this->purchase_date,
-            $this->purchase_location,
-            $this->location,
-            $this->notes,
-            $this->user_id,
-            $this->group_id,
-            $this->id
-        ]);
-
-        return $stmt->rowCount() > 0;
+            $stmt->execute([
+                $this->name,
+                $this->category,
+                $this->unit,
+                $this->expiry_date,
+                $this->purchase_date,
+                $this->purchase_location,
+                $this->notes,
+                $this->user_id,
+                $this->group_id,
+                $this->id
+            ]);
+            
+            // Update location data if provided
+            if (!empty($this->locations)) {
+                // Delete existing locations and add new ones
+                $this->clearLocations();
+                foreach ($this->locations as $location_data) {
+                    $this->addLocation($location_data['location'], $location_data['quantity'], $location_data['notes'] ?? '');
+                }
+            }
+            
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
+        }
     }
 
     public function delete() {
@@ -244,13 +292,76 @@ class Food {
 
     // Search foods
     public function search($keywords) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE name LIKE ? OR category LIKE ? OR notes LIKE ? OR purchase_location LIKE ?
-                 ORDER BY created_at DESC";
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " f
+                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
+                  WHERE f.name LIKE ? OR f.category LIKE ? OR f.notes LIKE ? OR f.purchase_location LIKE ?
+                  GROUP BY f.id
+                  ORDER BY f.created_at DESC";
         
         $keywords = "%{$keywords}%";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$keywords, $keywords, $keywords, $keywords]);
+        return $stmt;
+    }
+    
+    // Location management methods
+    public function addLocation($location, $quantity, $notes = '') {
+        $query = "INSERT INTO " . $this->locations_table . " 
+                 (food_id, location, quantity, notes, created_at)
+                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        
+        $stmt = $this->conn->prepare($query);
+        $location = htmlspecialchars(strip_tags($location));
+        $notes = htmlspecialchars(strip_tags($notes));
+        
+        return $stmt->execute([$this->id, $location, $quantity, $notes]);
+    }
+    
+    public function updateLocationQuantity($location, $quantity) {
+        $query = "UPDATE " . $this->locations_table . " 
+                 SET quantity = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE food_id = ? AND location = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$quantity, $this->id, $location]);
+    }
+    
+    public function removeLocation($location) {
+        $query = "DELETE FROM " . $this->locations_table . " 
+                 WHERE food_id = ? AND location = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$this->id, $location]);
+    }
+    
+    public function clearLocations() {
+        $query = "DELETE FROM " . $this->locations_table . " WHERE food_id = ?";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$this->id]);
+    }
+    
+    public function loadLocations() {
+        $query = "SELECT * FROM " . $this->locations_table . " 
+                 WHERE food_id = ? 
+                 ORDER BY location";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$this->id]);
+        
+        $this->locations = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->locations[] = $row;
+        }
+        
+        return $this->locations;
+    }
+    
+    public function readWithLocations() {
+        $query = "SELECT * FROM food_location_details ORDER BY name, location";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
         return $stmt;
     }
 }

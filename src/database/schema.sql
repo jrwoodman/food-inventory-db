@@ -8,6 +8,7 @@
 -- Drop existing tables if they exist (for clean setup)
 DROP TABLE IF EXISTS food_ingredients;
 DROP TABLE IF EXISTS recipes;
+DROP TABLE IF EXISTS food_locations;
 DROP TABLE IF EXISTS ingredient_locations;
 DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS foods;
@@ -112,17 +113,15 @@ CREATE TABLE categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create foods table
+-- Create foods table (without location and quantity - now in food_locations)
 CREATE TABLE foods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(255) NOT NULL,
     category VARCHAR(100),
-    quantity DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK(quantity >= 0),
     unit VARCHAR(50) DEFAULT 'pieces',
     expiry_date DATE,
     purchase_date DATE,
     purchase_location VARCHAR(255),
-    location VARCHAR(255),
     notes TEXT,
     user_id INTEGER,
     group_id INTEGER,
@@ -163,6 +162,19 @@ CREATE TABLE ingredient_locations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
     UNIQUE(ingredient_id, location)
+);
+
+-- Create food_locations table (quantities per location for foods)
+CREATE TABLE food_locations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    food_id INTEGER NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK(quantity >= 0),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE CASCADE,
+    UNIQUE(food_id, location)
 );
 
 -- Create recipes table (for future expansion)
@@ -287,10 +299,16 @@ INSERT INTO user_groups (user_id, group_id, role) VALUES
 (1, 1, 'owner');
 
 -- Insert some sample data for demonstration (assigned to default group)
-INSERT INTO foods (name, category, quantity, unit, expiry_date, purchase_date, purchase_location, location, notes, group_id) VALUES
-('Bananas', 'Fruits', 6, 'pieces', date('now', '+5 days'), date('now'), 'Walmart', 'Counter', 'Yellow, ripe', 1),
-('Milk', 'Dairy', 1, 'liter', date('now', '+7 days'), date('now'), 'Kroger', 'Refrigerator', '2% fat', 1),
-('Bread', 'Grains', 1, 'loaf', date('now', '+3 days'), date('now'), 'Local Market', 'Pantry', 'Whole wheat', 1);
+INSERT INTO foods (name, category, unit, expiry_date, purchase_date, purchase_location, notes, group_id) VALUES
+('Bananas', 'Fruits', 'pieces', date('now', '+5 days'), date('now'), 'Walmart', 'Yellow, ripe', 1),
+('Milk', 'Dairy', 'liter', date('now', '+7 days'), date('now'), 'Kroger', '2% fat', 1),
+('Bread', 'Grains', 'loaf', date('now', '+3 days'), date('now'), 'Local Market', 'Whole wheat', 1);
+
+-- Insert food location data
+INSERT INTO food_locations (food_id, location, quantity, notes) VALUES
+(1, 'Counter', 6, 'Main bunch'),
+(2, 'Refrigerator', 1, 'Top shelf'),
+(3, 'Pantry', 1, 'Bread box');
 
 INSERT INTO ingredients (name, category, unit, cost_per_unit, supplier, purchase_date, purchase_location, expiry_date, notes, group_id) VALUES
 ('Salt', 'Salt', 'g', 0.002, 'Local Grocery', date('now'), 'Local Market', date('now', '+365 days'), 'Table salt', 1),
@@ -307,15 +325,70 @@ INSERT INTO ingredient_locations (ingredient_id, location, quantity, notes) VALU
 (3, 'Counter', 100, 'Small bottle for daily use');
 
 -- Create views for common queries
+
+-- View for foods with total quantities across all locations
+CREATE VIEW food_totals AS
+SELECT 
+    f.id,
+    f.name,
+    f.category,
+    f.unit,
+    f.expiry_date,
+    f.purchase_date,
+    f.purchase_location,
+    f.notes,
+    f.user_id,
+    f.group_id,
+    COALESCE(SUM(fl.quantity), 0) as total_quantity,
+    f.created_at,
+    f.updated_at
+FROM foods f
+LEFT JOIN food_locations fl ON f.id = fl.food_id
+GROUP BY f.id;
+
+-- View for foods with location details
+CREATE VIEW food_location_details AS
+SELECT 
+    f.id,
+    f.name,
+    f.category,
+    f.unit,
+    f.expiry_date,
+    f.purchase_date,
+    f.purchase_location,
+    f.notes,
+    f.user_id,
+    f.group_id,
+    fl.location,
+    fl.quantity,
+    fl.notes as location_notes,
+    f.created_at,
+    f.updated_at
+FROM foods f
+LEFT JOIN food_locations fl ON f.id = fl.food_id;
+
+-- View for expiring foods (using total quantities)
 CREATE VIEW expiring_foods AS
 SELECT 
-    id, name, category, quantity, unit, expiry_date, location,
-    CAST(julianday(expiry_date) - julianday('now') AS INTEGER) as days_until_expiry
-FROM foods 
-WHERE expiry_date IS NOT NULL 
-    AND date(expiry_date) <= date('now', '+7 days')
-    AND date(expiry_date) >= date('now')
-ORDER BY expiry_date ASC;
+    f.id,
+    f.name,
+    f.category,
+    f.unit,
+    f.expiry_date,
+    f.purchase_date,
+    f.purchase_location,
+    f.notes,
+    f.user_id,
+    f.group_id,
+    COALESCE(SUM(fl.quantity), 0) as total_quantity,
+    CAST((julianday(f.expiry_date) - julianday('now')) AS INTEGER) as days_until_expiry
+FROM foods f
+LEFT JOIN food_locations fl ON f.id = fl.food_id
+WHERE f.expiry_date IS NOT NULL 
+  AND julianday(f.expiry_date) - julianday('now') <= 7
+  AND julianday(f.expiry_date) - julianday('now') >= 0
+GROUP BY f.id
+ORDER BY f.expiry_date ASC;
 
 -- View for ingredients with their total quantities across all locations
 CREATE VIEW ingredient_totals AS
