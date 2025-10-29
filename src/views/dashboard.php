@@ -93,7 +93,7 @@
                                             <input type="number" 
                                                    step="0.1"
                                                    name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][quantity]" 
-                                                   value="<?php echo $result['quantity']; ?>"
+                                                   value="<?php echo $result['total_quantity'] ?? $result['quantity'] ?? 0; ?>"
                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
                                         </div>
                                         
@@ -265,11 +265,11 @@
                     if (isset($low_stock_foods) && $low_stock_foods && is_object($low_stock_foods)) {
                         while ($row = $low_stock_foods->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_foods_count++;
-                            $is_zero = ($row['quantity'] == 0);
+                            $is_zero = ($row['total_quantity'] == 0);
                         ?>
                             <div class="low-stock-item" style="<?php echo $is_zero ? 'color: #ff4444;' : ''; ?>">
                                 <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo $row['quantity'] . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
+                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
                             </div>
                         <?php endwhile;
                     }
@@ -364,13 +364,12 @@
                 <h3><span class="card-icon">🍎</span> Food Items</h3>
                 <div class="table-container">
                     <table class="inventory-table">
-                    <thead>
+                        <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Category</th>
                                 <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
-                                <th>Quantity</th>
-                                <th>Location</th>
+                                <th>Total Quantity</th>
                                 <th>Purchase Date</th>
                                 <th>Expiry Date</th>
                                 <th>Actions</th>
@@ -387,8 +386,7 @@
                                         <td><?php echo htmlspecialchars($row['name']); ?></td>
                                         <td><?php echo htmlspecialchars($row['category']); ?></td>
                                         <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
-                                        <td><?php echo $row['quantity'] . ' ' . $row['unit']; ?></td>
-                                        <td><?php echo htmlspecialchars($row['location']); ?></td>
+                                        <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
                                         <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                         <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
                                         <td class="table-actions">
@@ -408,7 +406,7 @@
                                 <?php endwhile;
                             }
                             if ($food_count == 0): ?>
-                                <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
+                                <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
