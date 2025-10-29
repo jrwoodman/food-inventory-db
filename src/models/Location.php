@@ -123,7 +123,8 @@ class Location {
     
     // Get count of foods using this location
     public function getFoodCount() {
-        $query = "SELECT COUNT(*) as count FROM foods WHERE location = (SELECT name FROM " . $this->table_name . " WHERE id = ?)";
+        $query = "SELECT COUNT(*) as count FROM food_locations 
+                 WHERE location = (SELECT name FROM " . $this->table_name . " WHERE id = ?)";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$this->id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -152,8 +153,8 @@ class Location {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $old_location_name = $row['name'];
             
-            // Update foods
-            $query = "UPDATE foods SET location = ? WHERE location = ?";
+            // Update food_locations
+            $query = "UPDATE food_locations SET location = ? WHERE location = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$new_location_name, $old_location_name]);
             
