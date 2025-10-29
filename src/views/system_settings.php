@@ -375,82 +375,110 @@
         <div id="stores-tab" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>Store Locations</h3>
-                    <a href="index.php?action=add_store" class="btn btn-success">+ Add Store</a>
+                    <h3>Store Chains & Locations</h3>
+                    <a href="index.php?action=add_store" class="btn btn-success">+ Add Store Chain</a>
                 </div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Store Name</th>
-                                <th>Address</th>
-                                <th>Phone</th>
-                                <th>Website</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php 
-                            $store_count = 0;
-                            foreach ($stores as $row): 
-                                $store_count++;
-                            ?>
-                                <tr>
-                                    <td>
-                                        <strong><?php echo htmlspecialchars($row['name']); ?></strong>
-                                        <?php if(!empty($row['notes'])): ?>
-                                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;"><?php echo htmlspecialchars($row['notes']); ?></div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo !empty($row['address']) ? htmlspecialchars($row['address']) : '-'; ?></td>
-                                    <td><?php echo !empty($row['phone']) ? htmlspecialchars($row['phone']) : '-'; ?></td>
-                                    <td>
-                                        <?php if(!empty($row['website'])): ?>
-                                            <a href="<?php echo htmlspecialchars($row['website']); ?>" target="_blank" style="color: var(--accent-primary);">
-                                                Visit →
-                                            </a>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if($row['is_active']): ?>
-                                            <span class="badge badge-success">Active</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-danger">Inactive</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo date('M j, Y', strtotime($row['created_at'])); ?></td>
-                                    <td class="table-actions">
-                                        <a href="index.php?action=edit_store&id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary">✏️ Edit</a>
-                                        <a href="index.php?action=toggle_store_status&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-secondary"
-                                           onclick="return confirm('Toggle store status?');">
-                                            <?php echo $row['is_active'] ? '🚫 Deactivate' : '✅ Activate'; ?>
-                                        </a>
-                                        <?php if(!$row['is_active']): ?>
-                                            <a href="index.php?action=delete_store&id=<?php echo $row['id']; ?>" 
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Permanently delete this store?');">
-                                                🗑️ Delete
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php if($store_count == 0): ?>
-                                <tr>
-                                    <td colspan="7" class="no-items">
-                                        No stores found. <a href="index.php?action=add_store">Add your first store!</a>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                <?php 
+                $store_count = 0;
+                foreach ($stores as $chain): 
+                    $store_count++;
+                ?>
+                    <div style="background: var(--bg-secondary); padding: 1rem; margin-bottom: 1rem; border-radius: 4px; border-left: 3px solid <?php echo $chain['is_active'] ? 'var(--accent-primary)' : 'var(--text-muted)'; ?>;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 0.5rem 0;">
+                                    🏪 <?php echo htmlspecialchars($chain['name']); ?>
+                                    <?php if(!$chain['is_active']): ?>
+                                        <span class="badge badge-danger" style="font-size: 0.75rem; margin-left: 0.5rem;">Inactive</span>
+                                    <?php endif; ?>
+                                </h4>
+                                <div style="display: flex; gap: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                                    <?php if(!empty($chain['website'])): ?>
+                                        <span>🌐 <a href="<?php echo htmlspecialchars($chain['website']); ?>" target="_blank" style="color: var(--accent-primary);"><?php echo htmlspecialchars($chain['website']); ?></a></span>
+                                    <?php endif; ?>
+                                    <span>📍 <?php echo $chain['location_count']; ?> location<?php echo $chain['location_count'] != 1 ? 's' : ''; ?></span>
+                                </div>
+                                <?php if(!empty($chain['notes'])): ?>
+                                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;"><?php echo htmlspecialchars($chain['notes']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="table-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <a href="index.php?action=edit_store&id=<?php echo $chain['id']; ?>" class="btn btn-sm btn-primary">✏️ Edit Chain</a>
+                                <a href="index.php?action=add_store_location&chain_id=<?php echo $chain['id']; ?>" class="btn btn-sm btn-success">+ Add Location</a>
+                                <a href="index.php?action=toggle_store_status&id=<?php echo $chain['id']; ?>" 
+                                   class="btn btn-sm btn-secondary"
+                                   onclick="return confirm('Toggle chain status?');">
+                                    <?php echo $chain['is_active'] ? '🚫 Deactivate' : '✅ Activate'; ?>
+                                </a>
+                                <?php if(!$chain['is_active'] && $chain['location_count'] == 0): ?>
+                                    <a href="index.php?action=delete_store&id=<?php echo $chain['id']; ?>" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Permanently delete this chain?');">
+                                        🗑️ Delete
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <?php if(!empty($chain['locations'])): ?>
+                            <details style="margin-top: 1rem;">
+                                <summary style="cursor: pointer; font-weight: 600; padding: 0.5rem; background: var(--bg-primary); border-radius: 4px; user-select: none;">
+                                    📍 Locations (<?php echo count($chain['locations']); ?>)
+                                </summary>
+                                <div style="margin-top: 0.75rem; padding-left: 1rem;">
+                                    <?php foreach($chain['locations'] as $location): ?>
+                                        <div style="background: var(--card-bg); padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                                <div style="flex: 1;">
+                                                    <strong><?php echo htmlspecialchars($location['location_name'] ?: 'Unnamed Location'); ?></strong>
+                                                    <?php if(!$location['is_active']): ?>
+                                                        <span class="badge badge-danger" style="font-size: 0.7rem; margin-left: 0.5rem;">Inactive</span>
+                                                    <?php endif; ?>
+                                                    <?php if(!empty($location['address'])): ?>
+                                                        <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">📍 <?php echo htmlspecialchars($location['address']); ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if(!empty($location['phone'])): ?>
+                                                        <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">📞 <?php echo htmlspecialchars($location['phone']); ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if(!empty($location['hours'])): ?>
+                                                        <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">🕐 <?php echo htmlspecialchars($location['hours']); ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if(!empty($location['notes'])): ?>
+                                                        <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; font-style: italic;"><?php echo htmlspecialchars($location['notes']); ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="table-actions" style="display: flex; gap: 0.25rem;">
+                                                    <a href="index.php?action=edit_store_location&id=<?php echo $location['id']; ?>" class="btn btn-sm btn-primary">✏️</a>
+                                                    <a href="index.php?action=toggle_store_location_status&id=<?php echo $location['id']; ?>" 
+                                                       class="btn btn-sm btn-secondary"
+                                                       title="<?php echo $location['is_active'] ? 'Deactivate' : 'Activate'; ?>">
+                                                        <?php echo $location['is_active'] ? '🚫' : '✅'; ?>
+                                                    </a>
+                                                    <a href="index.php?action=delete_store_location&id=<?php echo $location['id']; ?>" 
+                                                       class="btn btn-sm btn-danger"
+                                                       onclick="return confirm('Delete this location?');">
+                                                        🗑️
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </details>
+                        <?php else: ?>
+                            <div style="padding: 0.75rem; text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-top: 0.75rem; background: var(--card-bg); border-radius: 4px;">
+                                No locations added yet. <a href="index.php?action=add_store_location&chain_id=<?php echo $chain['id']; ?>">Add first location</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+                
+                <?php if($store_count == 0): ?>
+                    <div class="card">
+                        <p class="no-items">No store chains found. <a href="index.php?action=add_store">Add your first store chain!</a></p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
