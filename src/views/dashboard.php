@@ -70,7 +70,8 @@
                     <button type="submit" class="btn btn-primary">Search</button>
                 </form>
                 
-                <?php if (isset($search_results) && !empty($search_results)): ?>
+                <?php if (isset($search_results)): ?>
+                    <?php if (!empty($search_results)): ?>
                     <div style="background: var(--card-bg); padding: 1rem; border-radius: 4px; border: 1px solid var(--border-color);">
                         <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> items found)</h4>
                         <form method="POST" action="index.php?action=bulk_update" id="bulk-update-form">
@@ -197,6 +198,11 @@
                             </div>
                         </form>
                     </div>
+                    <?php else: ?>
+                    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 4px; border: 1px solid var(--border-color); text-align: center;">
+                        <p style="color: var(--text-muted); margin: 0;">🔍 No items found matching your search.</p>
+                    </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
