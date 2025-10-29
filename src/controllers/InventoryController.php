@@ -299,7 +299,7 @@ class InventoryController {
         $food->id = $_GET['id'] ?? 0;
         
         // Get stores, locations, units and categories for dropdowns
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         $food_categories = Category::getCategoryOptions($this->db, 'food');
@@ -358,7 +358,7 @@ class InventoryController {
         }
         
         // Get stores, locations, units and categories for dropdowns
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         $ingredient_categories = Category::getCategoryOptions($this->db, 'ingredient');
@@ -623,7 +623,7 @@ class InventoryController {
         $ingredient->id = $_GET['id'] ?? 0;
         
         // Get stores, locations, units and categories for dropdowns
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         $ingredient_categories = Category::getCategoryOptions($this->db, 'ingredient');
@@ -1777,7 +1777,7 @@ class InventoryController {
         }
         
         // Get dropdown options for the form
-        $stores = Store::getStoreOptions($this->db);
+        $stores = StoreChain::getChainOptions($this->db);
         $locations = Location::getLocationOptions($this->db, true);
         $units = Unit::getUnitOptions($this->db, true);
         
