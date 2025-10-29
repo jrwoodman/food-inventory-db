@@ -43,9 +43,23 @@
             <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
-                <a href="index.php?action=user_management">👥 Users & Groups</a>
-                <a href="index.php?action=system_settings" class="active">⚙️ System Settings</a>
-                <a href="index.php?action=profile">⚙️ Profile</a>
+                <?php if ($current_user->canEdit()): ?>
+                    <a href="index.php?action=add_food">🍎 Add Food</a>
+                    <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
+                    <a href="index.php?action=track_meal">🍴 Track Meal</a>
+                <?php endif; ?>
+                <?php if ($current_user->isAdmin()): ?>
+                    <a href="index.php?action=user_management">👥 Users & Groups</a>
+                    <a href="index.php?action=system_settings" class="active">⚙️ System Settings</a>
+                <?php else: ?>
+                    <a href="index.php?action=list_groups">👥 Groups</a>
+                <?php endif; ?>
+                <a href="index.php?action=profile" style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="background: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
+                        <?php echo strtoupper(substr($current_user->username, 0, 1)); ?>
+                    </span>
+                    <?php echo htmlspecialchars($current_user->username); ?>
+                </a>
                 <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>
@@ -375,7 +389,28 @@
             
             // Add active class to clicked tab
             event.target.classList.add('active');
+            
+            // Update URL hash
+            window.location.hash = tabName;
         }
+        
+        // On page load, check for hash and activate the correct tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1); // Remove the '#'
+            if (hash && document.getElementById(hash + '-tab')) {
+                // Hide all tabs first
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show the requested tab
+                document.getElementById(hash + '-tab').classList.add('active');
+                document.querySelector(`[onclick*="showTab('${hash}')"]`).classList.add('active');
+            }
+        });
     </script>
 </body>
 </html>

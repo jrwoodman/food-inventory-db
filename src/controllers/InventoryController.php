@@ -739,7 +739,7 @@ class InventoryController {
             if ($store->nameExists()) {
                 $error = "A store with this name already exists.";
             } else if ($store->create()) {
-                header('Location: index.php?action=system_settings&message=Store added successfully');
+                header('Location: index.php?action=system_settings&message=Store#stores added successfully');
                 exit();
             } else {
                 $error = "Unable to add store.";
@@ -777,7 +777,7 @@ class InventoryController {
             if ($store->name !== $original_store->name && $store->nameExists($store->id)) {
                 $error = "A store with this name already exists.";
             } else if ($store->update()) {
-                header('Location: index.php?action=system_settings&message=Store updated successfully');
+                header('Location: index.php?action=system_settings&message=Store#stores updated successfully');
                 exit();
             } else {
                 $error = "Unable to update store.";
@@ -801,9 +801,9 @@ class InventoryController {
         $store->id = $_GET['id'] ?? 0;
         
         if ($store->hardDelete()) {
-            header('Location: index.php?action=system_settings&message=Store deleted successfully');
+            header('Location: index.php?action=system_settings&message=Store#stores deleted successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to delete store');
+            header('Location: index.php?action=system_settings&error=Unable to delete store#stores');
         }
         exit();
     }
@@ -819,9 +819,9 @@ class InventoryController {
         $store->id = $_GET['id'] ?? 0;
         
         if ($store->toggleActive()) {
-            header('Location: index.php?action=system_settings&message=Store status updated successfully');
+            header('Location: index.php?action=system_settings&message=Store#stores status updated successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to update store status');
+            header('Location: index.php?action=system_settings&error=Unable to update store#stores status');
         }
         exit();
     }
@@ -858,7 +858,7 @@ class InventoryController {
             if ($location->nameExists()) {
                 $error = "A location with this name already exists.";
             } else if ($location->create()) {
-                header('Location: index.php?action=system_settings&message=Location added successfully');
+                header('Location: index.php?action=system_settings&message=Location#locations added successfully');
                 exit();
             } else {
                 $error = "Unable to add location.";
@@ -887,7 +887,7 @@ class InventoryController {
             if ($location->nameExists($location->id)) {
                 $error = "A location with this name already exists.";
             } else if ($location->update()) {
-                header('Location: index.php?action=system_settings&message=Location updated successfully');
+                header('Location: index.php?action=system_settings&message=Location#locations updated successfully');
                 exit();
             } else {
                 $error = "Unable to update location.";
@@ -920,7 +920,7 @@ class InventoryController {
             if ($_POST && isset($_POST['migrate_to'])) {
                 if ($location->migrateToLocation($_POST['migrate_to'])) {
                     if ($location->delete()) {
-                        header('Location: index.php?action=system_settings&message=Location deleted and items migrated successfully');
+                        header('Location: index.php?action=system_settings&message=Location#locations deleted and items migrated successfully');
                         exit();
                     }
                 }
@@ -934,9 +934,9 @@ class InventoryController {
         } else {
             // No items using this location, safe to delete
             if ($location->delete()) {
-                header('Location: index.php?action=system_settings&message=Location deleted successfully');
+                header('Location: index.php?action=system_settings&message=Location#locations deleted successfully');
             } else {
-                header('Location: index.php?action=system_settings&error=Unable to delete location');
+                header('Location: index.php?action=system_settings&error=Unable to delete location#locations');
             }
             exit();
         }
@@ -953,9 +953,9 @@ class InventoryController {
         $location->id = $_GET['id'] ?? 0;
         
         if ($location->toggleActive()) {
-            header('Location: index.php?action=system_settings&message=Location status updated successfully');
+            header('Location: index.php?action=system_settings&message=Location#locations status updated successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to update location status');
+            header('Location: index.php?action=system_settings&error=Unable to update location#locations status');
         }
         exit();
     }
@@ -1000,7 +1000,7 @@ class InventoryController {
             } else if ($unit->abbreviationExists()) {
                 $error = "A unit with this abbreviation already exists.";
             } else if ($unit->create()) {
-                header('Location: index.php?action=system_settings&message=Unit added successfully');
+                header('Location: index.php?action=system_settings&message=Unit#units added successfully');
                 exit();
             } else {
                 $error = "Unable to add unit.";
@@ -1032,7 +1032,7 @@ class InventoryController {
             } else if ($unit->abbreviationExists($unit->id)) {
                 $error = "A unit with this abbreviation already exists.";
             } else if ($unit->update()) {
-                header('Location: index.php?action=system_settings&message=Unit updated successfully');
+                header('Location: index.php?action=system_settings&message=Unit#units updated successfully');
                 exit();
             } else {
                 $error = "Unable to update unit.";
@@ -1056,9 +1056,9 @@ class InventoryController {
         $unit->id = $_GET['id'] ?? 0;
         
         if ($unit->delete()) {
-            header('Location: index.php?action=system_settings&message=Unit deleted successfully');
+            header('Location: index.php?action=system_settings&message=Unit#units deleted successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to delete unit');
+            header('Location: index.php?action=system_settings&error=Unable to delete unit#units');
         }
         exit();
     }
@@ -1074,9 +1074,9 @@ class InventoryController {
         $unit->id = $_GET['id'] ?? 0;
         
         if ($unit->toggleActive()) {
-            header('Location: index.php?action=system_settings&message=Unit status updated successfully');
+            header('Location: index.php?action=system_settings&message=Unit#units status updated successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to update unit status');
+            header('Location: index.php?action=system_settings&error=Unable to update unit#units status');
         }
         exit();
     }
@@ -1154,7 +1154,7 @@ class InventoryController {
             if ($category->nameExists($category->type)) {
                 $error = "A category with this name already exists for this type.";
             } else if ($category->create()) {
-                header('Location: index.php?action=system_settings&message=Category added successfully');
+                header('Location: index.php?action=system_settings&message=Category#categories added successfully');
                 exit();
             } else {
                 $error = "Unable to add category.";
@@ -1183,7 +1183,7 @@ class InventoryController {
             if ($category->nameExists($category->type, $category->id)) {
                 $error = "A category with this name already exists for this type.";
             } else if ($category->update()) {
-                header('Location: index.php?action=system_settings&message=Category updated successfully');
+                header('Location: index.php?action=system_settings&message=Category#categories updated successfully');
                 exit();
             } else {
                 $error = "Unable to update category.";
@@ -1207,9 +1207,9 @@ class InventoryController {
         $category->id = $_GET['id'] ?? 0;
         
         if ($category->delete()) {
-            header('Location: index.php?action=system_settings&message=Category deleted successfully');
+            header('Location: index.php?action=system_settings&message=Category#categories deleted successfully');
         } else {
-            header('Location: index.php?action=system_settings&error=Unable to delete category');
+            header('Location: index.php?action=system_settings&error=Unable to delete category#categories');
         }
         exit();
     }

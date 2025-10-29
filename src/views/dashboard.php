@@ -13,6 +13,7 @@
         <div class="header-content">
             <a href="index.php?action=dashboard" class="logo">🍽️ Food Inventory</a>
             <nav class="nav">
+                <a href="index.php?action=dashboard" class="active">📊 Dashboard</a>
                 <?php if ($current_user->canEdit()): ?>
                     <a href="index.php?action=add_food">🍎 Add Food</a>
                     <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
@@ -30,7 +31,7 @@
                     </span>
                     <?php echo htmlspecialchars($current_user->username); ?>
                 </a>
-                <a href="index.php?action=logout">🚺 Logout</a>
+                <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>
     </header>
