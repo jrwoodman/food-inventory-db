@@ -11,6 +11,9 @@ define('DB_PASS', '');
 // Application Configuration
 define('APP_NAME', 'Food & Ingredient Inventory');
 define('APP_TITLE', '🍽️ Food Inventory'); // Title shown in navigation/header
+define('APP_SUBTITLE', ''); // Optional subtitle shown below title (leave empty to hide)
+define('APP_ICON', ''); // Optional 64x64 icon path (e.g., '../assets/images/logo.png')
+define('APP_FAVICON', ''); // Optional favicon path (e.g., '../assets/images/favicon.ico')
 define('APP_VERSION', '1.0.0');
 define('APP_DESCRIPTION', 'A comprehensive food and ingredient inventory management system');
 

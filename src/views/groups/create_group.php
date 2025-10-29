@@ -6,12 +6,25 @@
     <meta name="theme-color" content="#1a1d23">
     <meta name="description" content="Create Group - Food & Ingredient Inventory Management">
     <title>Create Group - Food & Ingredient Inventory</title>
+    <?php if (APP_FAVICON): ?>
+    <link rel="icon" href="<?php echo APP_FAVICON; ?>" type="image/x-icon">
+    <?php endif; ?>
     <link rel="stylesheet" href="../assets/css/dark-theme.css">
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="index.php?action=dashboard" class="logo"><?php echo APP_TITLE; ?></a>
+            <a href="index.php?action=dashboard" class="logo" style="display: flex; align-items: center; gap: 0.75rem;">
+                <?php if (APP_ICON): ?>
+                    <img src="<?php echo APP_ICON; ?>" alt="<?php echo APP_NAME; ?>" style="width: 32px; height: 32px;">
+                <?php endif; ?>
+                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <span><?php echo APP_TITLE; ?></span>
+                    <?php if (APP_SUBTITLE): ?>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 400;"><?php echo APP_SUBTITLE; ?></span>
+                    <?php endif; ?>
+                </div>
+            </a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
                 <a href="index.php?action=list_groups">👥 Groups</a>
