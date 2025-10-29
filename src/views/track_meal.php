@@ -95,6 +95,7 @@
                                 <th>Unit</th>
                                 <th>Use Qty</th>
                                 <th>Action</th>
+                                <th>Edit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -172,6 +173,13 @@
                                             <?php endif; ?>
                                             Delete
                                         </label>
+                                    </td>
+                                    <td>
+                                        <a href="index.php?action=<?php echo $item['type'] === 'food' ? 'edit_food' : 'edit_ingredient'; ?>&id=<?php echo $item['id']; ?>" 
+                                           class="btn btn-sm"
+                                           title="Edit <?php echo htmlspecialchars($item['name']); ?>">
+                                            ✏️
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
