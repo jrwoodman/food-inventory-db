@@ -57,9 +57,9 @@
                     <a href="index.php?action=list_groups">👥 Groups</a>
                 <?php endif; ?>
                 <a href="index.php?action=profile" style="display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="background: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
-                        <?php echo strtoupper(substr($current_user->username, 0, 1)); ?>
-                    </span>
+                    <img src="<?php echo $current_user->getGravatarUrl(48); ?>" 
+                         alt="<?php echo htmlspecialchars($current_user->username); ?>" 
+                         style="width: 24px; height: 24px; border-radius: 50%;">
                     <?php echo htmlspecialchars($current_user->username); ?>
                 </a>
                 <a href="index.php?action=logout">🚪 Logout</a>

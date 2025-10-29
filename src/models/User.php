@@ -314,5 +314,16 @@ class User {
         $group_ids = $this->getGroupIds();
         return !empty($group_ids) ? $group_ids[0] : null;
     }
+
+    /**
+     * Get Gravatar URL for user's email
+     * @param int $size Size of avatar (default 80)
+     * @param string $default Default image type (404, mp, identicon, monsterid, wavatar, retro, robohash, blank)
+     * @return string Gravatar URL
+     */
+    public function getGravatarUrl($size = 80, $default = 'identicon') {
+        $hash = md5(strtolower(trim($this->email)));
+        return "https://www.gravatar.com/avatar/{$hash}?s={$size}&d={$default}";
+    }
 }
 ?>
