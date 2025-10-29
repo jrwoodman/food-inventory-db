@@ -27,13 +27,18 @@
             </a>
             <nav class="nav">
                 <a href="index.php?action=dashboard">📊 Dashboard</a>
-                <a href="index.php?action=list_groups">👥 Groups</a>
-                <?php if ($current_user->isAdmin()): ?>
-                <a href="index.php?action=users">👤 Users</a>
-                <a href="index.php?action=manage_locations">📍 Locations</a>
-                <a href="index.php?action=manage_stores">🏪 Stores</a>
+                <?php if ($current_user->canEdit()): ?>
+                    <a href="index.php?action=add_food">🍎 Add Food</a>
+                    <a href="index.php?action=add_ingredient">🧄 Add Ingredient</a>
+                    <a href="index.php?action=track_meal">🍴 Track Meal</a>
                 <?php endif; ?>
-                <a href="index.php?action=profile">⚙️ Profile</a>
+                <a href="index.php?action=system_settings">⚙️ Settings</a>
+                <a href="index.php?action=profile" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <img src="<?php echo $current_user->getGravatarUrl(64); ?>" 
+                         alt="<?php echo htmlspecialchars($current_user->username); ?>" 
+                         style="width: 32px; height: 32px; border-radius: 50%;">
+                    <?php echo htmlspecialchars($current_user->username); ?>
+                </a>
                 <a href="index.php?action=logout">🚪 Logout</a>
             </nav>
         </div>
