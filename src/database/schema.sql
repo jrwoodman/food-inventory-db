@@ -14,7 +14,10 @@ DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS foods;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS store_locations;
+DROP TABLE IF EXISTS store_chains;
 DROP TABLE IF EXISTS stores;
+DROP TABLE IF EXISTS units;
 DROP TABLE IF EXISTS user_groups;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS user_sessions;
@@ -79,17 +82,31 @@ CREATE TABLE locations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create stores table for purchase locations
-CREATE TABLE stores (
+-- Create store_chains table for store brands/chains
+CREATE TABLE store_chains (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE,
-    address TEXT,
-    phone VARCHAR(20),
     website VARCHAR(255),
     notes TEXT,
     is_active BOOLEAN DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create store_locations table for physical store locations
+CREATE TABLE store_locations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chain_id INTEGER NOT NULL,
+    location_name VARCHAR(255), -- e.g., "Downtown", "North Side"
+    address TEXT,
+    phone VARCHAR(20),
+    hours TEXT,
+    notes TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chain_id) REFERENCES store_chains(id) ON DELETE CASCADE,
+    UNIQUE(chain_id, location_name)
 );
 
 -- Create units table for measurement units
@@ -243,16 +260,26 @@ INSERT INTO locations (name, description, is_active) VALUES
 ('Wine Rack', 'Wine and beverage storage', 1),
 ('Other', 'Miscellaneous storage locations', 1);
 
--- Insert default stores
-INSERT INTO stores (name, address, phone, website, notes, is_active) VALUES
-('Walmart', '123 Main St, Anytown, ST 12345', '(555) 123-4567', 'https://walmart.com', 'Large grocery chain', 1),
-('Target', '456 Oak Ave, Anytown, ST 12345', '(555) 234-5678', 'https://target.com', 'Department store with groceries', 1),
-('Kroger', '789 Pine Rd, Anytown, ST 12345', '(555) 345-6789', 'https://kroger.com', 'Grocery store chain', 1),
-('Whole Foods', '321 Elm St, Anytown, ST 12345', '(555) 456-7890', 'https://wholefoodsmarket.com', 'Organic and natural foods', 1),
-('Costco', '654 Cedar Blvd, Anytown, ST 12345', '(555) 567-8901', 'https://costco.com', 'Warehouse club for bulk shopping', 1),
-('Local Market', '987 Maple Dr, Anytown, ST 12345', '(555) 678-9012', '', 'Small local grocery store', 1),
-('Farmers Market', 'Downtown Square, Anytown, ST 12345', '', '', 'Weekly farmers market', 1),
-('Online Order', '', '', '', 'Various online grocery delivery services', 1);
+-- Insert default store chains
+INSERT INTO store_chains (name, website, notes, is_active) VALUES
+('Walmart', 'https://walmart.com', 'Large grocery chain', 1),
+('Target', 'https://target.com', 'Department store with groceries', 1),
+('Kroger', 'https://kroger.com', 'Grocery store chain', 1),
+('Whole Foods', 'https://wholefoodsmarket.com', 'Organic and natural foods', 1),
+('Costco', 'https://costco.com', 'Warehouse club for bulk shopping', 1),
+('Local Market', '', 'Small local grocery store', 1),
+('Farmers Market', '', 'Weekly farmers market', 1),
+('Online Order', '', 'Various online grocery delivery services', 1);
+
+-- Insert default store locations
+INSERT INTO store_locations (chain_id, location_name, address, phone, hours, notes, is_active) VALUES
+(1, 'Main Street', '123 Main St, Anytown, ST 12345', '(555) 123-4567', 'Mon-Sun 8am-10pm', 'Main location', 1),
+(2, 'Oak Avenue', '456 Oak Ave, Anytown, ST 12345', '(555) 234-5678', 'Mon-Sun 8am-11pm', 'Near downtown', 1),
+(3, 'Pine Road', '789 Pine Rd, Anytown, ST 12345', '(555) 345-6789', 'Mon-Sun 7am-11pm', '24-hour pharmacy', 1),
+(4, 'Elm Street', '321 Elm St, Anytown, ST 12345', '(555) 456-7890', 'Mon-Sun 8am-9pm', 'Organic selection', 1),
+(5, 'Cedar Boulevard', '654 Cedar Blvd, Anytown, ST 12345', '(555) 567-8901', 'Mon-Sat 9am-8:30pm, Sun 10am-6pm', 'Membership required', 1),
+(6, 'Main Location', '987 Maple Dr, Anytown, ST 12345', '(555) 678-9012', 'Mon-Sat 7am-9pm', 'Family owned', 1),
+(7, 'Downtown Square', 'Downtown Square, Anytown, ST 12345', '', 'Saturdays 8am-2pm', 'Seasonal', 1);
 
 -- Insert default units
 INSERT INTO units (name, abbreviation, description, is_active) VALUES
