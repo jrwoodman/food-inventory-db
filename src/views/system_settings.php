@@ -87,15 +87,13 @@
         <div class="tabs">
             <?php if ($current_user->isAdmin()): ?>
                 <button class="tab active" onclick="showTab('users')">👤 Users</button>
-            <?php else: ?>
-                <button class="tab active" onclick="showTab('groups')">👥 Groups</button>
-            <?php endif; ?>
-            <button class="tab" onclick="showTab('groups')">👥 Groups</button>
-            <?php if ($current_user->isAdmin()): ?>
+                <button class="tab" onclick="showTab('groups')">👥 Groups</button>
                 <button class="tab" onclick="showTab('units')">📏 Units</button>
                 <button class="tab" onclick="showTab('categories')">🏷️ Categories</button>
                 <button class="tab" onclick="showTab('stores')">🏪 Stores</button>
                 <button class="tab" onclick="showTab('locations')">📍 Locations</button>
+            <?php else: ?>
+                <button class="tab active" onclick="showTab('groups')">👥 Groups</button>
             <?php endif; ?>
         </div>
 
@@ -232,7 +230,7 @@
 
         <?php if ($current_user->isAdmin()): ?>
         <!-- Units Tab -->
-        <div id="units-tab" class="tab-content active">
+        <div id="units-tab" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <h3>Measurement Units</h3>
