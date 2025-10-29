@@ -63,4 +63,4 @@ build/
 # Sensitive data
 *.pem
 *.key
-*.crt
+*.crtWARP.md
