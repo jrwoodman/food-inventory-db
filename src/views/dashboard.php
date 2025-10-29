@@ -86,6 +86,12 @@
                                             <?php echo htmlspecialchars($result['name']); ?>
                                             <span style="font-size: 0.875rem; color: var(--text-muted); font-weight: normal;">(<?php echo ucfirst($result['type']); ?>)</span>
                                         </h5>
+                                        <a href="index.php?action=<?php echo $result['type'] === 'food' ? 'edit_food' : 'edit_ingredient'; ?>&id=<?php echo $result['id']; ?>" 
+                                           class="btn btn-sm" 
+                                           style="white-space: nowrap;"
+                                           title="Edit <?php echo htmlspecialchars($result['name']); ?> individually">
+                                            ✏️ Edit
+                                        </a>
                                     </div>
                                     
                                     <input type="hidden" name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][type]" value="<?php echo $result['type']; ?>">
