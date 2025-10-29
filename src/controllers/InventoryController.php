@@ -1081,54 +1081,70 @@ class InventoryController {
         exit();
     }
     
-    // System Settings (Combined Units, Categories, Stores, and Locations)
+    // System Settings (Combined Units, Categories, Stores, Locations, and Users/Groups)
     public function systemSettings() {
-        // Check if user is admin
-        if (!$this->current_user->isAdmin()) {
-            header('Location: index.php?action=access_denied');
-            exit();
-        }
+        // All users can access, but admins see more tabs
         
-        // Get units
-        $unit = new Unit($this->db);
-        $units_stmt = $unit->read();
         $units = [];
-        while ($row = $units_stmt->fetch(PDO::FETCH_ASSOC)) {
-            $units[] = $row;
-        }
-        
-        // Get categories
-        $category = new Category($this->db);
-        $food_categories_stmt = $category->read('food');
         $food_categories = [];
-        while ($row = $food_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
-            $food_categories[] = $row;
-        }
-        
-        $ingredient_categories_stmt = $category->read('ingredient');
         $ingredient_categories = [];
-        while ($row = $ingredient_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
-            $ingredient_categories[] = $row;
-        }
-        
-        // Get stores
-        $store = new Store($this->db);
-        $stores_stmt = $store->read();
         $stores = [];
-        while ($row = $stores_stmt->fetch(PDO::FETCH_ASSOC)) {
-            $stores[] = $row;
+        $locations = [];
+        $users = null;
+        $groups = [];
+        
+        // Admin-only data
+        if ($this->current_user->isAdmin()) {
+            // Get units
+            $unit = new Unit($this->db);
+            $units_stmt = $unit->read();
+            while ($row = $units_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $units[] = $row;
+            }
+            
+            // Get categories
+            $category = new Category($this->db);
+            $food_categories_stmt = $category->read('food');
+            while ($row = $food_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $food_categories[] = $row;
+            }
+            
+            $ingredient_categories_stmt = $category->read('ingredient');
+            while ($row = $ingredient_categories_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $ingredient_categories[] = $row;
+            }
+            
+            // Get stores
+            $store = new Store($this->db);
+            $stores_stmt = $store->read();
+            while ($row = $stores_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $stores[] = $row;
+            }
+            
+            // Get locations
+            $location = new Location($this->db);
+            $locations_stmt = $location->read();
+            $location_model = new Location($this->db);
+            while ($row = $locations_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $location_model->id = $row['id'];
+                $row['food_count'] = $location_model->getFoodCount();
+                $row['ingredient_count'] = $location_model->getIngredientLocationCount();
+                $locations[] = $row;
+            }
+            
+            // Get users
+            $user = new User($this->db);
+            $users = $user->read();
         }
         
-        // Get locations
-        $location = new Location($this->db);
-        $locations_stmt = $location->read();
-        $locations = [];
-        $location_model = new Location($this->db);
-        while ($row = $locations_stmt->fetch(PDO::FETCH_ASSOC)) {
-            $location_model->id = $row['id'];
-            $row['food_count'] = $location_model->getFoodCount();
-            $row['ingredient_count'] = $location_model->getIngredientLocationCount();
-            $locations[] = $row;
+        // Get groups (all users can see groups)
+        $group_model = new Group($this->db);
+        $groups_stmt = $group_model->read();
+        while ($row = $groups_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $group_model->id = $row['id'];
+            $row['member_count'] = $group_model->getMemberCount();
+            $row['inventory_counts'] = $group_model->getInventoryCounts();
+            $groups[] = $row;
         }
         
         $current_user = $this->current_user;
