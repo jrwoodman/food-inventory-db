@@ -135,6 +135,7 @@ CREATE TABLE foods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(255) NOT NULL,
     category VARCHAR(100),
+    brand VARCHAR(255),
     unit VARCHAR(50) DEFAULT 'pieces',
     expiry_date DATE,
     purchase_date DATE,

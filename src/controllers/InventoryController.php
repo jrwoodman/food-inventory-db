@@ -179,6 +179,7 @@ class InventoryController {
                         $food = new Food($this->db);
                         $food->name = $name;
                         $food->category = $_POST['category'];
+                        $food->brand = $_POST['brand'];
                         $food->quantity = $quantity;
                         $food->unit = $_POST['unit'];
                         $food->expiry_date = $expiry_date;
@@ -257,6 +258,7 @@ class InventoryController {
                             
                             $food->name = $name;
                             $food->category = $_POST['category'];
+                            $food->brand = $_POST['brand'];
                             $food->quantity = $quantity;
                             $food->unit = $_POST['unit'];
                             $food->expiry_date = $_POST['expiry_date'];
@@ -314,6 +316,7 @@ class InventoryController {
         if ($_POST) {
             $food->name = $_POST['name'];
             $food->category = $_POST['category'];
+            $food->brand = $_POST['brand'];
             $food->quantity = $_POST['quantity'];
             $food->unit = $_POST['unit'];
             $food->expiry_date = $_POST['expiry_date'];

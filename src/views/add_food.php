@@ -116,6 +116,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <input type="text" id="brand" name="brand" placeholder="Brand name (optional)">
+                </div>
+
+                <div class="form-group">
                     <label for="group_id">Group *</label>
                     <select id="group_id" name="group_id" required>
                         <option value="">Select Group</option>

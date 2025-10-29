@@ -7,6 +7,7 @@ class Food {
     public $id;
     public $name;
     public $category;
+    public $brand;
     public $unit;
     public $expiry_date;
     public $purchase_date;
@@ -30,15 +31,16 @@ class Food {
             
             // Insert into foods table (without location and quantity)
             $query = "INSERT INTO " . $this->table_name . "
-                     (name, category, unit, expiry_date, purchase_date, 
+                     (name, category, brand, unit, expiry_date, purchase_date, 
                       purchase_location, notes, user_id, group_id, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
             $stmt = $this->conn->prepare($query);
 
             // Clean data
             $this->name = htmlspecialchars(strip_tags($this->name));
             $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->brand = htmlspecialchars(strip_tags($this->brand ?? ''));
             $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
             $this->expiry_date = $this->expiry_date ?: null;
             $this->purchase_date = $this->purchase_date ?: null;
@@ -50,6 +52,7 @@ class Food {
             $stmt->execute([
                 $this->name,
                 $this->category,
+                $this->brand,
                 $this->unit,
                 $this->expiry_date,
                 $this->purchase_date,
@@ -139,6 +142,7 @@ class Food {
         if($row) {
             $this->name = $row['name'];
             $this->category = $row['category'];
+            $this->brand = $row['brand'];
             $this->unit = $row['unit'];
             $this->expiry_date = $row['expiry_date'];
             $this->purchase_date = $row['purchase_date'];
@@ -163,7 +167,7 @@ class Food {
             
             // Update foods table (without location and quantity)
             $query = "UPDATE " . $this->table_name . "
-                     SET name = ?, category = ?, unit = ?, 
+                     SET name = ?, category = ?, brand = ?, unit = ?, 
                          expiry_date = ?, purchase_date = ?, purchase_location = ?,
                          notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
                      WHERE id = ?";
@@ -173,6 +177,7 @@ class Food {
             // Clean data
             $this->name = htmlspecialchars(strip_tags($this->name));
             $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
+            $this->brand = htmlspecialchars(strip_tags($this->brand ?? ''));
             $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
             $this->expiry_date = $this->expiry_date ?: null;
             $this->purchase_date = $this->purchase_date ?: null;
@@ -184,6 +189,7 @@ class Food {
             $stmt->execute([
                 $this->name,
                 $this->category,
+                $this->brand,
                 $this->unit,
                 $this->expiry_date,
                 $this->purchase_date,
