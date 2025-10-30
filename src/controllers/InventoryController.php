@@ -67,31 +67,31 @@ class InventoryController {
                 // Admin viewing all groups - show all items with group names
                 $foods = $food->read();
                 $ingredients = $ingredient->read();
-                $expiring_foods = $food->getExpiringItems(7);
-                $low_stock_ingredients = $ingredient->getLowStockItems(10);
-                $low_stock_foods = $food->getLowStockItems(10);
+                $expiring_foods = $food->getExpiringItems(EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItems(LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItems(LOW_STOCK_THRESHOLD);
             } else if ($filter_group_id) {
                 // Admin viewing specific group
                 $foods = $food->readByGroups([$filter_group_id]);
                 $ingredients = $ingredient->readByGroups([$filter_group_id]);
-                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], 7);
-                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], 10);
-                $low_stock_foods = $food->getLowStockItemsByGroups([$filter_group_id], 10);
+                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItemsByGroups([$filter_group_id], LOW_STOCK_THRESHOLD);
             } else {
                 // Admin not in any group and no filter selected
                 $foods = $food->read();
                 $ingredients = $ingredient->read();
-                $expiring_foods = $food->getExpiringItems(7);
-                $low_stock_ingredients = $ingredient->getLowStockItems(10);
-                $low_stock_foods = $food->getLowStockItems(10);
+                $expiring_foods = $food->getExpiringItems(EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItems(LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItems(LOW_STOCK_THRESHOLD);
             }
         } else if (!empty($group_ids)) {
             // Regular users see items from their groups
             $foods = $food->readByGroups($group_ids);
             $ingredients = $ingredient->readByGroups($group_ids);
-            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, 7);
-            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, 10);
-            $low_stock_foods = $food->getLowStockItemsByGroups($group_ids, 10);
+            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, EXPIRY_WARNING_DAYS);
+            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, LOW_STOCK_THRESHOLD);
+            $low_stock_foods = $food->getLowStockItemsByGroups($group_ids, LOW_STOCK_THRESHOLD);
         } else {
             // User not in any group - show empty results
             $foods = false;
@@ -1870,31 +1870,31 @@ class InventoryController {
                 // Admin viewing all groups - show all items with group names
                 $foods = $food->read();
                 $ingredients = $ingredient->read();
-                $expiring_foods = $food->getExpiringItems(7);
-                $low_stock_ingredients = $ingredient->getLowStockItems(10);
-                $low_stock_foods = $food->getLowStockItems(10);
+                $expiring_foods = $food->getExpiringItems(EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItems(LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItems(LOW_STOCK_THRESHOLD);
             } else if ($filter_group_id) {
                 // Admin viewing specific group
                 $foods = $food->readByGroups([$filter_group_id]);
                 $ingredients = $ingredient->readByGroups([$filter_group_id]);
-                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], 7);
-                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], 10);
-                $low_stock_foods = $food->getLowStockItemsByGroups([$filter_group_id], 10);
+                $expiring_foods = $food->getExpiringItemsByGroups([$filter_group_id], EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItemsByGroups([$filter_group_id], LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItemsByGroups([$filter_group_id], LOW_STOCK_THRESHOLD);
             } else {
                 // Admin not in any group and no filter selected
                 $foods = $food->read();
                 $ingredients = $ingredient->read();
-                $expiring_foods = $food->getExpiringItems(7);
-                $low_stock_ingredients = $ingredient->getLowStockItems(10);
-                $low_stock_foods = $food->getLowStockItems(10);
+                $expiring_foods = $food->getExpiringItems(EXPIRY_WARNING_DAYS);
+                $low_stock_ingredients = $ingredient->getLowStockItems(LOW_STOCK_THRESHOLD);
+                $low_stock_foods = $food->getLowStockItems(LOW_STOCK_THRESHOLD);
             }
         } else if (!empty($group_ids)) {
             // Regular users see items from their groups
             $foods = $food->readByGroups($group_ids);
             $ingredients = $ingredient->readByGroups($group_ids);
-            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, 7);
-            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, 10);
-            $low_stock_foods = $food->getLowStockItemsByGroups($group_ids, 10);
+            $expiring_foods = $food->getExpiringItemsByGroups($group_ids, EXPIRY_WARNING_DAYS);
+            $low_stock_ingredients = $ingredient->getLowStockItemsByGroups($group_ids, LOW_STOCK_THRESHOLD);
+            $low_stock_foods = $food->getLowStockItemsByGroups($group_ids, LOW_STOCK_THRESHOLD);
         } else {
             // User not in any group - show empty results
             $foods = false;
