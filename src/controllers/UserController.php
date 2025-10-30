@@ -36,6 +36,10 @@ class UserController {
                 }
             }
         }
+        
+        // Check if default admin password is still in use
+        $user_model = new User($this->db);
+        $show_default_credentials = $user_model->hasDefaultAdminPassword();
 
         include '../src/views/auth/login.php';
     }

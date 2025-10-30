@@ -325,5 +325,24 @@ class User {
         $hash = md5(strtolower(trim($this->email)));
         return "https://www.gravatar.com/avatar/{$hash}?s={$size}&d={$default}";
     }
+    
+    /**
+     * Check if default admin credentials (admin/admin123) are still valid
+     * @return bool True if default credentials work, false otherwise
+     */
+    public function hasDefaultAdminPassword() {
+        $query = "SELECT password_hash FROM " . $this->table_name . " WHERE username = 'admin' AND is_active = 1 LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($row) {
+            // Check if the password is still 'admin123'
+            return password_verify('admin123', $row['password_hash']);
+        }
+        
+        return false;
+    }
 }
 ?>

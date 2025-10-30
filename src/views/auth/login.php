@@ -41,10 +41,12 @@
                 </button>
             </form>
 
+            <?php if (isset($show_default_credentials) && $show_default_credentials): ?>
             <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
                 <p style="color: var(--text-muted); font-size: 0.875rem;">Default credentials: <strong style="color: var(--text-primary);">admin</strong> / <strong style="color: var(--text-primary);">admin123</strong></p>
                 <small style="color: var(--text-muted);">Change after first login!</small>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
