@@ -51,8 +51,10 @@ class UserController {
         $user_model = new User($this->db);
         $users_count = $user_model->getUsersCount();
         
+        $current_user = null;
         if ($users_count > 0) {
             $this->auth->requireAdmin();
+            $current_user = $this->auth->getCurrentUser();
         }
 
         // Get all groups for selection (if admin is creating user)
