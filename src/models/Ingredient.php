@@ -1,4 +1,5 @@
 <?php
+// Version: 2025-10-30-17:10 - Force cache reload
 class Ingredient {
     private $conn;
     private $table_name = "ingredients";
