@@ -249,11 +249,16 @@ class Ingredient {
     }
 
     public function getLowStockItems($threshold = 10) {
-        $query = "SELECT * FROM low_stock_ingredients WHERE total_quantity <= :threshold ORDER BY total_quantity ASC";
+        $query = "SELECT i.*, 
+                  COALESCE(SUM(il.quantity), 0) as total_quantity
+                  FROM " . $this->table_name . " i
+                  LEFT JOIN " . $this->locations_table . " il ON i.id = il.ingredient_id
+                  GROUP BY i.id
+                  HAVING total_quantity <= ?
+                  ORDER BY total_quantity ASC, i.name ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":threshold", $threshold);
-        $stmt->execute();
+        $stmt->execute([$threshold]);
         return $stmt;
     }
     
