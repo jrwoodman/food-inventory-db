@@ -229,6 +229,7 @@
             <!-- Low Stock Ingredients Alert -->
             <div class="card alert-card">
                 <h3><span class="card-icon">🧄</span> Low Stock Ingredients</h3>
+                <!-- DEBUG: Threshold = <?php echo LOW_STOCK_THRESHOLD; ?> -->
                 <div class="low-stock-items">
                     <?php
                     $low_stock_count = 0;
@@ -236,6 +237,8 @@
                         while ($row = $low_stock_ingredients->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_count++;
                             $qty = $row['total_quantity'] ?? 0;
+                            // DEBUG
+                            echo "<!-- Item: {$row['name']}, Qty: {$qty}, Threshold: " . LOW_STOCK_THRESHOLD . " -->";
                             $is_zero = ($qty == 0);
                             $is_critical = ($qty > 0 && $qty <= CRITICAL_STOCK_THRESHOLD);
                             $is_low = ($qty > CRITICAL_STOCK_THRESHOLD && $qty <= LOW_STOCK_THRESHOLD);
