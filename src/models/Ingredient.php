@@ -260,16 +260,20 @@ class Ingredient {
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
         
-        // DEBUG: Log the query execution
-        error_log("getLowStockItems called with threshold: " . var_export($threshold, true) . " (type: " . gettype($threshold) . ")");
+        // DEBUG: Log to custom file
+        $debug_log = __DIR__ . '/../../logs/low_stock_debug.log';
+        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItems called with threshold: " . var_export($threshold, true) . " (type: " . gettype($threshold) . ")\n";
+        file_put_contents($debug_log, $log_msg, FILE_APPEND);
         
         $stmt->execute();
         
         // DEBUG: Count results
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("getLowStockItems returned " . count($results) . " items");
+        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItems returned " . count($results) . " items\n";
+        file_put_contents($debug_log, $log_msg, FILE_APPEND);
         foreach ($results as $r) {
-            error_log("  - {$r['name']}: {$r['total_quantity']}");
+            $log_msg = "  - {$r['name']}: {$r['total_quantity']}\n";
+            file_put_contents($debug_log, $log_msg, FILE_APPEND);
         }
         
         // Return a new statement with the results
