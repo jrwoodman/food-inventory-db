@@ -259,8 +259,24 @@ class Ingredient {
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
+        
+        // DEBUG: Log the query execution
+        error_log("getLowStockItems called with threshold: " . var_export($threshold, true) . " (type: " . gettype($threshold) . ")");
+        
         $stmt->execute();
-        return $stmt;
+        
+        // DEBUG: Count results
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("getLowStockItems returned " . count($results) . " items");
+        foreach ($results as $r) {
+            error_log("  - {$r['name']}: {$r['total_quantity']}");
+        }
+        
+        // Return a new statement with the results
+        $stmt2 = $this->conn->prepare("SELECT * FROM (" . $query . ")");
+        $stmt2->bindValue(1, (int)$threshold, PDO::PARAM_INT);
+        $stmt2->execute();
+        return $stmt2;
     }
     
     public function getLowStockItemsByUser($user_id, $threshold = 10) {
