@@ -287,7 +287,8 @@ class Food {
                  ORDER BY total_quantity ASC, f.name ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->execute([$threshold]);
+        $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt;
     }
     
@@ -305,7 +306,7 @@ class Food {
                  HAVING total_quantity <= ?
                  ORDER BY total_quantity ASC, f.name ASC";
         
-        $params = array_merge($group_ids, [$threshold]);
+        $params = array_merge($group_ids, [(int)$threshold]);
         $stmt = $this->conn->prepare($query);
         $stmt->execute($params);
         return $stmt;
