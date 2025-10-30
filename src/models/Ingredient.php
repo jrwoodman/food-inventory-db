@@ -341,9 +341,14 @@ class Ingredient {
             file_put_contents($debug_log, $log_msg, FILE_APPEND);
         }
         
-        // Return a new statement with results
+        // Re-execute query to return fresh statement
         $stmt2 = $this->conn->prepare($query);
-        $stmt2->execute($params);
+        $param_index = 1;
+        foreach ($group_ids as $group_id) {
+            $stmt2->bindValue($param_index++, $group_id, PDO::PARAM_INT);
+        }
+        $stmt2->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
+        $stmt2->execute();
         return $stmt2;
     }
     
