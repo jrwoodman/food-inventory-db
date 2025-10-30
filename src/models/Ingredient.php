@@ -1,5 +1,4 @@
 <?php
-// Version: 2025-10-30-17:10 - Force cache reload
 class Ingredient {
     private $conn;
     private $table_name = "ingredients";
@@ -260,28 +259,8 @@ class Ingredient {
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
-        
-        // DEBUG: Log to custom file
-        $debug_log = __DIR__ . '/../../logs/low_stock_debug.log';
-        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItems called with threshold: " . var_export($threshold, true) . " (type: " . gettype($threshold) . ")\n";
-        file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        
         $stmt->execute();
-        
-        // DEBUG: Count results
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItems returned " . count($results) . " items\n";
-        file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        foreach ($results as $r) {
-            $log_msg = "  - {$r['name']}: {$r['total_quantity']}\n";
-            file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        }
-        
-        // Return a new statement with the results
-        $stmt2 = $this->conn->prepare("SELECT * FROM (" . $query . ")");
-        $stmt2->bindValue(1, (int)$threshold, PDO::PARAM_INT);
-        $stmt2->execute();
-        return $stmt2;
+        return $stmt;
     }
     
     public function getLowStockItemsByUser($user_id, $threshold = 10) {
@@ -300,11 +279,6 @@ class Ingredient {
     }
 
     public function getLowStockItemsByGroups($group_ids, $threshold = 10) {
-        // DEBUG
-        $debug_log = '/tmp/low_stock_debug.log';
-        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItemsByGroups called with threshold: " . var_export($threshold, true) . ", groups: " . json_encode($group_ids) . "\n";
-        file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        
         if (empty($group_ids)) {
             return false;
         }
@@ -328,28 +302,7 @@ class Ingredient {
         // Bind threshold
         $stmt->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
         $stmt->execute();
-        
-        // DEBUG: Count results
-        $results = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $results[] = $row;
-        }
-        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItemsByGroups returned " . count($results) . " items\n";
-        file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        foreach ($results as $r) {
-            $log_msg = "  - {$r['name']}: {$r['total_quantity']}\n";
-            file_put_contents($debug_log, $log_msg, FILE_APPEND);
-        }
-        
-        // Re-execute query to return fresh statement
-        $stmt2 = $this->conn->prepare($query);
-        $param_index = 1;
-        foreach ($group_ids as $group_id) {
-            $stmt2->bindValue($param_index++, $group_id, PDO::PARAM_INT);
-        }
-        $stmt2->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
-        $stmt2->execute();
-        return $stmt2;
+        return $stmt;
     }
     
     // New methods for handling locations
