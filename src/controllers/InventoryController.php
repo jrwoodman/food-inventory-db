@@ -1771,14 +1771,15 @@ class InventoryController {
                 $group_ids = $this->current_user->getGroupIds();
                 
                 foreach ($search_terms as $term) {
-                    // Search foods
-                    $query = "SELECT f.*, 'food' as type, g.name as group_name 
+                    // Search foods with location details
+                    $query = "SELECT f.*, fl.location, fl.quantity, 'food' as type, g.name as group_name 
                               FROM foods f
+                              LEFT JOIN food_locations fl ON f.id = fl.food_id
                               LEFT JOIN groups g ON f.group_id = g.id
                               WHERE LOWER(f.name) LIKE LOWER(?)
                               " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
                                   "AND f.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
-                              ORDER BY f.name";
+                              ORDER BY f.name, fl.location";
                     
                     $params = ['%' . $term . '%'];
                     if (!$this->current_user->isAdmin() && !empty($group_ids)) {
@@ -1792,17 +1793,15 @@ class InventoryController {
                         $search_results[] = $row;
                     }
                     
-                    // Search ingredients
-                    $query = "SELECT i.*, 'ingredient' as type, g.name as group_name,
-                              COALESCE(SUM(il.quantity), 0) as quantity
+                    // Search ingredients with location details
+                    $query = "SELECT i.*, il.location, il.quantity, 'ingredient' as type, g.name as group_name
                               FROM ingredients i
                               LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
                               LEFT JOIN groups g ON i.group_id = g.id
                               WHERE LOWER(i.name) LIKE LOWER(?)
                               " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
                                   "AND i.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
-                              GROUP BY i.id
-                              ORDER BY i.name";
+                              ORDER BY i.name, il.location";
                     
                     $params = ['%' . $term . '%'];
                     if (!$this->current_user->isAdmin() && !empty($group_ids)) {

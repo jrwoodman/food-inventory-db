@@ -57,11 +57,8 @@
         <?php if ($current_user->canEdit()): ?>
             <!-- Multi-Search Widget -->
             <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>🔍 Quick Search & Update</h3>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">Enter item names separated by commas to search and update multiple items at once.</p>
-                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                    <strong>Note:</strong> For items stored in multiple locations, this shows aggregated quantities. Use the ✏️ Edit button on each item for location-specific updates.
-                </p>
+                <h3>🔍 Quick Search</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Enter item names separated by commas to quickly locate items and view their storage locations.</p>
                 <form method="GET" action="index.php" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                     <input type="hidden" name="action" value="bulk_search">
                     <input type="text" 
@@ -76,122 +73,54 @@
                 <?php if (isset($search_results)): ?>
                     <?php if (!empty($search_results)): ?>
                     <div style="background: var(--card-bg); padding: 1rem; border-radius: 4px; border: 1px solid var(--border-color);">
-                        <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> items found)</h4>
-                        <form method="POST" action="index.php?action=bulk_update" id="bulk-update-form">
+                        <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> locations found)</h4>
+                        <div style="display: grid; gap: 0.75rem;">
                             <?php foreach ($search_results as $result): ?>
-                                <div style="background: var(--bg-secondary); padding: 1rem; margin-bottom: 1rem; border-radius: 4px; border-left: 3px solid <?php echo $result['type'] === 'food' ? '#4CAF50' : '#FF9800'; ?>;">
-                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                        <h5 style="margin: 0;">
-                                            <?php echo $result['type'] === 'food' ? '🍎' : '🧄'; ?> 
-                                            <?php echo htmlspecialchars($result['name']); ?>
-                                            <span style="font-size: 0.875rem; color: var(--text-muted); font-weight: normal;">(<?php echo ucfirst($result['type']); ?>)</span>
-                                        </h5>
+                                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px; border-left: 3px solid <?php echo $result['type'] === 'food' ? '#4CAF50' : '#FF9800'; ?>;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <h5 style="margin: 0;">
+                                                    <?php echo $result['type'] === 'food' ? '🍎' : '🧄'; ?> 
+                                                    <?php echo htmlspecialchars($result['name']); ?>
+                                                </h5>
+                                                <span style="font-size: 0.75rem; padding: 0.125rem 0.5rem; background: var(--card-bg); border-radius: 12px; color: var(--text-muted);">
+                                                    <?php echo ucfirst($result['type']); ?>
+                                                </span>
+                                            </div>
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem;">
+                                                <div>
+                                                    <span style="color: var(--text-muted);">📍 Location:</span>
+                                                    <strong><?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?></strong>
+                                                </div>
+                                                <div>
+                                                    <span style="color: var(--text-muted);">📦 Quantity:</span>
+                                                    <strong><?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?></strong>
+                                                </div>
+                                                <?php if (!empty($result['category'])): ?>
+                                                <div>
+                                                    <span style="color: var(--text-muted);">🏷️ Category:</span>
+                                                    <strong><?php echo htmlspecialchars($result['category']); ?></strong>
+                                                </div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($result['expiry_date'])): ?>
+                                                <div>
+                                                    <span style="color: var(--text-muted);">📅 Expires:</span>
+                                                    <strong><?php echo date('M j, Y', strtotime($result['expiry_date'])); ?></strong>
+                                                </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                         <a href="index.php?action=<?php echo $result['type'] === 'food' ? 'edit_food' : 'edit_ingredient'; ?>&id=<?php echo $result['id']; ?>" 
                                            class="btn btn-sm" 
                                            style="white-space: nowrap;"
-                                           title="Edit <?php echo htmlspecialchars($result['name']); ?> individually">
+                                           title="Edit <?php echo htmlspecialchars($result['name']); ?>">
                                             ✏️ Edit
                                         </a>
                                     </div>
-                                    
-                                    <input type="hidden" name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][type]" value="<?php echo $result['type']; ?>">
-                                    <input type="hidden" name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][id]" value="<?php echo $result['id']; ?>">
-                                    
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Quantity</label>
-                                            <input type="number" 
-                                                   step="0.1"
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][quantity]" 
-                                                   value="<?php echo $result['total_quantity'] ?? $result['quantity'] ?? 0; ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Unit</label>
-                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][unit]"
-                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                                <option value="">Select unit...</option>
-                                                <?php if (isset($units)): foreach ($units as $unit_option): ?>
-                                                    <option value="<?php echo htmlspecialchars($unit_option['abbreviation']); ?>" 
-                                                            <?php echo ($result['unit'] == $unit_option['abbreviation']) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($unit_option['name']); ?> (<?php echo htmlspecialchars($unit_option['abbreviation']); ?>)
-                                                    </option>
-                                                <?php endforeach; endif; ?>
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Category</label>
-                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][category]"
-                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                                <option value="">Select category...</option>
-                                                <?php if (isset($categories)): foreach ($categories as $cat_option): ?>
-                                                    <option value="<?php echo htmlspecialchars($cat_option); ?>" 
-                                                            <?php echo ($result['category'] == $cat_option) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($cat_option); ?>
-                                                    </option>
-                                                <?php endforeach; endif; ?>
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;"><?php echo $result['type'] === 'food' ? 'Expiry Date' : 'Expiry Date'; ?></label>
-                                            <input type="date" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][expiry_date]" 
-                                                   value="<?php echo $result['expiry_date'] ?? ''; ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Purchase Date</label>
-                                            <input type="date" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_date]" 
-                                                   value="<?php echo date('Y-m-d'); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Purchase Location</label>
-                                            <select name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][purchase_location]"
-                                                    style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                                <option value="">Select store...</option>
-                                                <?php if (isset($stores)): foreach ($stores as $store): ?>
-                                                    <option value="<?php echo htmlspecialchars($store['name']); ?>" 
-                                                            <?php echo ($result['purchase_location'] == $store['name']) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($store['name']); ?>
-                                                    </option>
-                                                <?php endforeach; endif; ?>
-                                            </select>
-                                        </div>
-                                        
-                                        <?php if ($result['type'] === 'ingredient'): ?>
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Supplier</label>
-                                            <input type="text" 
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][supplier]" 
-                                                   value="<?php echo htmlspecialchars($result['supplier'] ?? ''); ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                        </div>
-                                        
-                                        <div class="form-group" style="margin: 0;">
-                                            <label style="font-size: 0.875rem;">Cost/Unit</label>
-                                            <input type="number" 
-                                                   step="0.1"
-                                                   name="items[<?php echo $result['type'] . '_' . $result['id']; ?>][cost_per_unit]" 
-                                                   value="<?php echo $result['cost_per_unit'] ?? ''; ?>"
-                                                   style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color);">
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
                                 </div>
                             <?php endforeach; ?>
-                            
-                            <div style="display: flex; gap: 0.5rem; justify-content: end; margin-top: 1rem;">
-                                <a href="index.php?action=dashboard" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-success">💾 Update All Items</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                     <?php else: ?>
                     <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 4px; border: 1px solid var(--border-color); text-align: center;">
