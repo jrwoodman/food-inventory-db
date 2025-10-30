@@ -300,6 +300,11 @@ class Ingredient {
     }
 
     public function getLowStockItemsByGroups($group_ids, $threshold = 10) {
+        // DEBUG
+        $debug_log = '/tmp/low_stock_debug.log';
+        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItemsByGroups called with threshold: " . var_export($threshold, true) . ", groups: " . json_encode($group_ids) . "\n";
+        file_put_contents($debug_log, $log_msg, FILE_APPEND);
+        
         if (empty($group_ids)) {
             return false;
         }
@@ -317,7 +322,23 @@ class Ingredient {
         $params = array_merge($group_ids, [(int)$threshold]);
         $stmt = $this->conn->prepare($query);
         $stmt->execute($params);
-        return $stmt;
+        
+        // DEBUG: Count results
+        $results = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $results[] = $row;
+        }
+        $log_msg = date('Y-m-d H:i:s') . " - getLowStockItemsByGroups returned " . count($results) . " items\n";
+        file_put_contents($debug_log, $log_msg, FILE_APPEND);
+        foreach ($results as $r) {
+            $log_msg = "  - {$r['name']}: {$r['total_quantity']}\n";
+            file_put_contents($debug_log, $log_msg, FILE_APPEND);
+        }
+        
+        // Return a new statement with results
+        $stmt2 = $this->conn->prepare($query);
+        $stmt2->execute($params);
+        return $stmt2;
     }
     
     // New methods for handling locations
