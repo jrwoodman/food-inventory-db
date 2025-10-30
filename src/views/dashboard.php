@@ -195,11 +195,28 @@
                     if (isset($low_stock_foods) && $low_stock_foods && is_object($low_stock_foods)) {
                         while ($row = $low_stock_foods->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_foods_count++;
-                            $is_zero = ($row['total_quantity'] == 0);
+                            $qty = $row['total_quantity'] ?? 0;
+                            $is_zero = ($qty == 0);
+                            $is_critical = ($qty > 0 && $qty <= CRITICAL_STOCK_THRESHOLD);
+                            $is_low = ($qty > CRITICAL_STOCK_THRESHOLD && $qty <= LOW_STOCK_THRESHOLD);
+                            
+                            // Determine color and icon
+                            $color = '';
+                            $icon = '';
+                            if ($is_zero) {
+                                $color = 'color: #ff4444; font-weight: bold;';
+                                $icon = ' 🚨';
+                            } elseif ($is_critical) {
+                                $color = 'color: #ff6b6b; font-weight: bold;';
+                                $icon = ' ⚠️';
+                            } elseif ($is_low) {
+                                $color = 'color: #ffa500;';
+                                $icon = ' ⚡';
+                            }
                         ?>
-                            <div class="low-stock-item" style="<?php echo $is_zero ? 'color: #ff4444;' : ''; ?>">
+                            <div class="low-stock-item" style="<?php echo $color; ?>">
                                 <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
+                                <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
                             </div>
                         <?php endwhile;
                     }
@@ -218,11 +235,28 @@
                     if ($low_stock_ingredients && is_object($low_stock_ingredients)) {
                         while ($row = $low_stock_ingredients->fetch(PDO::FETCH_ASSOC)): 
                             $low_stock_count++;
-                            $is_zero = ($row['total_quantity'] == 0);
+                            $qty = $row['total_quantity'] ?? 0;
+                            $is_zero = ($qty == 0);
+                            $is_critical = ($qty > 0 && $qty <= CRITICAL_STOCK_THRESHOLD);
+                            $is_low = ($qty > CRITICAL_STOCK_THRESHOLD && $qty <= LOW_STOCK_THRESHOLD);
+                            
+                            // Determine color and icon
+                            $color = '';
+                            $icon = '';
+                            if ($is_zero) {
+                                $color = 'color: #ff4444; font-weight: bold;';
+                                $icon = ' 🚨';
+                            } elseif ($is_critical) {
+                                $color = 'color: #ff6b6b; font-weight: bold;';
+                                $icon = ' ⚠️';
+                            } elseif ($is_low) {
+                                $color = 'color: #ffa500;';
+                                $icon = ' ⚡';
+                            }
                         ?>
-                            <div class="low-stock-item" style="<?php echo $is_zero ? 'color: #ff4444;' : ''; ?>">
+                            <div class="low-stock-item" style="<?php echo $color; ?>">
                                 <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?><?php echo $is_zero ? ' ⚠️' : ''; ?></span>
+                                <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
                             </div>
                         <?php endwhile;
                     }
