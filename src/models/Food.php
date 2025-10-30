@@ -306,9 +306,15 @@ class Food {
                  HAVING total_quantity <= ?
                  ORDER BY total_quantity ASC, f.name ASC";
         
-        $params = array_merge($group_ids, [(int)$threshold]);
         $stmt = $this->conn->prepare($query);
-        $stmt->execute($params);
+        // Bind group IDs
+        $param_index = 1;
+        foreach ($group_ids as $group_id) {
+            $stmt->bindValue($param_index++, $group_id, PDO::PARAM_INT);
+        }
+        // Bind threshold
+        $stmt->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt;
     }
 
