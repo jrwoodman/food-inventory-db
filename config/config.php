@@ -2,11 +2,16 @@
 // Food & Ingredient Inventory Database Configuration
 // This file contains all configuration settings for the application
 
+// Load environment-specific settings FIRST so they can override defaults
+if (file_exists(__DIR__ . '/local.php')) {
+    require_once __DIR__ . '/local.php';
+}
+
 // Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'food_inventory_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'food_inventory_db');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Application Configuration
 define('APP_NAME', 'Food & Ingredient Inventory');
@@ -34,9 +39,9 @@ define('MAX_UPLOAD_SIZE', 5242880); // 5MB in bytes
 define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'pdf']);
 
 // Alert Thresholds
-define('EXPIRY_WARNING_DAYS', 7);      // Show expiry warning for items expiring within 7 days
-define('LOW_STOCK_THRESHOLD', 10);      // Consider ingredients low stock when quantity <= 10
-define('CRITICAL_STOCK_THRESHOLD', 5);  // Critical stock level
+if (!defined('EXPIRY_WARNING_DAYS')) define('EXPIRY_WARNING_DAYS', 7);      // Show expiry warning for items expiring within 7 days
+if (!defined('LOW_STOCK_THRESHOLD')) define('LOW_STOCK_THRESHOLD', 10);      // Consider ingredients low stock when quantity <= 10
+if (!defined('CRITICAL_STOCK_THRESHOLD')) define('CRITICAL_STOCK_THRESHOLD', 5);  // Critical stock level
 
 // Email Configuration (for future notifications)
 define('SMTP_HOST', '');
@@ -110,10 +115,6 @@ function getBackupPath() {
     return __DIR__ . '/../' . BACKUP_DIR;
 }
 
-// Environment-specific settings
-if (file_exists(__DIR__ . '/local.php')) {
-    require_once __DIR__ . '/local.php';
-}
 
 // Auto-create necessary directories
 $directories = [

@@ -1,0 +1,22 @@
+<?php
+// Local configuration overrides
+// Copy this file to local.php and customize as needed
+// local.php is loaded BEFORE config.php defines constants, allowing you to override defaults
+// local.php is git-ignored and will not be committed
+
+// Override alert thresholds (uncomment and modify as needed)
+// define('EXPIRY_WARNING_DAYS', 14);      // Days before expiry to show warnings
+// define('LOW_STOCK_THRESHOLD', 100);     // Quantity threshold for low stock alerts
+// define('CRITICAL_STOCK_THRESHOLD', 50); // Critical stock level
+
+// Override database settings
+// define('DB_HOST', 'your-db-host');
+// define('DB_NAME', 'your-db-name');
+// define('DB_USER', 'your-db-user');
+// define('DB_PASS', 'your-db-password');
+
+// Override application settings
+// define('APP_TITLE', 'My Custom Title');
+// define('SESSION_TIMEOUT', 7200); // 2 hours
+// date_default_timezone_set('America/Los_Angeles');
+?>
