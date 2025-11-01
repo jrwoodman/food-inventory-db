@@ -5,6 +5,45 @@ All notable changes to the Food & Ingredient Inventory Management System will be
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-rc2] - 2025-11-01
+
+### Added
+- **Duplicate Detection & Warnings**
+  - API endpoints for checking food and ingredient duplicates
+  - Client-side duplicate warning modal on single item add
+  - Shows existing item details (category, brand/unit, locations with quantities)
+  - User choice to cancel or proceed with quantity update
+  - Automatic duplicate handling in bulk add mode
+
+- **Phone Number Formatting**
+  - Automatic formatting to (XXX) YYY-ZZZZ format on store location forms
+  - Real-time formatting as user types
+  - Cursor position preservation during formatting
+  - Auto-formats existing phone numbers on page load
+
+### Changed
+- **Track Meal Feature**
+  - Fixed to properly display location-specific quantities
+  - Foods and ingredients now expand to show separate rows per location
+  - Each location row displays its specific quantity
+  - Updates apply to specific locations only
+  - Improved form handling for multi-location updates
+
+### Fixed
+- Store location CRUD operations fully implemented
+  - Delete and deactivate functionality working correctly
+  - Proper redirects with anchor fragments
+  - Admin permission checks in place
+- Duplicate modal submission loop fixed
+  - Proper flag handling to prevent infinite checks
+  - Form submits correctly after user confirms update
+
+### Technical Improvements
+- Controller methods for duplicate checking (checkFoodDuplicate, checkIngredientDuplicate)
+- Location-specific key format for tracking updates (`{id}_{location}`)
+- Enhanced JavaScript for form validation and duplicate detection
+- Modal styling with dark theme support
+
 ## [1.0.0-rc1] - 2025-10-29
 
 ### Added
@@ -90,6 +129,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **1.0.0-rc2** (2025-11-01) - Release Candidate 2
+  - Multi-location tracking fixes
+  - Duplicate detection with user warnings
+  - Phone number auto-formatting
+  - Store location management complete
+  
 - **1.0.0-rc1** (2025-10-29) - Release Candidate 1
   - First release candidate
   - Feature complete for v1.0.0
