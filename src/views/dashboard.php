@@ -314,6 +314,7 @@
                                         if (!empty($row['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
                                         if (!empty($row['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
                                         if (!empty($row['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                        if (!empty($row['contains_nuts'])) $allergens[] = '<span class="badge badge-danger" style="background: #d32f2f; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Nuts</span>';
                                         echo !empty($allergens) ? implode('', $allergens) : '—';
                                         ?>
                                     </td>
@@ -382,6 +383,7 @@
                                             if (!empty($row['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
                                             if (!empty($row['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
                                             if (!empty($row['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                            if (!empty($row['contains_nuts'])) $allergens[] = '<span class="badge badge-danger" style="background: #d32f2f; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Nuts</span>';
                                             echo !empty($allergens) ? implode('', $allergens) : '—';
                                             ?>
                                         </td>
@@ -453,20 +455,22 @@
                 container.appendChild(showMoreBtn);
             }
             
-            // Apply to all alert widgets
+            // Apply to all alert widgets (there are multiple low-stock-items containers)
             setupShowMore('.expiring-items', '.expiring-item');
-            setupShowMore('.low-stock-items', '.low-stock-item');
-            // Get all low-stock-items containers (there are 2)
-            document.querySelectorAll('.low-stock-items').forEach((container, index) => {
+            
+            // Handle each low-stock-items container separately
+            document.querySelectorAll('.low-stock-items').forEach((container) => {
                 const items = Array.from(container.querySelectorAll('.low-stock-item'));
                 if (items.length <= itemsPerPage || itemsPerPage === 0) return;
                 
+                // Hide items beyond the limit
                 items.forEach((item, idx) => {
                     if (idx >= itemsPerPage) {
                         item.style.display = 'none';
                     }
                 });
                 
+                // Add show more button
                 const showMoreBtn = document.createElement('button');
                 showMoreBtn.className = 'btn btn-secondary btn-sm';
                 showMoreBtn.style.cssText = 'width: 100%; margin-top: 0.5rem;';

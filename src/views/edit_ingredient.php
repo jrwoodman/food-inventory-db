@@ -163,6 +163,10 @@
                             <input type="checkbox" name="contains_soy" value="1" <?php echo ($ingredient->contains_soy ?? 0) ? 'checked' : ''; ?>>
                             <span>Contains Soy</span>
                         </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_nuts" value="1" <?php echo ($ingredient->contains_nuts ?? 0) ? 'checked' : ''; ?>>
+                            <span>Contains Nuts</span>
+                        </label>
                     </div>
                 </div>
 

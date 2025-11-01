@@ -252,6 +252,10 @@
                             <input type="checkbox" name="contains_soy" value="1">
                             <span>Contains Soy</span>
                         </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_nuts" value="1">
+                            <span>Contains Nuts</span>
+                        </label>
                     </div>
                 </div>
 

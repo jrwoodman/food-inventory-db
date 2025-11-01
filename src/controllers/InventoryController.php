@@ -204,6 +204,7 @@ class InventoryController {
                         $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
                         $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
                         $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+                        $food->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
                         $food->user_id = $this->current_user->id;
                         $food->group_id = $group_id;
                         $food->locations = [['location' => $location, 'quantity' => $quantity]];
@@ -299,6 +300,7 @@ class InventoryController {
                             $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
                             $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
                             $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+                            $food->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
                             $food->user_id = $this->current_user->id;
                             $food->group_id = $group_id;
                             $food->locations = [['location' => $location, 'quantity' => $quantity]];
@@ -359,6 +361,7 @@ class InventoryController {
             $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
             $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
             $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+            $food->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
             $food->user_id = $this->current_user->id;
             $food->group_id = $_POST['group_id'] ?? null;
             
@@ -506,6 +509,7 @@ class InventoryController {
                         $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
                         $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
                         $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+                        $ingredient->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
                         $ingredient->user_id = $this->current_user->id;
                         $ingredient->group_id = $group_id;
                         
@@ -783,6 +787,7 @@ class InventoryController {
             $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
             $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
             $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+            $ingredient->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
             $ingredient->user_id = $this->current_user->id;
             $ingredient->group_id = $_POST['group_id'] ?? null;
             
@@ -1488,6 +1493,7 @@ class InventoryController {
         $exclude_gluten = isset($_GET['exclude_gluten']);
         $exclude_milk = isset($_GET['exclude_milk']);
         $exclude_soy = isset($_GET['exclude_soy']);
+        $exclude_nuts = isset($_GET['exclude_nuts']);
         
         if ($_GET['search'] ?? '') {
             $search_query = $_GET['search'];
@@ -1503,6 +1509,7 @@ class InventoryController {
                         if ($exclude_gluten && !empty($row['contains_gluten'])) continue;
                         if ($exclude_milk && !empty($row['contains_milk'])) continue;
                         if ($exclude_soy && !empty($row['contains_soy'])) continue;
+                        if ($exclude_nuts && !empty($row['contains_nuts'])) continue;
                         
                         // Get full food details with locations
                         $f = new Food($this->db);
@@ -1541,6 +1548,7 @@ class InventoryController {
                         if ($exclude_gluten && !empty($row['contains_gluten'])) continue;
                         if ($exclude_milk && !empty($row['contains_milk'])) continue;
                         if ($exclude_soy && !empty($row['contains_soy'])) continue;
+                        if ($exclude_nuts && !empty($row['contains_nuts'])) continue;
                         
                         // Get full ingredient details with locations
                         $ing = new Ingredient($this->db);

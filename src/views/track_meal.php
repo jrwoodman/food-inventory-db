@@ -89,6 +89,10 @@
                             <input type="checkbox" name="exclude_soy" value="1" <?php echo isset($_GET['exclude_soy']) ? 'checked' : ''; ?>>
                             <span>Exclude Soy</span>
                         </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="exclude_nuts" value="1" <?php echo isset($_GET['exclude_nuts']) ? 'checked' : ''; ?>>
+                            <span>Exclude Nuts</span>
+                        </label>
                     </div>
                     <small style="color: var(--text-muted);">
                         Check allergens you want to avoid in search results
@@ -137,6 +141,7 @@
                                         if (!empty($item['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
                                         if (!empty($item['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
                                         if (!empty($item['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                        if (!empty($item['contains_nuts'])) $allergens[] = '<span class="badge badge-danger" style="background: #d32f2f; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Nuts</span>';
                                         echo !empty($allergens) ? implode('', $allergens) : '—';
                                         ?>
                                     </td>
