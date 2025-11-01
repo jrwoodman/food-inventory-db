@@ -521,19 +521,22 @@
                     const controls = document.getElementById(paginationControlsId);
                     controls.innerHTML = `
                         <span style="color: var(--text-muted); font-size: 0.9rem;">Page ${currentPage} of ${totalPages} (${rows.length} items)</span>
-                        <button class="btn btn-sm" ${currentPage === 1 ? 'disabled' : ''} onclick="${tableId}PrevPage()" style="${currentPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">&laquo; Prev</button>
-                        <button class="btn btn-sm" ${currentPage === totalPages ? 'disabled' : ''} onclick="${tableId}NextPage()" style="${currentPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Next &raquo;</button>
+                        <button class="btn btn-sm prev-btn" style="${currentPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">&laquo; Prev</button>
+                        <button class="btn btn-sm next-btn" style="${currentPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Next &raquo;</button>
                     `;
+                    
+                    // Attach event listeners
+                    const prevBtn = controls.querySelector('.prev-btn');
+                    const nextBtn = controls.querySelector('.next-btn');
+                    
+                    prevBtn.onclick = function() {
+                        if (currentPage > 1) showPage(currentPage - 1);
+                    };
+                    
+                    nextBtn.onclick = function() {
+                        if (currentPage < totalPages) showPage(currentPage + 1);
+                    };
                 }
-                
-                // Expose functions globally
-                window[`${tableId}PrevPage`] = function() {
-                    if (currentPage > 1) showPage(currentPage - 1);
-                };
-                
-                window[`${tableId}NextPage`] = function() {
-                    if (currentPage < totalPages) showPage(currentPage + 1);
-                };
                 
                 showPage(1);
             }
