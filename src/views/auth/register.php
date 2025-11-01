@@ -164,7 +164,7 @@
                         <?php echo $users_count == 0 ? '✓ Create Admin Account' : '✓ Add User'; ?>
                     </button>
                     <?php if($users_count > 0): ?>
-                        <a href="index.php?action=users" class="btn btn-secondary">Cancel</a>
+                        <a href="index.php?action=user_management#users" class="btn btn-secondary">Cancel</a>
                     <?php endif; ?>
                 </div>
             </form>
@@ -172,7 +172,7 @@
 
     <?php if($users_count > 0): ?>
         <div style="margin-top: 2rem;">
-            <a href="index.php?action=users" class="btn btn-secondary">← Back to Users</a>
+            <a href="index.php?action=user_management#users" class="btn btn-secondary">← Back to User Management</a>
         </div>
     </div>
     <?php else: ?>

@@ -132,7 +132,8 @@ class UserController {
                             header('Location: index.php?action=dashboard&message=Welcome! Account created successfully');
                             exit();
                         } else {
-                            $success = 'User created successfully';
+                            header('Location: index.php?action=user_management&message=User created successfully#users');
+                            exit();
                         }
                     } else {
                         $error = 'Failed to create user account';
@@ -188,7 +189,7 @@ class UserController {
         $success = '';
 
         if (!$user->readOne()) {
-            header('Location: index.php?action=users&error=User not found');
+            header('Location: index.php?action=user_management&error=User not found#users');
             exit();
         }
 
@@ -239,7 +240,7 @@ class UserController {
         $current_user = $this->auth->getCurrentUser();
 
         if ($user_id == $current_user->id) {
-            header('Location: index.php?action=users&error=Cannot delete your own account');
+            header('Location: index.php?action=user_management&error=Cannot delete your own account#users');
             exit();
         }
 
@@ -247,9 +248,9 @@ class UserController {
         $user->id = $user_id;
 
         if ($user->delete()) {
-            header('Location: index.php?action=users&message=User deleted successfully');
+            header('Location: index.php?action=user_management&message=User deleted successfully#users');
         } else {
-            header('Location: index.php?action=users&error=Failed to delete user');
+            header('Location: index.php?action=user_management&error=Failed to delete user#users');
         }
         exit();
     }

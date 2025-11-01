@@ -92,7 +92,7 @@
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button type="submit" class="btn btn-primary">✓ Update User</button>
-                    <a href="index.php?action=users" class="btn btn-secondary">Cancel</a>
+                    <a href="index.php?action=user_management#users" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
