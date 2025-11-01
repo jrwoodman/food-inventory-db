@@ -221,7 +221,7 @@ class InventoryController {
                     if ($error_count > 0) {
                         $message .= ' (' . $error_count . ' failed)';
                     }
-                    header('Location: index.php?action=dashboard&message=' . urlencode($message));
+                    header('Location: index.php?action=add_food&message=' . urlencode($message));
                     exit();
                 } else {
                     $error = "Unable to add any food items.";
@@ -316,7 +316,7 @@ class InventoryController {
                         if ($error_count > 0) {
                             $message .= ' (' . $error_count . ' failed)';
                         }
-                        header('Location: index.php?action=dashboard&message=' . urlencode($message));
+                        header('Location: index.php?action=add_food&message=' . urlencode($message));
                         exit();
                     } else {
                         $error = "Unable to add food items.";
@@ -529,7 +529,7 @@ class InventoryController {
                     if ($error_count > 0) {
                         $message .= ' (' . $error_count . ' failed)';
                     }
-                    header('Location: index.php?action=dashboard&message=' . urlencode($message));
+                    header('Location: index.php?action=add_ingredient&message=' . urlencode($message));
                     exit();
                 } else {
                     $error = "Unable to add any ingredient items.";
@@ -592,7 +592,7 @@ class InventoryController {
                         $ingredient->user_id = $this->current_user->id;
                         
                         if ($ingredient->update()) {
-                            header('Location: index.php?action=dashboard&message=Ingredient quantity updated successfully');
+                            header('Location: index.php?action=add_ingredient&message=' . urlencode('Ingredient quantity updated successfully'));
                             exit();
                         } else {
                             $error = "Unable to update ingredient.";
@@ -616,7 +616,7 @@ class InventoryController {
                     $ingredient->locations = $new_locations;
 
                     if($ingredient->create()) {
-                        header('Location: index.php?action=dashboard&message=Ingredient added successfully');
+                        header('Location: index.php?action=add_ingredient&message=' . urlencode('Ingredient added successfully'));
                         exit();
                     } else {
                         $error = "Unable to add ingredient.";
