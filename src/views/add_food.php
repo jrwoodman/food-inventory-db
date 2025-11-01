@@ -433,20 +433,22 @@
         function proceedWithUpdate() {
             console.log('proceedWithUpdate called');
             console.log('formToSubmit:', formToSubmit);
-            closeDuplicateModal();
             if (formToSubmit) {
                 duplicateDetected = true; // Set flag to bypass check
                 console.log('duplicateDetected set to true, about to submit');
+                const form = formToSubmit; // Save reference before closing modal
+                closeDuplicateModal(); // This sets formToSubmit to null
                 // Use requestSubmit if available, otherwise submit directly
-                if (formToSubmit.requestSubmit) {
+                if (form.requestSubmit) {
                     console.log('Using requestSubmit()');
-                    formToSubmit.requestSubmit();
+                    form.requestSubmit();
                 } else {
                     console.log('Using submit()');
-                    formToSubmit.submit();
+                    form.submit();
                 }
             } else {
                 console.error('formToSubmit is null!');
+                closeDuplicateModal();
             }
         }
         

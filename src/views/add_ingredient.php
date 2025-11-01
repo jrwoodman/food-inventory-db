@@ -441,15 +441,18 @@
         }
         
         function proceedWithUpdate() {
-            closeDuplicateModal();
             if (formToSubmit) {
                 duplicateDetected = true; // Set flag to bypass check
+                const form = formToSubmit; // Save reference before closing modal
+                closeDuplicateModal(); // This sets formToSubmit to null
                 // Use requestSubmit if available, otherwise submit directly
-                if (formToSubmit.requestSubmit) {
-                    formToSubmit.requestSubmit();
+                if (form.requestSubmit) {
+                    form.requestSubmit();
                 } else {
-                    formToSubmit.submit();
+                    form.submit();
                 }
+            } else {
+                closeDuplicateModal();
             }
         }
         
