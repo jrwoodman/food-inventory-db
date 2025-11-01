@@ -35,6 +35,7 @@ define('CSRF_TOKEN_EXPIRE', 1800); // 30 minutes in seconds
 
 // Application Settings
 define('DEFAULT_ITEMS_PER_PAGE', 50);
+define('DASHBOARD_ALERT_ITEMS_PER_PAGE', 10); // Number of items to show in dashboard alert widgets (0 = unlimited)
 define('MAX_UPLOAD_SIZE', 5242880); // 5MB in bytes
 define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'pdf']);
 

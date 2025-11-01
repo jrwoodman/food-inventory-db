@@ -410,7 +410,7 @@
     <script>
         // Limit items in alert widgets with show more/less functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const itemsPerPage = 10; // Configurable: set to 0 for no limit
+            const itemsPerPage = <?php echo DASHBOARD_ALERT_ITEMS_PER_PAGE; ?>; // Configurable in config.php: set to 0 for no limit
             
             function setupShowMore(containerSelector, itemSelector) {
                 const container = document.querySelector(containerSelector);
