@@ -277,9 +277,12 @@
 
         <!-- Ingredients Section (Full Width) -->
         <div class="card">
-            <h3><span class="card-icon">🧄</span> Ingredients</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;"><span class="card-icon">🧄</span> Ingredients</h3>
+                <div id="ingredients-pagination-controls" style="display: flex; gap: 0.5rem; align-items: center;"></div>
+            </div>
             <div class="table-container">
-                <table class="inventory-table">
+                <table class="inventory-table" id="ingredients-table">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -343,9 +346,12 @@
 
         <!-- Foods Section (Full Width) -->
             <div class="card">
-                <h3><span class="card-icon">🍎</span> Food Items</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;"><span class="card-icon">🍎</span> Food Items</h3>
+                    <div id="foods-pagination-controls" style="display: flex; gap: 0.5rem; align-items: center;"></div>
+                </div>
                 <div class="table-container">
-                    <table class="inventory-table">
+                    <table class="inventory-table" id="foods-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -479,6 +485,57 @@
                 
                 container.appendChild(showMoreBtn);
             });
+            
+            // Table pagination
+            const tableItemsPerPage = <?php echo DASHBOARD_TABLE_ITEMS_PER_PAGE; ?>;
+            
+            function setupTablePagination(tableId, paginationControlsId) {
+                const table = document.getElementById(tableId);
+                if (!table || tableItemsPerPage === 0) return;
+                
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.querySelector('.no-items'));
+                
+                if (rows.length <= tableItemsPerPage) return;
+                
+                let currentPage = 1;
+                const totalPages = Math.ceil(rows.length / tableItemsPerPage);
+                
+                function showPage(page) {
+                    currentPage = page;
+                    const start = (page - 1) * tableItemsPerPage;
+                    const end = start + tableItemsPerPage;
+                    
+                    rows.forEach((row, index) => {
+                        row.style.display = (index >= start && index < end) ? '' : 'none';
+                    });
+                    
+                    updatePaginationControls();
+                }
+                
+                function updatePaginationControls() {
+                    const controls = document.getElementById(paginationControlsId);
+                    controls.innerHTML = `
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Page ${currentPage} of ${totalPages} (${rows.length} items)</span>
+                        <button class="btn btn-sm" ${currentPage === 1 ? 'disabled' : ''} onclick="${tableId}PrevPage()" style="${currentPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">&laquo; Prev</button>
+                        <button class="btn btn-sm" ${currentPage === totalPages ? 'disabled' : ''} onclick="${tableId}NextPage()" style="${currentPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Next &raquo;</button>
+                    `;
+                }
+                
+                // Expose functions globally
+                window[`${tableId}PrevPage`] = function() {
+                    if (currentPage > 1) showPage(currentPage - 1);
+                };
+                
+                window[`${tableId}NextPage`] = function() {
+                    if (currentPage < totalPages) showPage(currentPage + 1);
+                };
+                
+                showPage(1);
+            }
+            
+            setupTablePagination('ingredients-table', 'ingredients-pagination-controls');
+            setupTablePagination('foods-table', 'foods-pagination-controls');
         });
     </script>
     <script src="../assets/js/app.js"></script>
