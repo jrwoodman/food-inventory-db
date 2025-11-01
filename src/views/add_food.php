@@ -386,7 +386,22 @@
         </div>
     </div>
 
+    <!-- Duplicate Warning Modal -->
+    <div id="duplicateModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; max-width: 500px; margin: 2rem;">
+            <h3 style="margin-top: 0; color: var(--warning-color);">⚠️ Duplicate Item Detected</h3>
+            <p id="duplicateMessage"></p>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeDuplicateModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="proceedWithUpdate()">Update Quantities</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let duplicateDetected = false;
+        let formToSubmit = null;
+        
         function showTab(tabName) {
             // Hide all tab content
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -404,6 +419,66 @@
             // Add active class to clicked tab
             event.target.classList.add('active');
         }
+        
+        function showDuplicateModal(message) {
+            document.getElementById('duplicateMessage').innerHTML = message;
+            document.getElementById('duplicateModal').style.display = 'flex';
+        }
+        
+        function closeDuplicateModal() {
+            document.getElementById('duplicateModal').style.display = 'none';
+            formToSubmit = null;
+        }
+        
+        function proceedWithUpdate() {
+            duplicateDetected = false;
+            closeDuplicateModal();
+            if (formToSubmit) {
+                formToSubmit.submit();
+            }
+        }
+        
+        // Check for duplicates on single add form submit
+        document.querySelector('#single-tab form').addEventListener('submit', function(e) {
+            if (duplicateDetected) {
+                return true; // Allow submission
+            }
+            
+            e.preventDefault();
+            const form = this;
+            const name = form.querySelector('#name').value;
+            const groupId = form.querySelector('#group_id').value;
+            
+            if (!name || !groupId) {
+                form.submit();
+                return;
+            }
+            
+            // Check for duplicate
+            fetch(`index.php?action=check_food_duplicate&name=${encodeURIComponent(name)}&group_id=${groupId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists && data.food) {
+                        const food = data.food;
+                        let message = `<p>A food item named <strong>${food.name}</strong> already exists in this group:</p>`;
+                        message += `<ul style="text-align: left; margin: 1rem 0;">`;
+                        if (food.category) message += `<li>Category: ${food.category}</li>`;
+                        if (food.brand) message += `<li>Brand: ${food.brand}</li>`;
+                        if (food.locations) message += `<li>Locations: ${food.locations}</li>`;
+                        message += `</ul>`;
+                        message += `<p>Do you want to <strong>add to the existing quantities</strong> at the specified locations?</p>`;
+                        
+                        formToSubmit = form;
+                        showDuplicateModal(message);
+                    } else {
+                        form.submit();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking duplicate:', error);
+                    form.submit(); // Submit anyway if check fails
+                });
+        });
     </script>
     <script src="../assets/js/app.js"></script>
 </body>
