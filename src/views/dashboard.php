@@ -407,6 +407,80 @@
 
     </div>
 
+    <script>
+        // Limit items in alert widgets with show more/less functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemsPerPage = 10; // Configurable: set to 0 for no limit
+            
+            function setupShowMore(containerSelector, itemSelector) {
+                const container = document.querySelector(containerSelector);
+                if (!container) return;
+                
+                const items = Array.from(container.querySelectorAll(itemSelector));
+                if (items.length <= itemsPerPage || itemsPerPage === 0) return;
+                
+                // Hide items beyond the limit
+                items.forEach((item, index) => {
+                    if (index >= itemsPerPage) {
+                        item.style.display = 'none';
+                        item.classList.add('hidden-item');
+                    }
+                });
+                
+                // Add show more button
+                const showMoreBtn = document.createElement('button');
+                showMoreBtn.className = 'btn btn-secondary btn-sm';
+                showMoreBtn.style.cssText = 'width: 100%; margin-top: 0.5rem;';
+                showMoreBtn.textContent = `Show All (${items.length - itemsPerPage} more)`;
+                
+                let showingAll = false;
+                showMoreBtn.onclick = function() {
+                    showingAll = !showingAll;
+                    items.forEach((item, index) => {
+                        if (index >= itemsPerPage) {
+                            item.style.display = showingAll ? '' : 'none';
+                        }
+                    });
+                    showMoreBtn.textContent = showingAll ? 'Show Less' : `Show All (${items.length - itemsPerPage} more)`;
+                };
+                
+                container.appendChild(showMoreBtn);
+            }
+            
+            // Apply to all alert widgets
+            setupShowMore('.expiring-items', '.expiring-item');
+            setupShowMore('.low-stock-items', '.low-stock-item');
+            // Get all low-stock-items containers (there are 2)
+            document.querySelectorAll('.low-stock-items').forEach((container, index) => {
+                const items = Array.from(container.querySelectorAll('.low-stock-item'));
+                if (items.length <= itemsPerPage || itemsPerPage === 0) return;
+                
+                items.forEach((item, idx) => {
+                    if (idx >= itemsPerPage) {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                const showMoreBtn = document.createElement('button');
+                showMoreBtn.className = 'btn btn-secondary btn-sm';
+                showMoreBtn.style.cssText = 'width: 100%; margin-top: 0.5rem;';
+                showMoreBtn.textContent = `Show All (${items.length - itemsPerPage} more)`;
+                
+                let showingAll = false;
+                showMoreBtn.onclick = function() {
+                    showingAll = !showingAll;
+                    items.forEach((item, idx) => {
+                        if (idx >= itemsPerPage) {
+                            item.style.display = showingAll ? '' : 'none';
+                        }
+                    });
+                    showMoreBtn.textContent = showingAll ? 'Show Less' : `Show All (${items.length - itemsPerPage} more)`;
+                };
+                
+                container.appendChild(showMoreBtn);
+            });
+        });
+    </script>
     <script src="../assets/js/app.js"></script>
 </body>
 </html>
