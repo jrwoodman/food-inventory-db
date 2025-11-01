@@ -16,6 +16,7 @@ class Food {
     public $contains_gluten;
     public $contains_milk;
     public $contains_soy;
+    public $contains_nuts;
     public $user_id;
     public $group_id;
     public $created_at;
@@ -36,8 +37,8 @@ class Food {
             $query = "INSERT INTO " . $this->table_name . "
                      (name, category, brand, unit, expiry_date, purchase_date, 
                       purchase_location, notes, contains_gluten, contains_milk, 
-                      contains_soy, user_id, group_id, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                      contains_soy, contains_nuts, user_id, group_id, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
             $stmt = $this->conn->prepare($query);
 
@@ -53,6 +54,7 @@ class Food {
             $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
             $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
             $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
+            $this->contains_nuts = isset($this->contains_nuts) ? (int)$this->contains_nuts : 0;
             $this->user_id = $this->user_id ?? null;
             $this->group_id = $this->group_id ?? null;
 
@@ -68,6 +70,7 @@ class Food {
                 $this->contains_gluten,
                 $this->contains_milk,
                 $this->contains_soy,
+                $this->contains_nuts,
                 $this->user_id,
                 $this->group_id
             ]);
@@ -161,6 +164,7 @@ class Food {
             $this->contains_gluten = $row['contains_gluten'] ?? 0;
             $this->contains_milk = $row['contains_milk'] ?? 0;
             $this->contains_soy = $row['contains_soy'] ?? 0;
+            $this->contains_nuts = $row['contains_nuts'] ?? 0;
             $this->user_id = $row['user_id'];
             $this->group_id = $row['group_id'];
             $this->created_at = $row['created_at'];
@@ -183,7 +187,7 @@ class Food {
                      SET name = ?, category = ?, brand = ?, unit = ?, 
                          expiry_date = ?, purchase_date = ?, purchase_location = ?,
                          notes = ?, contains_gluten = ?, contains_milk = ?, 
-                         contains_soy = ?, user_id = ?, group_id = ?, 
+                         contains_soy = ?, contains_nuts = ?, user_id = ?, group_id = ?, 
                          updated_at = CURRENT_TIMESTAMP
                      WHERE id = ?";
 
@@ -201,6 +205,7 @@ class Food {
             $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
             $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
             $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
+            $this->contains_nuts = isset($this->contains_nuts) ? (int)$this->contains_nuts : 0;
             $this->user_id = $this->user_id ?? null;
             $this->group_id = $this->group_id ?? null;
 
@@ -216,6 +221,7 @@ class Food {
                 $this->contains_gluten,
                 $this->contains_milk,
                 $this->contains_soy,
+                $this->contains_nuts,
                 $this->user_id,
                 $this->group_id,
                 $this->id
