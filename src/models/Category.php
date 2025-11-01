@@ -26,17 +26,26 @@ class Category {
         $this->type = strip_tags($this->type);
         $this->description = strip_tags($this->description ?? '');
 
-        $stmt->execute([
-            $this->name,
-            $this->type,
-            $this->description
-        ]);
+        try {
+            $stmt->execute([
+                $this->name,
+                $this->type,
+                $this->description
+            ]);
 
-        if($stmt->rowCount()) {
-            $this->id = $this->conn->lastInsertId();
-            return true;
+            if($stmt->rowCount()) {
+                $this->id = $this->conn->lastInsertId();
+                return true;
+            }
+            return false;
+        } catch (PDOException $e) {
+            // Check if it's a unique constraint violation
+            if ($e->getCode() == 23000 || strpos($e->getMessage(), 'UNIQUE constraint') !== false) {
+                return false; // Return false for duplicate, controller will show error
+            }
+            // Re-throw other exceptions
+            throw $e;
         }
-        return false;
     }
 
     public function read($type = null) {
@@ -86,14 +95,23 @@ class Category {
         $this->type = strip_tags($this->type);
         $this->description = strip_tags($this->description ?? '');
 
-        $stmt->execute([
-            $this->name,
-            $this->type,
-            $this->description,
-            $this->id
-        ]);
+        try {
+            $stmt->execute([
+                $this->name,
+                $this->type,
+                $this->description,
+                $this->id
+            ]);
 
-        return $stmt->rowCount() > 0;
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            // Check if it's a unique constraint violation
+            if ($e->getCode() == 23000 || strpos($e->getMessage(), 'UNIQUE constraint') !== false) {
+                return false; // Return false for duplicate, controller will show error
+            }
+            // Re-throw other exceptions
+            throw $e;
+        }
     }
 
     public function delete() {
