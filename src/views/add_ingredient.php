@@ -441,7 +441,7 @@
         }
         
         function proceedWithUpdate() {
-            duplicateDetected = false;
+            duplicateDetected = true; // Set flag to bypass check
             closeDuplicateModal();
             if (formToSubmit) {
                 formToSubmit.submit();
@@ -451,6 +451,7 @@
         // Check for duplicates on single add form submit
         document.querySelector('#single-tab form').addEventListener('submit', function(e) {
             if (duplicateDetected) {
+                duplicateDetected = false; // Reset flag
                 return true; // Allow submission
             }
             
