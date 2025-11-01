@@ -212,6 +212,24 @@
                 </script>
 
                 <div class="form-group">
+                    <label>Allergens</label>
+                    <div style="display: flex; gap: 1.5rem; padding: 0.5rem 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_gluten" value="1" <?php echo ($food->contains_gluten ?? 0) ? 'checked' : ''; ?>>
+                            <span>Contains Gluten</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_milk" value="1" <?php echo ($food->contains_milk ?? 0) ? 'checked' : ''; ?>>
+                            <span>Contains Milk</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_soy" value="1" <?php echo ($food->contains_soy ?? 0) ? 'checked' : ''; ?>>
+                            <span>Contains Soy</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="notes">Notes</label>
                     <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about this food item..."><?php echo htmlspecialchars($food->notes ?? ''); ?></textarea>
                 </div>

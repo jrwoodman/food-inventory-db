@@ -73,6 +73,28 @@
                         Tip: Use commas to search for multiple items at once
                     </small>
                 </div>
+                
+                <div class="form-group">
+                    <label>Filter by Allergens</label>
+                    <div style="display: flex; gap: 1.5rem; padding: 0.5rem 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="exclude_gluten" value="1" <?php echo isset($_GET['exclude_gluten']) ? 'checked' : ''; ?>>
+                            <span>Exclude Gluten</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="exclude_milk" value="1" <?php echo isset($_GET['exclude_milk']) ? 'checked' : ''; ?>>
+                            <span>Exclude Milk</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="exclude_soy" value="1" <?php echo isset($_GET['exclude_soy']) ? 'checked' : ''; ?>>
+                            <span>Exclude Soy</span>
+                        </label>
+                    </div>
+                    <small style="color: var(--text-muted);">
+                        Check allergens you want to avoid in search results
+                    </small>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">🔍 Search</button>
             </form>
         </div>
@@ -90,6 +112,7 @@
                                 <th>Type</th>
                                 <th>Name</th>
                                 <th>Category</th>
+                                <th>Allergens</th>
                                 <th>Location</th>
                                 <th>Current Qty</th>
                                 <th>Unit</th>
@@ -108,6 +131,15 @@
                                     </td>
                                     <td><?php echo htmlspecialchars($item['name']); ?></td>
                                     <td><?php echo htmlspecialchars($item['category'] ?? '-'); ?></td>
+                                    <td>
+                                        <?php
+                                        $allergens = [];
+                                        if (!empty($item['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
+                                        if (!empty($item['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
+                                        if (!empty($item['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                        echo !empty($allergens) ? implode('', $allergens) : '—';
+                                        ?>
+                                    </td>
                                     <td>
                                         <?php 
                                         if ($item['type'] === 'food') {

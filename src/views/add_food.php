@@ -229,6 +229,24 @@
                 </script>
 
                 <div class="form-group">
+                    <label>Allergens</label>
+                    <div style="display: flex; gap: 1.5rem; padding: 0.5rem 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_gluten" value="1">
+                            <span>Contains Gluten</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_milk" value="1">
+                            <span>Contains Milk</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="contains_soy" value="1">
+                            <span>Contains Soy</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="notes">Notes</label>
                     <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about this food item..."></textarea>
                 </div>
@@ -336,6 +354,24 @@
                         </select>
                     </div>
                     
+                    <div class="form-group">
+                        <label>Allergens</label>
+                        <div style="display: flex; gap: 1.5rem; padding: 0.5rem 0;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="contains_gluten" value="1">
+                                <span>Contains Gluten</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="contains_milk" value="1">
+                                <span>Contains Milk</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="contains_soy" value="1">
+                                <span>Contains Soy</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="bulk_notes">Notes</label>
                         <textarea id="bulk_notes" name="notes" rows="3" placeholder="These notes will be applied to all items..."></textarea>

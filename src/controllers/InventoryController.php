@@ -201,6 +201,9 @@ class InventoryController {
                         $food->purchase_date = $_POST['purchase_date'] ?: null;
                         $food->purchase_location = $_POST['purchase_location'];
                         $food->notes = $_POST['notes'];
+                        $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+                        $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+                        $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
                         $food->user_id = $this->current_user->id;
                         $food->group_id = $group_id;
                         $food->locations = [['location' => $location, 'quantity' => $quantity]];
@@ -293,6 +296,9 @@ class InventoryController {
                             $food->purchase_date = $_POST['purchase_date'];
                             $food->purchase_location = $_POST['purchase_location'];
                             $food->notes = $_POST['notes'];
+                            $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+                            $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+                            $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
                             $food->user_id = $this->current_user->id;
                             $food->group_id = $group_id;
                             $food->locations = [['location' => $location, 'quantity' => $quantity]];
@@ -350,6 +356,9 @@ class InventoryController {
             $food->purchase_date = $_POST['purchase_date'];
             $food->purchase_location = $_POST['purchase_location'];
             $food->notes = $_POST['notes'];
+            $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+            $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+            $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
             $food->user_id = $this->current_user->id;
             $food->group_id = $_POST['group_id'] ?? null;
             
@@ -494,6 +503,9 @@ class InventoryController {
                         $ingredient->purchase_location = $_POST['purchase_location'];
                         $ingredient->expiry_date = $expiry_date;
                         $ingredient->notes = $_POST['notes'];
+                        $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+                        $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+                        $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
                         $ingredient->user_id = $this->current_user->id;
                         $ingredient->group_id = $group_id;
                         
@@ -688,6 +700,9 @@ class InventoryController {
             $ingredient->purchase_location = $_POST['purchase_location'];
             $ingredient->expiry_date = $_POST['expiry_date'];
             $ingredient->notes = $_POST['notes'];
+            $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+            $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+            $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
             $ingredient->user_id = $this->current_user->id;
             $ingredient->group_id = $_POST['group_id'] ?? null;
             
@@ -1397,6 +1412,11 @@ class InventoryController {
         $search_results = [];
         $search_query = '';
         
+        // Get allergen exclusion filters
+        $exclude_gluten = isset($_GET['exclude_gluten']);
+        $exclude_milk = isset($_GET['exclude_milk']);
+        $exclude_soy = isset($_GET['exclude_soy']);
+        
         if ($_GET['search'] ?? '') {
             $search_query = $_GET['search'];
             $search_terms = array_map('trim', explode(',', $search_query));
@@ -1407,6 +1427,11 @@ class InventoryController {
                 if (!empty($term)) {
                     $stmt = $food->search($term);
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        // Apply allergen filters
+                        if ($exclude_gluten && !empty($row['contains_gluten'])) continue;
+                        if ($exclude_milk && !empty($row['contains_milk'])) continue;
+                        if ($exclude_soy && !empty($row['contains_soy'])) continue;
+                        
                         $search_results[] = array_merge($row, ['type' => 'food']);
                     }
                 }
@@ -1418,6 +1443,11 @@ class InventoryController {
                 if (!empty($term)) {
                     $stmt = $ingredient->search($term);
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        // Apply allergen filters
+                        if ($exclude_gluten && !empty($row['contains_gluten'])) continue;
+                        if ($exclude_milk && !empty($row['contains_milk'])) continue;
+                        if ($exclude_soy && !empty($row['contains_soy'])) continue;
+                        
                         $search_results[] = array_merge($row, ['type' => 'ingredient']);
                     }
                 }

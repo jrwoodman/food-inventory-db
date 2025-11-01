@@ -278,6 +278,7 @@
                             <th>Category</th>
                             <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                             <th>Total Quantity</th>
+                            <th>Allergens</th>
                             <th>Cost/Unit</th>
                             <th>Supplier</th>
                             <th>Purchase Date</th>
@@ -296,6 +297,15 @@
                                     <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
                                     <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                     <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
+                                    <td>
+                                        <?php
+                                        $allergens = [];
+                                        if (!empty($row['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
+                                        if (!empty($row['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
+                                        if (!empty($row['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                        echo !empty($allergens) ? implode('', $allergens) : '—';
+                                        ?>
+                                    </td>
                                     <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
                                     <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
@@ -316,7 +326,7 @@
                             <?php endwhile;
                         }
                         if ($ingredient_count == 0): ?>
-                            <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
+                            <tr><td colspan="<?php echo $show_all_groups ? '9' : '8'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -334,6 +344,7 @@
                                 <th>Category</th>
                                 <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                                 <th>Total Quantity</th>
+                                <th>Allergens</th>
                                 <th>Purchase Date</th>
                                 <th>Expiry Date</th>
                                 <th>Actions</th>
@@ -351,6 +362,15 @@
                                         <td><?php echo htmlspecialchars($row['category']); ?></td>
                                         <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                         <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
+                                        <td>
+                                            <?php
+                                            $allergens = [];
+                                            if (!empty($row['contains_gluten'])) $allergens[] = '<span class="badge badge-warning" style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Gluten</span>';
+                                            if (!empty($row['contains_milk'])) $allergens[] = '<span class="badge badge-info" style="background: #2196F3; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Milk</span>';
+                                            if (!empty($row['contains_soy'])) $allergens[] = '<span class="badge badge-success" style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem;">Soy</span>';
+                                            echo !empty($allergens) ? implode('', $allergens) : '—';
+                                            ?>
+                                        </td>
                                         <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                         <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
                                         <td class="table-actions">
@@ -370,7 +390,7 @@
                                 <?php endwhile;
                             }
                             if ($food_count == 0): ?>
-                                <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
+                                <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>

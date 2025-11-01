@@ -13,6 +13,9 @@ class Food {
     public $purchase_date;
     public $purchase_location;
     public $notes;
+    public $contains_gluten;
+    public $contains_milk;
+    public $contains_soy;
     public $user_id;
     public $group_id;
     public $created_at;
@@ -32,8 +35,9 @@ class Food {
             // Insert into foods table (without location and quantity)
             $query = "INSERT INTO " . $this->table_name . "
                      (name, category, brand, unit, expiry_date, purchase_date, 
-                      purchase_location, notes, user_id, group_id, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                      purchase_location, notes, contains_gluten, contains_milk, 
+                      contains_soy, user_id, group_id, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
             $stmt = $this->conn->prepare($query);
 
@@ -46,6 +50,9 @@ class Food {
             $this->purchase_date = $this->purchase_date ?: null;
             $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
             $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
+            $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
+            $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
             $this->user_id = $this->user_id ?? null;
             $this->group_id = $this->group_id ?? null;
 
@@ -58,6 +65,9 @@ class Food {
                 $this->purchase_date,
                 $this->purchase_location,
                 $this->notes,
+                $this->contains_gluten,
+                $this->contains_milk,
+                $this->contains_soy,
                 $this->user_id,
                 $this->group_id
             ]);
@@ -148,6 +158,9 @@ class Food {
             $this->purchase_date = $row['purchase_date'];
             $this->purchase_location = $row['purchase_location'];
             $this->notes = $row['notes'];
+            $this->contains_gluten = $row['contains_gluten'] ?? 0;
+            $this->contains_milk = $row['contains_milk'] ?? 0;
+            $this->contains_soy = $row['contains_soy'] ?? 0;
             $this->user_id = $row['user_id'];
             $this->group_id = $row['group_id'];
             $this->created_at = $row['created_at'];
@@ -169,7 +182,9 @@ class Food {
             $query = "UPDATE " . $this->table_name . "
                      SET name = ?, category = ?, brand = ?, unit = ?, 
                          expiry_date = ?, purchase_date = ?, purchase_location = ?,
-                         notes = ?, user_id = ?, group_id = ?, updated_at = CURRENT_TIMESTAMP
+                         notes = ?, contains_gluten = ?, contains_milk = ?, 
+                         contains_soy = ?, user_id = ?, group_id = ?, 
+                         updated_at = CURRENT_TIMESTAMP
                      WHERE id = ?";
 
             $stmt = $this->conn->prepare($query);
@@ -183,6 +198,9 @@ class Food {
             $this->purchase_date = $this->purchase_date ?: null;
             $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
             $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
+            $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
+            $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
             $this->user_id = $this->user_id ?? null;
             $this->group_id = $this->group_id ?? null;
 
@@ -195,6 +213,9 @@ class Food {
                 $this->purchase_date,
                 $this->purchase_location,
                 $this->notes,
+                $this->contains_gluten,
+                $this->contains_milk,
+                $this->contains_soy,
                 $this->user_id,
                 $this->group_id,
                 $this->id
