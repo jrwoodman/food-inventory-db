@@ -441,10 +441,15 @@
         }
         
         function proceedWithUpdate() {
-            duplicateDetected = true; // Set flag to bypass check
             closeDuplicateModal();
             if (formToSubmit) {
-                formToSubmit.submit();
+                duplicateDetected = true; // Set flag to bypass check
+                // Use requestSubmit if available, otherwise submit directly
+                if (formToSubmit.requestSubmit) {
+                    formToSubmit.requestSubmit();
+                } else {
+                    formToSubmit.submit();
+                }
             }
         }
         
@@ -452,7 +457,7 @@
         document.querySelector('#single-tab form').addEventListener('submit', function(e) {
             if (duplicateDetected) {
                 duplicateDetected = false; // Reset flag
-                return true; // Allow submission
+                return; // Allow submission
             }
             
             e.preventDefault();
