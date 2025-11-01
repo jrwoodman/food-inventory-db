@@ -21,10 +21,10 @@ class Category {
 
         $stmt = $this->conn->prepare($query);
 
-        // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->type = htmlspecialchars(strip_tags($this->type));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        // Clean data (remove HTML tags but keep special characters)
+        $this->name = strip_tags($this->name);
+        $this->type = strip_tags($this->type);
+        $this->description = strip_tags($this->description ?? '');
 
         $stmt->execute([
             $this->name,
@@ -81,10 +81,10 @@ class Category {
 
         $stmt = $this->conn->prepare($query);
 
-        // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->type = htmlspecialchars(strip_tags($this->type));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        // Clean data (remove HTML tags but keep special characters)
+        $this->name = strip_tags($this->name);
+        $this->type = strip_tags($this->type);
+        $this->description = strip_tags($this->description ?? '');
 
         $stmt->execute([
             $this->name,
@@ -111,7 +111,7 @@ class Category {
         $query = "SELECT id FROM " . $this->table_name . " WHERE name = ?";
         
         // Clean data the same way as in create/update
-        $clean_name = htmlspecialchars(strip_tags($this->name));
+        $clean_name = strip_tags($this->name);
         $params = [$clean_name];
         
         if ($type) {

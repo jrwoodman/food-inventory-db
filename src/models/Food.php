@@ -41,15 +41,15 @@ class Food {
 
             $stmt = $this->conn->prepare($query);
 
-            // Clean data
-            $this->name = htmlspecialchars(strip_tags($this->name));
-            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
-            $this->brand = htmlspecialchars(strip_tags($this->brand ?? ''));
-            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+            // Clean data (remove HTML tags but keep special characters)
+            $this->name = strip_tags($this->name);
+            $this->category = strip_tags($this->category ?? '');
+            $this->brand = strip_tags($this->brand ?? '');
+            $this->unit = strip_tags($this->unit ?? 'pieces');
             $this->expiry_date = $this->expiry_date ?: null;
             $this->purchase_date = $this->purchase_date ?: null;
-            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
-            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->purchase_location = strip_tags($this->purchase_location ?? '');
+            $this->notes = strip_tags($this->notes ?? '');
             $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
             $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
             $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
@@ -189,15 +189,15 @@ class Food {
 
             $stmt = $this->conn->prepare($query);
 
-            // Clean data
-            $this->name = htmlspecialchars(strip_tags($this->name));
-            $this->category = htmlspecialchars(strip_tags($this->category ?? ''));
-            $this->brand = htmlspecialchars(strip_tags($this->brand ?? ''));
-            $this->unit = htmlspecialchars(strip_tags($this->unit ?? 'pieces'));
+            // Clean data (remove HTML tags but keep special characters)
+            $this->name = strip_tags($this->name);
+            $this->category = strip_tags($this->category ?? '');
+            $this->brand = strip_tags($this->brand ?? '');
+            $this->unit = strip_tags($this->unit ?? 'pieces');
             $this->expiry_date = $this->expiry_date ?: null;
             $this->purchase_date = $this->purchase_date ?: null;
-            $this->purchase_location = htmlspecialchars(strip_tags($this->purchase_location ?? ''));
-            $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+            $this->purchase_location = strip_tags($this->purchase_location ?? '');
+            $this->notes = strip_tags($this->notes ?? '');
             $this->contains_gluten = isset($this->contains_gluten) ? (int)$this->contains_gluten : 0;
             $this->contains_milk = isset($this->contains_milk) ? (int)$this->contains_milk : 0;
             $this->contains_soy = isset($this->contains_soy) ? (int)$this->contains_soy : 0;
