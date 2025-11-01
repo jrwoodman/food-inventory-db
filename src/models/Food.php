@@ -250,11 +250,16 @@ class Food {
     }
 
     public function getExpiringItems($days = 7) {
-        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity,
+                  CASE 
+                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    ELSE 'expiring'
+                  END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
-                 WHERE f.expiry_date <= date('now', '+' || ? || ' days')
-                 AND f.expiry_date >= date('now')
+                 WHERE f.expiry_date IS NOT NULL
+                 AND f.expiry_date <= date('now', '+' || ? || ' days')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         
@@ -263,13 +268,19 @@ class Food {
         return $stmt;
     }
     
+
     public function getExpiringItemsByUser($user_id, $days = 7) {
-        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity,
+                  CASE 
+                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    ELSE 'expiring'
+                  END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.user_id = ?
+                 AND f.expiry_date IS NOT NULL
                  AND f.expiry_date <= date('now', '+' || ? || ' days')
-                 AND f.expiry_date >= date('now')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         
@@ -284,12 +295,17 @@ class Food {
         }
         
         $placeholders = implode(',', array_fill(0, count($group_ids), '?'));
-        $query = "SELECT f.*, COALESCE(SUM(fl.quantity), 0) as total_quantity
+        $query = "SELECT f.*, 
+                  COALESCE(SUM(fl.quantity), 0) as total_quantity,
+                  CASE 
+                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    ELSE 'expiring'
+                  END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.group_id IN ($placeholders)
+                 AND f.expiry_date IS NOT NULL
                  AND f.expiry_date <= date('now', '+' || ? || ' days')
-                 AND f.expiry_date >= date('now')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         

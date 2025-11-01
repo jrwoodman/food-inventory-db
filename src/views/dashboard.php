@@ -166,22 +166,30 @@
         <div class="dashboard-grid">
             <!-- Expiring Foods Alert -->
             <div class="card alert-card">
-                <h3><span class="card-icon">⚠️</span> Expiring Soon (Next 7 Days)</h3>
+                <h3><span class="card-icon">⚠️</span> Expiring Soon / Expired</h3>
                 <div class="expiring-items">
                     <?php
                     $expiring_count = 0;
                     if ($expiring_foods && is_object($expiring_foods)) {
                         while ($row = $expiring_foods->fetch(PDO::FETCH_ASSOC)): 
                             $expiring_count++;
+                            $is_expired = ($row['status'] === 'expired');
+                            $style = $is_expired ? 'color: #ff4444; font-weight: bold;' : '';
+                            $icon = $is_expired ? ' 🚨' : '';
                         ?>
-                            <div class="expiring-item">
-                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?></span>
+                            <div class="expiring-item" style="<?php echo $style; ?>">
+                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?><?php echo $icon; ?></span>
+                                <span class="expiry-date">
+                                    <?php if ($is_expired): ?>
+                                        <strong>EXPIRED:</strong> 
+                                    <?php endif; ?>
+                                    <?php echo date('M j, Y', strtotime($row['expiry_date'])); ?>
+                                </span>
                             </div>
                         <?php endwhile;
                     }
                     if ($expiring_count == 0): ?>
-                        <p class="no-items">No items expiring soon!</p>
+                        <p class="no-items">No items expiring soon or expired!</p>
                     <?php endif; ?>
                 </div>
             </div>
