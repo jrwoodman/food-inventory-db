@@ -140,54 +140,30 @@
                                         echo !empty($allergens) ? implode('', $allergens) : '—';
                                         ?>
                                     </td>
-                                    <td>
-                                        <?php 
-                                        if ($item['type'] === 'food') {
-                                            echo htmlspecialchars($item['location'] ?? '-');
-                                        } else {
-                                            // For ingredients, show dropdown of available locations
-                                            $ingredient = new Ingredient($db);
-                                            $ingredient->id = $item['id'];
-                                            $ingredient->readOne();
-                                            
-                                            if (!empty($ingredient->locations)) {
-                                                echo '<select name="ingredient_updates[' . $item['id'] . '][location]" class="location-select" required>';
-                                                foreach ($ingredient->locations as $loc) {
-                                                    echo '<option value="' . htmlspecialchars($loc['location']) . '">';
-                                                    echo htmlspecialchars($loc['location']) . ' (' . $loc['quantity'] . ')';
-                                                    echo '</option>';
-                                                }
-                                                echo '</select>';
-                                            } else {
-                                                echo '-';
-                                            }
-                                        }
-                                        ?>
-                                    </td>
-                                    <td>
-                                        <?php 
-                                        if ($item['type'] === 'food') {
-                                            echo htmlspecialchars($item['quantity'] ?? '0');
-                                        } else {
-                                            echo htmlspecialchars($item['total_quantity'] ?? '0');
-                                        }
-                                        ?>
-                                    </td>
+                                    <td><?php echo htmlspecialchars($item['location'] ?? '-'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['quantity'] ?? '0'); ?></td>
                                     <td><?php echo htmlspecialchars($item['unit'] ?? '-'); ?></td>
                                     <td>
                                         <?php if ($item['type'] === 'food'): ?>
+                                            <input type="hidden" 
+                                                   name="food_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][location]" 
+                                                   value="<?php echo htmlspecialchars($item['location']); ?>">
                                             <input type="number" 
-                                                   name="food_updates[<?php echo $item['id']; ?>][decrement]" 
+                                                   name="food_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][decrement]" 
                                                    step="0.1" 
                                                    min="0"
                                                    max="<?php echo htmlspecialchars($item['quantity'] ?? '999'); ?>"
                                                    placeholder="0"
                                                    style="width: 80px;">
                                         <?php else: ?>
+                                            <input type="hidden" 
+                                                   name="ingredient_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][location]" 
+                                                   value="<?php echo htmlspecialchars($item['location']); ?>">
                                             <input type="number" 
-                                                   name="ingredient_updates[<?php echo $item['id']; ?>][decrement]" 
+                                                   name="ingredient_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][decrement]" 
                                                    step="0.1" 
                                                    min="0"
+                                                   max="<?php echo htmlspecialchars($item['quantity'] ?? '999'); ?>"
                                                    placeholder="0"
                                                    style="width: 80px;">
                                         <?php endif; ?>
@@ -196,11 +172,11 @@
                                         <label style="display: flex; align-items: center; gap: 0.5rem;">
                                             <?php if ($item['type'] === 'food'): ?>
                                                 <input type="checkbox" 
-                                                       name="food_updates[<?php echo $item['id']; ?>][delete]" 
+                                                       name="food_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][delete]" 
                                                        value="1">
                                             <?php else: ?>
                                                 <input type="checkbox" 
-                                                       name="ingredient_updates[<?php echo $item['id']; ?>][delete]" 
+                                                       name="ingredient_updates[<?php echo $item['id']; ?>_<?php echo htmlspecialchars($item['location']); ?>][delete]" 
                                                        value="1">
                                             <?php endif; ?>
                                             Delete

@@ -673,6 +673,86 @@ class InventoryController {
         exit();
     }
     
+    public function checkFoodDuplicate() {
+        header('Content-Type: application/json');
+        
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+        
+        $name = $_GET['name'] ?? '';
+        $group_id = $_GET['group_id'] ?? null;
+        
+        if (empty($name)) {
+            echo json_encode(['exists' => false]);
+            exit();
+        }
+        
+        // Check if food with this name exists in the same group
+        $query = "SELECT f.id, f.name, f.category, f.brand, f.unit, 
+                  GROUP_CONCAT(fl.location || ' (' || fl.quantity || ')') as locations
+                  FROM foods f
+                  LEFT JOIN food_locations fl ON f.id = fl.food_id
+                  WHERE LOWER(f.name) = LOWER(?) AND f.group_id = ?
+                  GROUP BY f.id";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$name, $group_id]);
+        $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            echo json_encode([
+                'exists' => true,
+                'food' => $existing
+            ]);
+        } else {
+            echo json_encode(['exists' => false]);
+        }
+        exit();
+    }
+    
+    public function checkIngredientDuplicate() {
+        header('Content-Type: application/json');
+        
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+        
+        $name = $_GET['name'] ?? '';
+        $group_id = $_GET['group_id'] ?? null;
+        
+        if (empty($name)) {
+            echo json_encode(['exists' => false]);
+            exit();
+        }
+        
+        // Check if ingredient with this name exists in the same group
+        $query = "SELECT i.id, i.name, i.category, i.unit, 
+                  GROUP_CONCAT(il.location || ' (' || il.quantity || ')') as locations
+                  FROM ingredients i
+                  LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
+                  WHERE LOWER(i.name) = LOWER(?) AND i.group_id = ?
+                  GROUP BY i.id";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$name, $group_id]);
+        $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            echo json_encode([
+                'exists' => true,
+                'ingredient' => $existing
+            ]);
+        } else {
+            echo json_encode(['exists' => false]);
+        }
+        exit();
+    }
+    
     public function editIngredient() {
         $ingredient = new Ingredient($this->db);
         $ingredient->id = $_GET['id'] ?? 0;
@@ -1413,7 +1493,7 @@ class InventoryController {
             $search_query = $_GET['search'];
             $search_terms = array_map('trim', explode(',', $search_query));
             
-            // Search foods
+            // Search foods and expand by location
             $food = new Food($this->db);
             foreach ($search_terms as $term) {
                 if (!empty($term)) {
@@ -1424,12 +1504,34 @@ class InventoryController {
                         if ($exclude_milk && !empty($row['contains_milk'])) continue;
                         if ($exclude_soy && !empty($row['contains_soy'])) continue;
                         
-                        $search_results[] = array_merge($row, ['type' => 'food']);
+                        // Get full food details with locations
+                        $f = new Food($this->db);
+                        $f->id = $row['id'];
+                        $f->readOne();
+                        
+                        // Create a separate result row for each location
+                        if (!empty($f->locations)) {
+                            foreach ($f->locations as $loc) {
+                                $search_results[] = array_merge($row, [
+                                    'type' => 'food',
+                                    'location' => $loc['location'],
+                                    'quantity' => $loc['quantity'],
+                                    'location_notes' => $loc['notes'] ?? ''
+                                ]);
+                            }
+                        } else {
+                            // Food has no locations, add single row
+                            $search_results[] = array_merge($row, [
+                                'type' => 'food',
+                                'location' => '-',
+                                'quantity' => 0
+                            ]);
+                        }
                     }
                 }
             }
             
-            // Search ingredients
+            // Search ingredients and expand by location
             $ingredient = new Ingredient($this->db);
             foreach ($search_terms as $term) {
                 if (!empty($term)) {
@@ -1440,7 +1542,29 @@ class InventoryController {
                         if ($exclude_milk && !empty($row['contains_milk'])) continue;
                         if ($exclude_soy && !empty($row['contains_soy'])) continue;
                         
-                        $search_results[] = array_merge($row, ['type' => 'ingredient']);
+                        // Get full ingredient details with locations
+                        $ing = new Ingredient($this->db);
+                        $ing->id = $row['id'];
+                        $ing->readOne();
+                        
+                        // Create a separate result row for each location
+                        if (!empty($ing->locations)) {
+                            foreach ($ing->locations as $loc) {
+                                $search_results[] = array_merge($row, [
+                                    'type' => 'ingredient',
+                                    'location' => $loc['location'],
+                                    'quantity' => $loc['quantity'],
+                                    'location_notes' => $loc['notes'] ?? ''
+                                ]);
+                            }
+                        } else {
+                            // Ingredient has no locations, add single row
+                            $search_results[] = array_merge($row, [
+                                'type' => 'ingredient',
+                                'location' => '-',
+                                'quantity' => 0
+                            ]);
+                        }
                     }
                 }
             }
@@ -1464,26 +1588,49 @@ class InventoryController {
             
             // Process foods
             if (isset($_POST['food_updates'])) {
-                foreach ($_POST['food_updates'] as $food_id => $data) {
+                foreach ($_POST['food_updates'] as $key => $data) {
+                    // Key format: "food_id_location" or just "food_id"
+                    $parts = explode('_', $key, 2);
+                    $food_id = $parts[0];
+                    $location = $data['location'] ?? ($parts[1] ?? null);
+                    
                     $food = new Food($this->db);
                     $food->id = $food_id;
                     
                     if ($food->readOne()) {
                         if (isset($data['delete'])) {
-                            // Delete item
-                            if ($food->delete()) {
-                                $success_count++;
+                            if ($location) {
+                                // Delete specific location
+                                if ($food->removeLocation($location)) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
                             } else {
-                                $error_count++;
+                                // Delete entire food
+                                if ($food->delete()) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
                             }
-                        } else if (isset($data['decrement'])) {
-                            // Decrement quantity (never goes below 0)
+                        } else if (isset($data['decrement']) && !empty($data['decrement']) && $location) {
+                            // Decrement quantity at specific location (never goes below 0)
                             $decrement_by = floatval($data['decrement']);
-                            $new_quantity = max(0, $food->quantity - $decrement_by);
-                            $food->quantity = $new_quantity;
                             
-                            // Update item (keep at 0 instead of deleting)
-                            if ($food->update()) {
+                            // Find current quantity at location
+                            $current_qty = 0;
+                            foreach ($food->locations as $loc) {
+                                if ($loc['location'] === $location) {
+                                    $current_qty = $loc['quantity'];
+                                    break;
+                                }
+                            }
+                            
+                            $new_quantity = max(0, $current_qty - $decrement_by);
+                            
+                            // Update location quantity (keep at 0 instead of removing)
+                            if ($food->updateLocationQuantity($location, $new_quantity)) {
                                 $success_count++;
                             } else {
                                 $error_count++;
@@ -1495,22 +1642,35 @@ class InventoryController {
             
             // Process ingredients
             if (isset($_POST['ingredient_updates'])) {
-                foreach ($_POST['ingredient_updates'] as $ingredient_id => $data) {
+                foreach ($_POST['ingredient_updates'] as $key => $data) {
+                    // Key format: "ingredient_id_location" or just "ingredient_id"
+                    $parts = explode('_', $key, 2);
+                    $ingredient_id = $parts[0];
+                    $location = $data['location'] ?? ($parts[1] ?? null);
+                    
                     $ingredient = new Ingredient($this->db);
                     $ingredient->id = $ingredient_id;
                     
                     if ($ingredient->readOne()) {
                         if (isset($data['delete'])) {
-                            // Delete item
-                            if ($ingredient->delete()) {
-                                $success_count++;
+                            if ($location) {
+                                // Delete specific location
+                                if ($ingredient->removeLocation($location)) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
                             } else {
-                                $error_count++;
+                                // Delete entire ingredient
+                                if ($ingredient->delete()) {
+                                    $success_count++;
+                                } else {
+                                    $error_count++;
+                                }
                             }
-                        } else if (isset($data['decrement']) && isset($data['location'])) {
+                        } else if (isset($data['decrement']) && !empty($data['decrement']) && $location) {
                             // Decrement quantity at specific location (never goes below 0)
                             $decrement_by = floatval($data['decrement']);
-                            $location = $data['location'];
                             
                             // Find current quantity at location
                             $current_qty = 0;

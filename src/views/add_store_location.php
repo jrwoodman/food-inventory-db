@@ -117,5 +117,44 @@
             <a href="index.php?action=system_settings#stores" class="btn btn-secondary">← Back to System Settings</a>
         </div>
     </div>
+    
+    <script>
+        // Phone number formatting
+        const phoneInput = document.getElementById('phone');
+        
+        function formatPhoneNumber(value) {
+            // Remove all non-digit characters
+            const digits = value.replace(/\D/g, '');
+            
+            // Format as (XXX) YYY-ZZZZ
+            if (digits.length <= 3) {
+                return digits;
+            } else if (digits.length <= 6) {
+                return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+            } else {
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+            }
+        }
+        
+        phoneInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldValue = e.target.value;
+            const oldLength = oldValue.length;
+            
+            // Format the value
+            const formatted = formatPhoneNumber(oldValue);
+            e.target.value = formatted;
+            
+            // Adjust cursor position
+            const newLength = formatted.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+        
+        // Format on page load if there's a value
+        if (phoneInput.value) {
+            phoneInput.value = formatPhoneNumber(phoneInput.value);
+        }
+    </script>
 </body>
 </html>

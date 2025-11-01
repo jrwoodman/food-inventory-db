@@ -120,6 +120,12 @@ switch ($action) {
     case 'api_ingredient_locations':
         $controller->getIngredientLocationsJson();
         break;
+    case 'check_food_duplicate':
+        $controller->checkFoodDuplicate();
+        break;
+    case 'check_ingredient_duplicate':
+        $controller->checkIngredientDuplicate();
+        break;
         
     // Store management routes
     case 'manage_stores':
