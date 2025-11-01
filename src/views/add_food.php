@@ -431,25 +431,35 @@
         }
         
         function proceedWithUpdate() {
+            console.log('proceedWithUpdate called');
+            console.log('formToSubmit:', formToSubmit);
             closeDuplicateModal();
             if (formToSubmit) {
                 duplicateDetected = true; // Set flag to bypass check
+                console.log('duplicateDetected set to true, about to submit');
                 // Use requestSubmit if available, otherwise submit directly
                 if (formToSubmit.requestSubmit) {
+                    console.log('Using requestSubmit()');
                     formToSubmit.requestSubmit();
                 } else {
+                    console.log('Using submit()');
                     formToSubmit.submit();
                 }
+            } else {
+                console.error('formToSubmit is null!');
             }
         }
         
         // Check for duplicates on single add form submit
         document.querySelector('#single-tab form').addEventListener('submit', function(e) {
+            console.log('Form submit event fired, duplicateDetected:', duplicateDetected);
             if (duplicateDetected) {
+                console.log('Bypassing duplicate check, allowing submission');
                 duplicateDetected = false; // Reset flag
                 return; // Allow submission
             }
             
+            console.log('Preventing default, checking for duplicates');
             e.preventDefault();
             const form = this;
             const name = form.querySelector('#name').value;
