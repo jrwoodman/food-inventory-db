@@ -45,7 +45,7 @@
     </header>
 
     <div class="container">
-        <h1>Add New Store</h1>
+        <h1>Add New Store Chain</h1>
 
         <?php if(isset($error)): ?>
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
@@ -54,23 +54,11 @@
         <div class="card">
             <form method="POST">
                 <div class="form-group">
-                    <label for="name">Store Name *</label>
+                    <label for="name">Store Chain Name *</label>
                     <input type="text" id="name" name="name" required
-                           placeholder="e.g., Walmart, Target, Local Market"
+                           placeholder="e.g., Walmart, Target, Costco, Local Market"
                            value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>">
-                </div>
-
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <textarea id="address" name="address" rows="3" 
-                              placeholder="Complete store address including street, city, state, zip"><?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="text" id="phone" name="phone" 
-                           placeholder="(555) 123-4567"
-                           value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>">
+                    <small style="color: var(--text-muted);">The brand or chain name. Add specific locations after creating the chain.</small>
                 </div>
 
                 <div class="form-group">
@@ -83,7 +71,7 @@
                 <div class="form-group">
                     <label for="notes">Notes</label>
                     <textarea id="notes" name="notes" rows="3" 
-                              placeholder="Additional notes about this store (hours, special features, etc.)"><?php echo isset($_POST['notes']) ? htmlspecialchars($_POST['notes']) : ''; ?></textarea>
+                              placeholder="Additional notes about this store chain"><?php echo isset($_POST['notes']) ? htmlspecialchars($_POST['notes']) : ''; ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -93,7 +81,7 @@
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" class="btn btn-success">✓ Add Store</button>
+                    <button type="submit" class="btn btn-success">✓ Add Store Chain</button>
                     <a href="index.php?action=system_settings#stores" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>

@@ -43,31 +43,22 @@
     </header>
 
     <div class="container">
-        <h1>Edit Store</h1>
+        <h1>Edit Store Chain</h1>
 
-        <?php if(isset($error)): ?>
+        <?php if(!empty($error)): ?>
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
-        <?php if(isset($success)): ?>
+        <?php if(!empty($success)): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
 
         <div class="card">
             <form method="POST">
                 <div class="form-group">
-                    <label for="name">Store Name *</label>
+                    <label for="name">Store Chain Name *</label>
                     <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($store->name ?? ''); ?>" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <textarea id="address" name="address" rows="3"><?php echo htmlspecialchars($store->address ?? ''); ?></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($store->phone ?? ''); ?>" placeholder="(555) 123-4567">
+                    <small style="color: var(--text-muted);">The brand or chain name (e.g., Walmart, Costco)</small>
                 </div>
 
                 <div class="form-group">
@@ -77,7 +68,7 @@
 
                 <div class="form-group">
                     <label for="notes">Notes</label>
-                    <textarea id="notes" name="notes" rows="3"><?php echo htmlspecialchars($store->notes ?? ''); ?></textarea>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Additional notes about this store chain"><?php echo htmlspecialchars($store->notes ?? ''); ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -87,16 +78,16 @@
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem; align-items: center;">
-                    <button type="submit" class="btn btn-primary">✓ Update Store</button>
+                    <button type="submit" class="btn btn-primary">✓ Update Store Chain</button>
                     <a href="index.php?action=system_settings#stores" class="btn btn-secondary">Cancel</a>
                     <?php if($store->is_active): ?>
-                        <span style="margin-left: auto; color: #888; font-size: 0.9em;">💡 Uncheck "Active" to enable deletion</span>
+                        <span style="margin-left: auto; color: #888; font-size: 0.9em;">💡 Deactivate and remove all locations to enable deletion</span>
                     <?php else: ?>
                         <a href="index.php?action=delete_store&id=<?php echo $store->id; ?>" 
                            class="btn btn-danger" 
-                           onclick="return confirm('Permanently delete this store? This cannot be undone.');" 
+                           onclick="return confirm('Permanently delete this store chain? This cannot be undone.');" 
                            style="margin-left: auto;">
-                            🗑️ Delete Store
+                            🗑️ Delete Chain
                         </a>
                     <?php endif; ?>
                 </div>
