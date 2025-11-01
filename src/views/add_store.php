@@ -94,13 +94,13 @@
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button type="submit" class="btn btn-success">✓ Add Store</button>
-                    <a href="index.php?action=manage_stores" class="btn btn-secondary">Cancel</a>
+                    <a href="index.php?action=system_settings#stores" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
 
         <div style="margin-top: 2rem;">
-            <a href="index.php?action=manage_stores" class="btn btn-secondary">← Back to Stores</a>
+            <a href="index.php?action=system_settings#stores" class="btn btn-secondary">← Back to System Settings</a>
         </div>
     </div>
 </body>

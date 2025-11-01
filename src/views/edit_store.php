@@ -88,7 +88,7 @@
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem; align-items: center;">
                     <button type="submit" class="btn btn-primary">✓ Update Store</button>
-                    <a href="index.php?action=manage_stores" class="btn btn-secondary">Cancel</a>
+                    <a href="index.php?action=system_settings#stores" class="btn btn-secondary">Cancel</a>
                     <?php if($store->is_active): ?>
                         <span style="margin-left: auto; color: #888; font-size: 0.9em;">💡 Uncheck "Active" to enable deletion</span>
                     <?php else: ?>
@@ -104,7 +104,7 @@
         </div>
 
         <div style="margin-top: 2rem;">
-            <a href="index.php?action=manage_stores" class="btn btn-secondary">← Back to Stores</a>
+            <a href="index.php?action=system_settings#stores" class="btn btn-secondary">← Back to System Settings</a>
         </div>
     </div>
 </body>

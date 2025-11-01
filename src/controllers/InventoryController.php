@@ -762,19 +762,11 @@ class InventoryController {
         exit();
     }
     
-    // Store Management Methods
+    // Store Management Methods (now handled in system_settings)
     public function manageStores() {
-        // Check if user is admin
-        if (!$this->current_user->isAdmin()) {
-            header('Location: index.php?action=access_denied');
-            exit();
-        }
-        
-        $store = new Store($this->db);
-        $stores = $store->read();
-        
-        $current_user = $this->current_user;
-        include '../src/views/manage_stores.php';
+        // Redirect to system settings page with stores tab
+        header('Location: index.php?action=system_settings#stores');
+        exit();
     }
     
     public function addStore() {
