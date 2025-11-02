@@ -79,11 +79,11 @@
         <h1>🧄 Add Ingredient</h1>
 
         <?php if(isset($error)): ?>
-            <div class="alert alert-error"><?php echo $error; ?></div>
+            <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <?php if(isset($_GET['success_count'])): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($_GET['success_count']); ?> items added successfully!</div>
+        <?php if(isset($_GET['message'])): ?>
+            <div class="alert alert-success"><?php echo htmlspecialchars($_GET['message']); ?></div>
         <?php endif; ?>
 
         <div class="tabs">

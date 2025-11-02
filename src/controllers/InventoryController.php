@@ -328,6 +328,12 @@ class InventoryController {
                 }
             }
         }
+        
+        // Check for error message from GET parameter
+        if (isset($_GET['error'])) {
+            $error = $_GET['error'];
+        }
+        
         $current_user = $this->current_user;
         include '../src/views/add_food.php';
     }
@@ -593,6 +599,11 @@ class InventoryController {
                         if (!empty($_POST['purchase_date'])) {
                             $ingredient->purchase_date = $_POST['purchase_date'];
                         }
+                        // Update allergen fields
+                        $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+                        $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+                        $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+                        $ingredient->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
                         $ingredient->user_id = $this->current_user->id;
                         
                         if ($ingredient->update()) {
@@ -615,6 +626,10 @@ class InventoryController {
                     $ingredient->purchase_location = $_POST['purchase_location'];
                     $ingredient->expiry_date = $_POST['expiry_date'];
                     $ingredient->notes = $_POST['notes'];
+                    $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
+                    $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
+                    $ingredient->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;
+                    $ingredient->contains_nuts = isset($_POST['contains_nuts']) ? 1 : 0;
                     $ingredient->user_id = $this->current_user->id;
                     $ingredient->group_id = $group_id;
                     $ingredient->locations = $new_locations;
@@ -624,10 +639,18 @@ class InventoryController {
                         exit();
                     } else {
                         $error = "Unable to add ingredient.";
+                    } else {
+                        $error = "Please add at least one location.";
                     }
                 }
             }
         }
+        
+        // Check for error message from GET parameter
+        if (isset($_GET['error'])) {
+            $error = $_GET['error'];
+        }
+        
         $current_user = $this->current_user;
         include '../src/views/add_ingredient.php';
     }
