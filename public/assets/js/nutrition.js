@@ -121,17 +121,23 @@ function displayNutritionFacts(nutrition, usingDemoKey, unitSystem) {
         html += `<div class="nutrition-brand">Brand: ${escapeHtml(nutrition.brand)}</div>`;
     }
     
+    // Show what the nutrition values are based on
+    html += `<div class="nutrition-serving" style="font-weight: bold; margin-top: 0.5rem;">Nutrition Values Per: 100g</div>`;
+    
+    // Display serving size if available
     if (nutrition.serving_size && nutrition.serving_unit) {
-        html += `<div class="nutrition-serving">Serving Size: ${nutrition.serving_size} ${escapeHtml(nutrition.serving_unit)}</div>`;
+        html += `<div class="nutrition-serving-note" style="font-size: 0.875rem; color: var(--text-muted);">Suggested Serving: ${nutrition.serving_size} ${escapeHtml(nutrition.serving_unit)}</div>`;
     }
     
     // Display available portions
     if (nutrition.portions && nutrition.portions.length > 0) {
-        html += '<div class="nutrition-portions" style="font-size: 0.875rem; margin-top: 0.5rem; color: var(--text-muted);"><strong>Available Portions:</strong><ul style="margin: 0.25rem 0; padding-left: 1.5rem;">';
+        html += '<div class="nutrition-portions" style="font-size: 0.875rem; margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px;">';
+        html += '<strong style="color: var(--text-color);">Common Portion Sizes:</strong>';
+        html += '<ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem; color: var(--text-muted);">';
         nutrition.portions.forEach(portion => {
             let portionText = escapeHtml(portion.description);
             if (portion.gram_weight) {
-                portionText += ` (${portion.gram_weight}g)`;
+                portionText += ` = <strong style="color: var(--text-color);">${portion.gram_weight}g</strong>`;
             }
             html += `<li>${portionText}</li>`;
         });
