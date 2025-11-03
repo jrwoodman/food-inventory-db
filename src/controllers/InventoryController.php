@@ -2194,5 +2194,56 @@ class InventoryController {
         }
         exit();
     }
+    
+    // USDA Nutrition lookup methods
+    public function getNutritionInfo() {
+        header('Content-Type: application/json');
+        
+        $item_name = $_GET['name'] ?? '';
+        
+        if (empty($item_name)) {
+            echo json_encode(['error' => 'Item name is required']);
+            exit();
+        }
+        
+        require_once '../src/services/USDAService.php';
+        $usda = new USDAService();
+        
+        $results = $usda->searchFoods($item_name, 5); // Get top 5 matches
+        
+        if ($results === false) {
+            echo json_encode(['error' => 'Failed to fetch nutrition data from USDA']);
+            exit();
+        }
+        
+        echo json_encode(['success' => true, 'results' => $results]);
+        exit();
+    }
+    
+    public function getNutritionDetails() {
+        header('Content-Type: application/json');
+        
+        $fdc_id = $_GET['fdc_id'] ?? '';
+        
+        if (empty($fdc_id)) {
+            echo json_encode(['error' => 'FDC ID is required']);
+            exit();
+        }
+        
+        require_once '../src/services/USDAService.php';
+        $usda = new USDAService();
+        
+        $food_data = $usda->getFoodDetails($fdc_id);
+        
+        if ($food_data === false) {
+            echo json_encode(['error' => 'Failed to fetch nutrition details from USDA']);
+            exit();
+        }
+        
+        $formatted = $usda->formatNutritionData($food_data);
+        
+        echo json_encode(['success' => true, 'nutrition' => $formatted]);
+        exit();
+    }
 }
 ?>

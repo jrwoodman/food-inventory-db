@@ -246,6 +246,14 @@ switch ($action) {
     case 'bulk_update':
         $controller->bulkUpdate();
         break;
+    
+    // USDA nutrition lookup routes
+    case 'get_nutrition_info':
+        $controller->getNutritionInfo();
+        break;
+    case 'get_nutrition_details':
+        $controller->getNutritionDetails();
+        break;
         
     default:
         // Check if user is logged in, otherwise redirect to login

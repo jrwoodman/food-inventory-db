@@ -45,6 +45,10 @@ if (!defined('EXPIRY_WARNING_DAYS')) define('EXPIRY_WARNING_DAYS', 7);      // S
 if (!defined('LOW_STOCK_THRESHOLD')) define('LOW_STOCK_THRESHOLD', 10);      // Consider ingredients low stock when quantity <= 10
 if (!defined('CRITICAL_STOCK_THRESHOLD')) define('CRITICAL_STOCK_THRESHOLD', 5);  // Critical stock level
 
+// USDA FoodData Central API Configuration
+// Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html
+if (!defined('USDA_API_KEY')) define('USDA_API_KEY', 'DEMO_KEY');  // Replace with your actual API key
+
 // Email Configuration (for future notifications)
 define('SMTP_HOST', '');
 define('SMTP_PORT', 587);
