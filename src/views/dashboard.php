@@ -88,25 +88,25 @@
                                                     <?php echo ucfirst($result['type']); ?>
                                                 </span>
                                             </div>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; opacity: 0.75;">
                                                 <div>
-                                                    <span style="color: var(--text-muted);">📍 Location:</span>
-                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?></span>
+                                                    <span style="opacity: 0.65;">📍 Location:</span>
+                                                    <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
                                                 </div>
                                                 <div>
-                                                    <span style="color: var(--text-muted);">📦 Quantity:</span>
-                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?></span>
+                                                    <span style="opacity: 0.65;">📦 Quantity:</span>
+                                                    <?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?>
                                                 </div>
                                                 <?php if (!empty($result['category'])): ?>
                                                 <div>
-                                                    <span style="color: var(--text-muted);">🏷️ Category:</span>
-                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['category']); ?></span>
+                                                    <span style="opacity: 0.65;">🏷️ Category:</span>
+                                                    <?php echo htmlspecialchars($result['category']); ?>
                                                 </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($result['expiry_date'])): ?>
                                                 <div>
-                                                    <span style="color: var(--text-muted);">📅 Expires:</span>
-                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo date('M j, Y', strtotime($result['expiry_date'])); ?></span>
+                                                    <span style="opacity: 0.65;">📅 Expires:</span>
+                                                    <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
                                                 </div>
                                                 <?php endif; ?>
                                             </div>
