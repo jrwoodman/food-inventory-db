@@ -21,8 +21,8 @@ class Location {
 
         $stmt = $this->conn->prepare($query);
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->description = strip_tags($this->description ?? '');
         $this->is_active = $this->is_active ?? 1;
 
         if($stmt->execute([$this->name, $this->description, $this->is_active])) {
@@ -71,8 +71,8 @@ class Location {
 
         $stmt = $this->conn->prepare($query);
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->description = strip_tags($this->description ?? '');
 
         if($stmt->execute([$this->name, $this->description, $this->is_active, $this->id])) {
             return true;

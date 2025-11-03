@@ -377,8 +377,8 @@ class Food {
                  VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
         
         $stmt = $this->conn->prepare($query);
-        $location = htmlspecialchars(strip_tags($location));
-        $notes = htmlspecialchars(strip_tags($notes));
+        $location = strip_tags($location);
+        $notes = strip_tags($notes);
         
         return $stmt->execute([$this->id, $location, $quantity, $notes]);
     }

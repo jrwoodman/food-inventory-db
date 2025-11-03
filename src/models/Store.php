@@ -27,11 +27,11 @@ class Store {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->address = htmlspecialchars(strip_tags($this->address ?? ''));
-        $this->phone = htmlspecialchars(strip_tags($this->phone ?? ''));
-        $this->website = htmlspecialchars(strip_tags($this->website ?? ''));
-        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->address = strip_tags($this->address ?? '');
+        $this->phone = strip_tags($this->phone ?? '');
+        $this->website = strip_tags($this->website ?? '');
+        $this->notes = strip_tags($this->notes ?? '');
         $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([
@@ -101,11 +101,11 @@ class Store {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->address = htmlspecialchars(strip_tags($this->address ?? ''));
-        $this->phone = htmlspecialchars(strip_tags($this->phone ?? ''));
-        $this->website = htmlspecialchars(strip_tags($this->website ?? ''));
-        $this->notes = htmlspecialchars(strip_tags($this->notes ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->address = strip_tags($this->address ?? '');
+        $this->phone = strip_tags($this->phone ?? '');
+        $this->website = strip_tags($this->website ?? '');
+        $this->notes = strip_tags($this->notes ?? '');
         $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([

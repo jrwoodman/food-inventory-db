@@ -23,9 +23,9 @@ class Unit {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->abbreviation = strip_tags($this->abbreviation);
+        $this->description = strip_tags($this->description ?? '');
         $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([
@@ -77,9 +77,9 @@ class Unit {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
-        $this->description = htmlspecialchars(strip_tags($this->description ?? ''));
+        $this->name = strip_tags($this->name);
+        $this->abbreviation = strip_tags($this->abbreviation);
+        $this->description = strip_tags($this->description ?? '');
         $this->is_active = $this->is_active ?? 1;
 
         $stmt->execute([
@@ -122,7 +122,7 @@ class Unit {
         }
         
         // Clean data the same way as in create/update
-        $clean_name = htmlspecialchars(strip_tags($this->name));
+        $clean_name = strip_tags($this->name);
         
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
@@ -143,7 +143,7 @@ class Unit {
         }
         
         // Clean data the same way as in create/update
-        $clean_abbreviation = htmlspecialchars(strip_tags($this->abbreviation));
+        $clean_abbreviation = strip_tags($this->abbreviation);
         
         $stmt = $this->conn->prepare($query);
         if ($exclude_id) {
