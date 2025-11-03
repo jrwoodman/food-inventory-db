@@ -24,7 +24,7 @@ class USDAService {
             'api_key' => $this->api_key,
             'query' => $query,
             'pageSize' => min($page_size, 50),
-            'dataType' => 'Survey (FNDDS),Foundation,SR Legacy' // Most comprehensive data types
+            'dataType' => 'Survey (FNDDS),Foundation,SR Legacy,Branded' // All major data types
         ];
         
         $response = $this->makeRequest($url, $params);
