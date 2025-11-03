@@ -88,32 +88,32 @@
                                                     <?php echo ucfirst($result['type']); ?>
                                                 </span>
                                             </div>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; color: var(--text-muted);">
                                                 <div>
                                                     <span style="color: var(--text-muted);">📍 Location:</span>
-                                                    <strong><?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?></strong>
+                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?></span>
                                                 </div>
                                                 <div>
                                                     <span style="color: var(--text-muted);">📦 Quantity:</span>
-                                                    <strong><?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?></strong>
+                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?></span>
                                                 </div>
                                                 <?php if (!empty($result['category'])): ?>
                                                 <div>
                                                     <span style="color: var(--text-muted);">🏷️ Category:</span>
-                                                    <strong><?php echo htmlspecialchars($result['category']); ?></strong>
+                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo htmlspecialchars($result['category']); ?></span>
                                                 </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($result['expiry_date'])): ?>
                                                 <div>
                                                     <span style="color: var(--text-muted);">📅 Expires:</span>
-                                                    <strong><?php echo date('M j, Y', strtotime($result['expiry_date'])); ?></strong>
+                                                    <span style="color: var(--text-color); opacity: 0.85;"><?php echo date('M j, Y', strtotime($result['expiry_date'])); ?></span>
                                                 </div>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
                                         <a href="index.php?action=<?php echo $result['type'] === 'food' ? 'edit_food' : 'edit_ingredient'; ?>&id=<?php echo $result['id']; ?>" 
-                                           class="btn btn-sm" 
-                                           style="white-space: nowrap;"
+                                           class="btn btn-primary btn-sm" 
+                                           style="white-space: nowrap; text-decoration: none;"
                                            title="Edit <?php echo htmlspecialchars($result['name']); ?>">
                                             ✏️ Edit
                                         </a>
