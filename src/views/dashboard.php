@@ -545,6 +545,10 @@
         });
     </script>
     <script src="../assets/js/app.js"></script>
+    <script>
+        // Pass configuration to nutrition.js
+        window.NUTRITION_LINK_MODE = '<?php echo USDA_NUTRITION_LINK_MODE; ?>';
+    </script>
     <script src="../assets/js/nutrition.js"></script>
 </body>
 </html>

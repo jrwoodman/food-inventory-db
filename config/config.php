@@ -48,6 +48,7 @@ if (!defined('CRITICAL_STOCK_THRESHOLD')) define('CRITICAL_STOCK_THRESHOLD', 5);
 // USDA FoodData Central API Configuration
 // Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html
 if (!defined('USDA_API_KEY')) define('USDA_API_KEY', 'DEMO_KEY');  // Replace with your actual API key
+if (!defined('USDA_NUTRITION_LINK_MODE')) define('USDA_NUTRITION_LINK_MODE', 'icon');  // 'icon' = show 🥗 icon, 'name' = make item name clickable
 
 // Email Configuration (for future notifications)
 define('SMTP_HOST', '');

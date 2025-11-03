@@ -245,23 +245,45 @@ function addNutritionIcons() {
 }
 
 function addIconsToRows(rows) {
+    const linkMode = window.NUTRITION_LINK_MODE || 'icon';
+    
     rows.forEach(row => {
         const nameCell = row.querySelector('td:first-child');
         if (nameCell) {
             const itemName = nameCell.textContent.trim();
             if (itemName && itemName !== 'No food items found.' && itemName !== 'No ingredients found.') {
-                const icon = document.createElement('span');
-                icon.className = 'nutrition-icon';
-                icon.innerHTML = ' 🥗';
-                icon.title = 'View nutrition information';
-                icon.style.cursor = 'pointer';
-                icon.style.marginLeft = '0.5rem';
-                icon.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showNutritionInfo(itemName);
-                };
-                nameCell.appendChild(icon);
+                
+                if (linkMode === 'name') {
+                    // Make the entire name cell clickable
+                    nameCell.style.cursor = 'pointer';
+                    nameCell.style.color = 'var(--accent-primary)';
+                    nameCell.title = 'Click to view nutrition information';
+                    nameCell.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showNutritionInfo(itemName);
+                    };
+                    nameCell.onmouseover = function() {
+                        this.style.textDecoration = 'underline';
+                    };
+                    nameCell.onmouseout = function() {
+                        this.style.textDecoration = 'none';
+                    };
+                } else {
+                    // Default: add icon next to name
+                    const icon = document.createElement('span');
+                    icon.className = 'nutrition-icon';
+                    icon.innerHTML = ' 🥗';
+                    icon.title = 'View nutrition information';
+                    icon.style.cursor = 'pointer';
+                    icon.style.marginLeft = '0.5rem';
+                    icon.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showNutritionInfo(itemName);
+                    };
+                    nameCell.appendChild(icon);
+                }
             }
         }
     });
