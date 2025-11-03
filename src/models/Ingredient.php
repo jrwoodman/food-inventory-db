@@ -239,11 +239,6 @@ class Ingredient {
                 $this->group_id,
                 $this->id
             ]);
-
-            if(!$stmt->rowCount()) {
-                $this->conn->rollBack();
-                return false;
-            }
             
             // Update location data if provided
             if (!empty($this->locations)) {
