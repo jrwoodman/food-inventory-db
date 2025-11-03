@@ -13,7 +13,11 @@ This is a PHP-based web application for managing food and ingredient inventory w
 # Start PHP built-in development server (recommended for development)
 php -S localhost:8000 -t public/
 
+# Or use the provided startup script (includes environment checks)
+./start_server.sh
+
 # Access the application at http://localhost:8000
+# Default login: admin / admin123
 ```
 
 ### Database Operations
@@ -52,6 +56,37 @@ chmod 755 uploads/ backups/ logs/ database/ 2>/dev/null || true
 chmod 664 database/food_inventory.db 2>/dev/null || true
 ```
 
+### System Testing
+```bash
+# Run comprehensive system test
+php test_system.php
+
+# Test database connection only
+php -r "require 'config/config.php'; require 'src/database/Database.php'; \$db = new Database(); \$conn = \$db->getConnection(); echo \$conn ? 'Connected successfully' : 'Connection failed';"
+
+# Check PHP extensions
+php -m | grep -E '(pdo|sqlite|json|session)'
+
+# Verify database tables
+sqlite3 database/food_inventory.db ".tables"
+
+# Check admin user exists
+sqlite3 database/food_inventory.db "SELECT username, email, role FROM users WHERE role='admin';"
+```
+
+### Production Deployment
+```bash
+# Run production deployment script (includes all checks)
+./deploy.sh
+
+# Manual production setup steps:
+# 1. Change default admin password
+# 2. Configure web server (Apache/Nginx) document root to public/
+# 3. Enable HTTPS/SSL
+# 4. Ensure database/ directory is not web-accessible
+# 5. Set up automated backups
+```
+
 ## Architecture Overview
 
 ### MVC Pattern Implementation
@@ -74,7 +109,10 @@ chmod 664 database/food_inventory.db 2>/dev/null || true
 - **File-based Storage**: SQLite database file stored in `database/` directory for portability
 
 ### Key Database Tables
-- **foods**: Main inventory items with expiry tracking
+- **users**: User accounts with authentication and role management
+- **user_sessions**: Database-backed session management for security
+- **stores**: Purchase location database (Walmart, Target, etc.)
+- **foods**: Main inventory items with expiry tracking and purchase tracking
 - **ingredients**: Master ingredient information (name, category, supplier, etc.) - quantities stored separately
 - **ingredient_locations**: Stores quantities of ingredients per location (supports multi-location storage)
 - **categories**: Organizational categories for both foods and ingredients
@@ -87,6 +125,52 @@ chmod 664 database/food_inventory.db 2>/dev/null || true
 - **Auto-directory Creation**: Automatically creates required directories (uploads, backups, logs)
 - **Configurable Thresholds**: Expiry warnings and stock thresholds are adjustable
 
+## User Authentication System
+
+The application includes a comprehensive user authentication and authorization system:
+
+### User Roles
+- **Admin**: Full system access, user management, store management, all inventory operations
+- **User**: Add/edit/delete own inventory items, profile management, standard operations
+- **Viewer**: Read-only access to inventory, profile viewing only
+
+### Authentication Features
+- Session-based authentication with database-backed sessions
+- Password hashing with PHP's password_hash()
+- Role-based access control throughout the application
+- Session management (view active sessions, logout from specific sessions)
+- Profile management (update personal info, change passwords)
+
+### User Management (Admin Only)
+```php
+// Access user management
+GET /public/index.php?action=users
+
+// Add new user
+POST /public/index.php?action=add_user
+// Required fields: username, email, password, role, first_name, last_name
+
+// Edit user
+POST /public/index.php?action=edit_user&id=USER_ID
+```
+
+## Store Management System
+
+The application includes purchase location tracking:
+
+### Store Operations
+```bash
+# Stores are managed through the web interface
+# Admin users can add, edit, and activate/deactivate stores
+# Stores populate dropdown menus for purchase location tracking
+```
+
+### Store Database
+- Pre-populated with common stores (Walmart, Target, Kroger, etc.)
+- Supports custom store additions
+- Stores can be activated/deactivated without deletion
+- Integration with food/ingredient purchase tracking
+
 ## API Endpoints
 
 The application provides simple JSON API endpoints:
@@ -94,6 +178,11 @@ The application provides simple JSON API endpoints:
 - `GET /public/index.php?action=api_ingredients` - Returns ingredients with total quantities as JSON
 - `GET /public/index.php?action=api_ingredient_locations` - Returns ingredients with location breakdown as JSON
 - `POST /public/index.php?action=update_ingredient_location` - Update quantity for a specific ingredient location
+
+### Authentication Endpoints
+- `POST /public/index.php?action=login` - User login
+- `GET /public/index.php?action=logout` - User logout
+- `GET /public/index.php?action=profile` - User profile management
 
 ## Multi-Location Ingredient Storage
 
@@ -164,8 +253,9 @@ $ingredient->updateLocationQuantity('Pantry', 3.5); // Update specific location
 ## Development Environment Notes
 
 ### PHP Requirements
-- PHP 7.4+ required
-- PDO MySQL extension must be enabled
+- PHP 7.4+ required (PHP 8.4+ compatible)
+- PDO SQLite extension must be enabled
+- JSON and session extensions required
 - Error reporting enabled in development mode
 
 ### Database Requirements
@@ -184,10 +274,18 @@ $ingredient->updateLocationQuantity('Pantry', 3.5); // Update specific location
 
 ### Security Considerations
 - PDO prepared statements used throughout for SQL injection prevention
-- Session-based architecture (though authentication not implemented)
+- Comprehensive session-based authentication system with role-based access control
+- Password hashing using PHP's password_hash() function
+- Database-backed session management for enhanced security
 - File upload directory outside web root
 - SQLite database file should have proper file permissions (not web-accessible)
 - Error reporting should be disabled in production
+
+### Testing and Quality Assurance
+- Comprehensive testing guide available in `TESTING_GUIDE.md`
+- System test script: `php test_system.php`
+- Automated environment checks in startup scripts
+- Multi-user testing scenarios included
 
 ## SQLite Configuration Notes
 

@@ -259,13 +259,13 @@ class Food {
         $query = "SELECT f.*, 
                   COALESCE(SUM(fl.quantity), 0) as total_quantity,
                   CASE 
-                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    WHEN date(f.expiry_date) < date('now') THEN 'expired'
                     ELSE 'expiring'
                   END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.expiry_date IS NOT NULL
-                 AND f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         
@@ -279,14 +279,14 @@ class Food {
         $query = "SELECT f.*, 
                   COALESCE(SUM(fl.quantity), 0) as total_quantity,
                   CASE 
-                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    WHEN date(f.expiry_date) < date('now') THEN 'expired'
                     ELSE 'expiring'
                   END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.user_id = ?
                  AND f.expiry_date IS NOT NULL
-                 AND f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         
@@ -304,14 +304,14 @@ class Food {
         $query = "SELECT f.*, 
                   COALESCE(SUM(fl.quantity), 0) as total_quantity,
                   CASE 
-                    WHEN f.expiry_date < date('now') THEN 'expired'
+                    WHEN date(f.expiry_date) < date('now') THEN 'expired'
                     ELSE 'expiring'
                   END as status
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.group_id IN ($placeholders)
                  AND f.expiry_date IS NOT NULL
-                 AND f.expiry_date <= date('now', '+' || ? || ' days')
+                 AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
                  ORDER BY f.expiry_date ASC";
         
@@ -330,7 +330,7 @@ class Food {
                  ORDER BY total_quantity ASC, f.name ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
+        $stmt->bindValue(1, floatval($threshold), PDO::PARAM_STR);
         $stmt->execute();
         return $stmt;
     }
@@ -356,7 +356,7 @@ class Food {
             $stmt->bindValue($param_index++, $group_id, PDO::PARAM_INT);
         }
         // Bind threshold
-        $stmt->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
+        $stmt->bindValue($param_index, floatval($threshold), PDO::PARAM_STR);
         $stmt->execute();
         return $stmt;
     }

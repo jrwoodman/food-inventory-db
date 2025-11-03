@@ -285,7 +285,7 @@ class Ingredient {
                   ORDER BY total_quantity ASC, i.name ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(1, (int)$threshold, PDO::PARAM_INT);
+        $stmt->bindValue(1, floatval($threshold), PDO::PARAM_STR);
         $stmt->execute();
         return $stmt;
     }
@@ -327,7 +327,7 @@ class Ingredient {
             $stmt->bindValue($param_index++, $group_id, PDO::PARAM_INT);
         }
         // Bind threshold
-        $stmt->bindValue($param_index, (int)$threshold, PDO::PARAM_INT);
+        $stmt->bindValue($param_index, floatval($threshold), PDO::PARAM_STR);
         $stmt->execute();
         return $stmt;
     }

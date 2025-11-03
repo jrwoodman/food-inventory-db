@@ -159,7 +159,7 @@ class InventoryController {
                         $food->id = $existing['id'];
                         if ($food->readOne()) {
                             // Update food metadata
-                            if ($expiry_date) {
+                            if (!empty($expiry_date)) {
                                 $food->expiry_date = $expiry_date;
                             }
                             if (!empty($_POST['purchase_date'])) {
@@ -197,8 +197,8 @@ class InventoryController {
                         $food->category = $_POST['category'];
                         $food->brand = $_POST['brand'];
                         $food->unit = $_POST['unit'];
-                        $food->expiry_date = $expiry_date;
-                        $food->purchase_date = $_POST['purchase_date'] ?: null;
+                        $food->expiry_date = !empty($expiry_date) ? $expiry_date : null;
+                        $food->purchase_date = !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null;
                         $food->purchase_location = $_POST['purchase_location'];
                         $food->notes = $_POST['notes'];
                         $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
@@ -485,7 +485,7 @@ class InventoryController {
                             }
                             
                             // Update expiry date if provided
-                            if ($expiry_date) {
+                            if (!empty($expiry_date)) {
                                 $ingredient->expiry_date = $expiry_date;
                             }
                             // Update purchase date
@@ -507,10 +507,10 @@ class InventoryController {
                         $ingredient->category = $_POST['category'];
                         $ingredient->unit = $_POST['unit'];
                         $ingredient->cost_per_unit = null;
-                        $ingredient->supplier = null;
-                        $ingredient->purchase_date = $_POST['purchase_date'] ?: null;
+                        $ingredient->supplier = !empty($_POST['supplier']) ? $_POST['supplier'] : null;
+                        $ingredient->purchase_date = !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null;
                         $ingredient->purchase_location = $_POST['purchase_location'];
-                        $ingredient->expiry_date = $expiry_date;
+                        $ingredient->expiry_date = !empty($expiry_date) ? $expiry_date : null;
                         $ingredient->notes = $_POST['notes'];
                         $ingredient->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
                         $ingredient->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
