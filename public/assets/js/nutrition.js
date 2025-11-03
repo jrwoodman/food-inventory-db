@@ -86,7 +86,7 @@ function loadNutritionDetails(fdcId) {
                 return;
             }
             
-            displayNutritionFacts(data.nutrition, data.using_demo_key);
+            displayNutritionFacts(data.nutrition, data.using_demo_key, data.unit_system);
         })
         .catch(error => {
             console.error('Error fetching nutrition details:', error);
@@ -95,7 +95,7 @@ function loadNutritionDetails(fdcId) {
 }
 
 // Display nutrition facts label
-function displayNutritionFacts(nutrition, usingDemoKey) {
+function displayNutritionFacts(nutrition, usingDemoKey, unitSystem) {
     const content = document.getElementById('nutrition-content');
     
     let html = '';
@@ -179,7 +179,7 @@ function displayNutritionFacts(nutrition, usingDemoKey) {
     html += '</div>';
     
     // Show data source and unit system
-    const unitLabel = typeof data !== 'undefined' && data.unit_system === 'imperial' ? 'Imperial Units' : 'Metric Units';
+    const unitLabel = unitSystem === 'imperial' ? 'Imperial Units' : 'Metric Units';
     html += `<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Data from USDA FoodData Central (${unitLabel})</p>`;
     
     content.innerHTML = html;
