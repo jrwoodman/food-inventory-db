@@ -149,8 +149,37 @@ class USDAService {
             'brand' => $food_data['brandOwner'] ?? null,
             'serving_size' => $food_data['servingSize'] ?? null,
             'serving_unit' => $food_data['servingSizeUnit'] ?? null,
+            'portions' => [],
             'nutrients' => []
         ];
+        
+        // Extract food portions if available
+        if (isset($food_data['foodPortions']) && is_array($food_data['foodPortions'])) {
+            foreach ($food_data['foodPortions'] as $portion) {
+                $modifier = $portion['modifier'] ?? $portion['portionDescription'] ?? '';
+                $amount = $portion['gramWeight'] ?? $portion['amount'] ?? null;
+                $measureUnit = $portion['measureUnit']['name'] ?? '';
+                
+                if ($modifier || $measureUnit) {
+                    $portionInfo = [];
+                    if ($amount && $measureUnit) {
+                        $portionInfo['description'] = trim($amount . ' ' . $measureUnit . ' ' . $modifier);
+                    } else if ($modifier) {
+                        $portionInfo['description'] = $modifier;
+                    } else if ($measureUnit) {
+                        $portionInfo['description'] = $measureUnit;
+                    }
+                    
+                    if (isset($portion['gramWeight'])) {
+                        $portionInfo['gram_weight'] = $portion['gramWeight'];
+                    }
+                    
+                    if (!empty($portionInfo)) {
+                        $nutrition['portions'][] = $portionInfo;
+                    }
+                }
+            }
+        }
         
         // Map of important nutrients to extract
         $nutrient_map = [

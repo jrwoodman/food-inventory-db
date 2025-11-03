@@ -125,6 +125,19 @@ function displayNutritionFacts(nutrition, usingDemoKey, unitSystem) {
         html += `<div class="nutrition-serving">Serving Size: ${nutrition.serving_size} ${escapeHtml(nutrition.serving_unit)}</div>`;
     }
     
+    // Display available portions
+    if (nutrition.portions && nutrition.portions.length > 0) {
+        html += '<div class="nutrition-portions" style="font-size: 0.875rem; margin-top: 0.5rem; color: var(--text-muted);"><strong>Available Portions:</strong><ul style="margin: 0.25rem 0; padding-left: 1.5rem;">';
+        nutrition.portions.forEach(portion => {
+            let portionText = escapeHtml(portion.description);
+            if (portion.gram_weight) {
+                portionText += ` (${portion.gram_weight}g)`;
+            }
+            html += `<li>${portionText}</li>`;
+        });
+        html += '</ul></div>';
+    }
+    
     html += '<hr class="nutrition-divider">';
     
     // Main nutrients
