@@ -296,7 +296,7 @@ function addIconsToRows(rows) {
                 if (linkMode === 'name') {
                     // Make the entire name cell clickable
                     nameCell.style.cursor = 'pointer';
-                    nameCell.style.color = '#999';
+                    nameCell.style.color = '#ccc';
                     nameCell.title = 'Click to view nutrition information';
                     nameCell.onclick = function(e) {
                         e.preventDefault();
@@ -305,11 +305,11 @@ function addIconsToRows(rows) {
                     };
                     nameCell.onmouseover = function() {
                         this.style.textDecoration = 'underline';
-                        this.style.color = '#bbb';
+                        this.style.color = '#ddd';
                     };
                     nameCell.onmouseout = function() {
                         this.style.textDecoration = 'none';
-                        this.style.color = '#999';
+                        this.style.color = '#ccc';
                     };
                 } else {
                     // Default: add icon next to name
