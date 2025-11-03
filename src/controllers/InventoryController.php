@@ -1983,7 +1983,9 @@ class InventoryController {
                 
                 foreach ($search_terms as $term) {
                     // Search foods with location details (search name, brand, and location)
-                    $query = "SELECT f.*, fl.location, fl.quantity, 'food' as type, g.name as group_name 
+                    $query = "SELECT f.id, f.name, f.category, f.brand, f.unit, f.expiry_date, f.purchase_date, 
+                                     f.purchase_location, f.notes, f.user_id, f.group_id,
+                                     fl.location, fl.quantity, 'food' as type, g.name as group_name 
                               FROM foods f
                               LEFT JOIN food_locations fl ON f.id = fl.food_id
                               LEFT JOIN groups g ON f.group_id = g.id
