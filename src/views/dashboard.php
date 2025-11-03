@@ -88,7 +88,7 @@
                                                     <?php echo ucfirst($result['type']); ?>
                                                 </span>
                                             </div>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; opacity: 0.5;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; color: #6b7280;">
                                                 <div>
                                                     📍 Location: <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
                                                 </div>
