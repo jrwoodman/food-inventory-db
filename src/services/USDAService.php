@@ -75,8 +75,22 @@ class USDAService {
         curl_close($ch);
         
         if ($error || $http_code !== 200) {
-            error_log("USDA API Error: HTTP $http_code - $error");
-            return false;
+            $error_message = "USDA API Error: HTTP $http_code";
+            
+            // Check for rate limit errors
+            if ($http_code === 429) {
+                $error_message = "API rate limit exceeded. Please wait before making more requests.";
+                if ($this->api_key === 'DEMO_KEY') {
+                    $error_message .= " DEMO_KEY has low limits (30/hour, 50/day). Get a free API key for 1000/hour at https://fdc.nal.usda.gov/api-key-signup.html";
+                }
+            } elseif ($http_code === 403) {
+                $error_message = "API access forbidden. Your API key may be invalid or suspended.";
+            } elseif ($error) {
+                $error_message .= " - $error";
+            }
+            
+            error_log($error_message);
+            return ['error' => $error_message, 'http_code' => $http_code];
         }
         
         $data = json_decode($response, true);

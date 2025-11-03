@@ -2211,6 +2211,12 @@ class InventoryController {
         
         $results = $usda->searchFoods($item_name, 5); // Get top 5 matches
         
+        // Check if error was returned
+        if (is_array($results) && isset($results['error'])) {
+            echo json_encode(['error' => $results['error']]);
+            exit();
+        }
+        
         if ($results === false) {
             echo json_encode(['error' => 'Failed to fetch nutrition data from USDA']);
             exit();
@@ -2242,6 +2248,12 @@ class InventoryController {
         $usda = new USDAService();
         
         $food_data = $usda->getFoodDetails($fdc_id);
+        
+        // Check if error was returned
+        if (is_array($food_data) && isset($food_data['error'])) {
+            echo json_encode(['error' => $food_data['error']]);
+            exit();
+        }
         
         if ($food_data === false) {
             echo json_encode(['error' => 'Failed to fetch nutrition details from USDA']);

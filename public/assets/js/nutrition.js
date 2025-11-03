@@ -179,7 +179,7 @@ function displayNutritionFacts(nutrition, usingDemoKey) {
     html += '</div>';
     
     // Show data source and unit system
-    const unitLabel = data.unit_system === 'imperial' ? 'Imperial Units' : 'Metric Units';
+    const unitLabel = typeof data !== 'undefined' && data.unit_system === 'imperial' ? 'Imperial Units' : 'Metric Units';
     html += `<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Data from USDA FoodData Central (${unitLabel})</p>`;
     
     content.innerHTML = html;
@@ -188,11 +188,29 @@ function displayNutritionFacts(nutrition, usingDemoKey) {
 // Show error message
 function showError(message) {
     const content = document.getElementById('nutrition-content');
-    content.innerHTML = `
-        <div class="alert alert-error" style="margin: 2rem;">
-            ${escapeHtml(message)}
-        </div>
+    
+    // Check if this is a rate limit error
+    const isRateLimit = message.includes('rate limit') || message.includes('429');
+    const isDemoKeyWarning = message.includes('DEMO_KEY');
+    
+    let html = `
+        <div class="alert alert-error" style="margin: 2rem; background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 1.5rem; border-radius: 0.5rem;">
+            <strong>${isRateLimit ? '⏱️ Rate Limit Exceeded' : '❌ Error'}</strong><br>
+            <div style="margin-top: 0.5rem;">${escapeHtml(message)}</div>
     `;
+    
+    if (isRateLimit && isDemoKeyWarning) {
+        html += `
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #fca5a5;">
+                <strong>💡 Solution:</strong><br>
+                <span style="font-size: 0.875rem;">Get a free personal API key for much higher limits:</span><br>
+                <a href="https://fdc.nal.usda.gov/api-key-signup.html" target="_blank" style="color: #991b1b; text-decoration: underline; font-weight: bold;">Sign up for free API key →</a>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    content.innerHTML = html;
 }
 
 // Close nutrition modal
