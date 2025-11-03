@@ -177,10 +177,12 @@
                             $style = $is_expired ? 'color: #ff4444; font-weight: bold;' : '';
                             $icon = $is_expired ? ' 🚨' : '';
                         ?>
-                            <div class="expiring-item" style="<?php echo $style; ?>">
-                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?><?php echo $icon; ?></span>
-                            </div>
+                            <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" style="text-decoration: none; color: inherit;">
+                                <div class="expiring-item" style="<?php echo $style; ?>">
+                                    <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                    <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?><?php echo $icon; ?></span>
+                                </div>
+                            </a>
                         <?php endwhile;
                     }
                     if ($expiring_count == 0): ?>
@@ -217,10 +219,12 @@
                                 $icon = ' ⚡';
                             }
                         ?>
-                            <div class="low-stock-item" style="<?php echo $color; ?>">
-                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
-                            </div>
+                            <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" style="text-decoration: none; color: inherit;">
+                                <div class="low-stock-item" style="<?php echo $color; ?>">
+                                    <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                    <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
+                                </div>
+                            </a>
                         <?php endwhile;
                     }
                     if ($low_stock_foods_count == 0): ?>
@@ -257,10 +261,12 @@
                                 $icon = ' ⚡';
                             }
                         ?>
-                            <div class="low-stock-item" style="<?php echo $color; ?>">
-                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
-                                <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
-                            </div>
+                            <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" style="text-decoration: none; color: inherit;">
+                                <div class="low-stock-item" style="<?php echo $color; ?>">
+                                    <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                    <span class="quantity"><?php echo $qty . ' ' . $row['unit'] . $icon; ?></span>
+                                </div>
+                            </a>
                         <?php endwhile;
                     }
                     if ($low_stock_count == 0): ?>
