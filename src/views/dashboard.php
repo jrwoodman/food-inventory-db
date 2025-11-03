@@ -285,7 +285,6 @@
                             <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                             <th>Total Quantity</th>
                             <th>Allergens</th>
-                            <th>Cost/Unit</th>
                             <th>Supplier</th>
                             <th>Purchase Date</th>
                             <th>Actions</th>
@@ -313,7 +312,6 @@
                                         echo !empty($allergens) ? implode('', $allergens) : '—';
                                         ?>
                                     </td>
-                                    <td><?php echo isset($row['cost_per_unit']) && $row['cost_per_unit'] ? '$' . number_format($row['cost_per_unit'], 2) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
                                     <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                     <td class="table-actions">
@@ -333,7 +331,7 @@
                             <?php endwhile;
                         }
                         if ($ingredient_count == 0): ?>
-                            <tr><td colspan="<?php echo $show_all_groups ? '9' : '8'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
+                            <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No ingredients found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_ingredient">Add your first ingredient!</a><?php endif; ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
