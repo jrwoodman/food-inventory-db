@@ -4,7 +4,7 @@
  */
 
 // Show nutrition modal for an item
-function showNutritionInfo(itemName) {
+function showNutritionInfo(itemName, brand = null, category = null) {
     // Create modal if it doesn't exist
     let modal = document.getElementById('nutrition-modal');
     if (!modal) {
@@ -12,12 +12,23 @@ function showNutritionInfo(itemName) {
         document.body.appendChild(modal);
     }
     
+    // Build search query with brand and category if available
+    let searchQuery = itemName;
+    if (brand) {
+        searchQuery = brand + ' ' + itemName;
+    }
+    
     // Show modal and loading state
     modal.style.display = 'flex';
-    document.getElementById('nutrition-content').innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="spinner"></div><p>Searching USDA database for "' + escapeHtml(itemName) + '"...</p></div>';
+    document.getElementById('nutrition-content').innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="spinner"></div><p>Searching USDA database for "' + escapeHtml(searchQuery) + '"...</p></div>';
     
     // Fetch nutrition info from USDA
-    fetch('index.php?action=get_nutrition_info&name=' + encodeURIComponent(itemName))
+    let url = 'index.php?action=get_nutrition_info&name=' + encodeURIComponent(searchQuery);
+    if (category) {
+        url += '&category=' + encodeURIComponent(category);
+    }
+    
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -26,7 +37,7 @@ function showNutritionInfo(itemName) {
             }
             
             if (!data.results || data.results.length === 0) {
-                showError('No nutrition data found for "' + escapeHtml(itemName) + '"');
+                showError('No nutrition data found for "' + escapeHtml(searchQuery) + '"');
                 return;
             }
             
@@ -278,6 +289,9 @@ function addIconsToRows(rows) {
         if (nameCell) {
             const itemName = nameCell.textContent.trim();
             if (itemName && itemName !== 'No food items found.' && itemName !== 'No ingredients found.') {
+                // Extract brand and category from data attributes
+                const brand = row.dataset.brand || null;
+                const category = row.dataset.category || null;
                 
                 if (linkMode === 'name') {
                     // Make the entire name cell clickable
@@ -287,7 +301,7 @@ function addIconsToRows(rows) {
                     nameCell.onclick = function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showNutritionInfo(itemName);
+                        showNutritionInfo(itemName, brand, category);
                     };
                     nameCell.onmouseover = function() {
                         this.style.textDecoration = 'underline';
@@ -306,7 +320,7 @@ function addIconsToRows(rows) {
                     icon.onclick = function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showNutritionInfo(itemName);
+                        showNutritionInfo(itemName, brand, category);
                     };
                     nameCell.appendChild(icon);
                 }

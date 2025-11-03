@@ -371,10 +371,10 @@
                                 while ($row = $foods->fetch(PDO::FETCH_ASSOC)): 
                                     $food_count++;
                                 ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['category']); ?></td>
-                                        <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
+                                <tr data-brand="<?php echo htmlspecialchars($row['brand'] ?? ''); ?>" data-category="<?php echo htmlspecialchars($row['category'] ?? ''); ?>">
+                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['category']); ?></td>
+                                    <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
                                         <td><?php echo ($row['total_quantity'] ?? 0) . ' ' . $row['unit']; ?></td>
                                         <td>
                                             <?php
