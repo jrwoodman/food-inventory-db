@@ -639,8 +639,6 @@ class InventoryController {
                         exit();
                     } else {
                         $error = "Unable to add ingredient.";
-                    } else {
-                        $error = "Please add at least one location.";
                     }
                 }
             }
