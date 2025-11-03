@@ -178,13 +178,8 @@
                             $icon = $is_expired ? ' 🚨' : '';
                         ?>
                             <div class="expiring-item" style="<?php echo $style; ?>">
-                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?><?php echo $icon; ?></span>
-                                <span class="expiry-date">
-                                    <?php if ($is_expired): ?>
-                                        <strong>EXPIRED:</strong> 
-                                    <?php endif; ?>
-                                    <?php echo date('M j, Y', strtotime($row['expiry_date'])); ?>
-                                </span>
+                                <span class="item-name"><?php echo htmlspecialchars($row['name']); ?></span>
+                                <span class="expiry-date"><?php echo date('M j, Y', strtotime($row['expiry_date'])); ?><?php echo $icon; ?></span>
                             </div>
                         <?php endwhile;
                     }
