@@ -34,11 +34,11 @@ define('SESSION_TIMEOUT', 3600); // 1 hour in seconds
 define('CSRF_TOKEN_EXPIRE', 1800); // 30 minutes in seconds
 
 // Application Settings
-define('DEFAULT_ITEMS_PER_PAGE', 50);
-define('DASHBOARD_ALERT_ITEMS_PER_PAGE', 10); // Number of items to show in dashboard alert widgets (0 = unlimited)
-define('DASHBOARD_TABLE_ITEMS_PER_PAGE', 25); // Number of items per page in dashboard tables (0 = unlimited, show all)
-define('MAX_UPLOAD_SIZE', 5242880); // 5MB in bytes
-define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'pdf']);
+if (!defined('DEFAULT_ITEMS_PER_PAGE')) define('DEFAULT_ITEMS_PER_PAGE', 50);
+if (!defined('DASHBOARD_ALERT_ITEMS_PER_PAGE')) define('DASHBOARD_ALERT_ITEMS_PER_PAGE', 10); // Number of items to show in dashboard alert widgets (0 = unlimited)
+if (!defined('DASHBOARD_TABLE_ITEMS_PER_PAGE')) define('DASHBOARD_TABLE_ITEMS_PER_PAGE', 25); // Number of items per page in dashboard tables (0 = unlimited, show all)
+if (!defined('MAX_UPLOAD_SIZE')) define('MAX_UPLOAD_SIZE', 5242880); // 5MB in bytes
+if (!defined('ALLOWED_FILE_TYPES')) define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'pdf']);
 
 // Alert Thresholds
 if (!defined('EXPIRY_WARNING_DAYS')) define('EXPIRY_WARNING_DAYS', 7);      // Show expiry warning for items expiring within 7 days
