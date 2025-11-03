@@ -29,6 +29,11 @@ class USDAService {
         
         $response = $this->makeRequest($url, $params);
         
+        // Check if response is an error
+        if (is_array($response) && isset($response['error'])) {
+            return $response; // Return error array
+        }
+        
         if ($response && isset($response['foods'])) {
             return $response['foods'];
         }
