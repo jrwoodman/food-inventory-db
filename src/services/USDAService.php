@@ -84,11 +84,43 @@ class USDAService {
     }
     
     /**
+     * Convert metric units to imperial
+     * @param float $value Metric value
+     * @param string $unit Metric unit
+     * @return array ['value' => converted_value, 'unit' => imperial_unit]
+     */
+    private function convertToImperial($value, $unit) {
+        switch(strtolower($unit)) {
+            case 'g':
+                // Grams to ounces
+                return ['value' => round($value * 0.035274, 2), 'unit' => 'oz'];
+            case 'mg':
+                // Milligrams to milligrams (keep same for small values)
+                // Or convert to grains for larger values
+                if ($value >= 100) {
+                    return ['value' => round($value * 0.015432, 2), 'unit' => 'gr'];
+                }
+                return ['value' => $value, 'unit' => 'mg'];
+            case 'µg':
+            case 'ug':
+                // Micrograms - keep same (too small to convert meaningfully)
+                return ['value' => $value, 'unit' => 'µg'];
+            case 'kcal':
+                // Calories stay the same
+                return ['value' => $value, 'unit' => 'kcal'];
+            default:
+                // Unknown unit, return as-is
+                return ['value' => $value, 'unit' => $unit];
+        }
+    }
+    
+    /**
      * Format nutrition data for display
      * @param array $food_data USDA food data
+     * @param string $unit_system 'metric' or 'imperial'
      * @return array Formatted nutrition information
      */
-    public function formatNutritionData($food_data) {
+    public function formatNutritionData($food_data, $unit_system = 'metric') {
         if (!isset($food_data['foodNutrients'])) {
             return [];
         }
@@ -126,9 +158,19 @@ class USDAService {
             // Check if this is one of our tracked nutrients
             foreach ($nutrient_map as $key => $info) {
                 if ($nutrient_id === $info['id']) {
+                    $amount = $nutrient['amount'] ?? 0;
+                    $unit = $nutrient['nutrient']['unitName'] ?? $info['unit'];
+                    
+                    // Convert to imperial if requested
+                    if ($unit_system === 'imperial' && $unit !== 'kcal') {
+                        $converted = $this->convertToImperial($amount, $unit);
+                        $amount = $converted['value'];
+                        $unit = $converted['unit'];
+                    }
+                    
                     $nutrition['nutrients'][$key] = [
-                        'value' => $nutrient['amount'] ?? 0,
-                        'unit' => $nutrient['nutrient']['unitName'] ?? $info['unit']
+                        'value' => $amount,
+                        'unit' => $unit
                     ];
                     break;
                 }

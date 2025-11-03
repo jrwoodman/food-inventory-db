@@ -2248,7 +2248,8 @@ class InventoryController {
             exit();
         }
         
-        $formatted = $usda->formatNutritionData($food_data);
+        $unit_system = USDA_NUTRITION_UNITS ?? 'metric';
+        $formatted = $usda->formatNutritionData($food_data, $unit_system);
         
         // Check if using demo key or no key
         $api_key = USDA_API_KEY;
@@ -2257,7 +2258,8 @@ class InventoryController {
         echo json_encode([
             'success' => true, 
             'nutrition' => $formatted,
-            'using_demo_key' => $using_demo_key
+            'using_demo_key' => $using_demo_key,
+            'unit_system' => $unit_system
         ]);
         exit();
     }

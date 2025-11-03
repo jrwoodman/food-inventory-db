@@ -177,7 +177,10 @@ function displayNutritionFacts(nutrition, usingDemoKey) {
     });
     
     html += '</div>';
-    html += '<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Data from USDA FoodData Central</p>';
+    
+    // Show data source and unit system
+    const unitLabel = data.unit_system === 'imperial' ? 'Imperial Units' : 'Metric Units';
+    html += `<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Data from USDA FoodData Central (${unitLabel})</p>`;
     
     content.innerHTML = html;
 }

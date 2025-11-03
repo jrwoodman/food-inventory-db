@@ -49,6 +49,7 @@ if (!defined('CRITICAL_STOCK_THRESHOLD')) define('CRITICAL_STOCK_THRESHOLD', 5);
 // Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html
 if (!defined('USDA_API_KEY')) define('USDA_API_KEY', 'DEMO_KEY');  // Replace with your actual API key
 if (!defined('USDA_NUTRITION_LINK_MODE')) define('USDA_NUTRITION_LINK_MODE', 'icon');  // 'icon' = show 🥗 icon, 'name' = make item name clickable
+if (!defined('USDA_NUTRITION_UNITS')) define('USDA_NUTRITION_UNITS', 'metric');  // 'metric' = grams/mg/µg, 'imperial' = ounces/grains
 
 // Email Configuration (for future notifications)
 define('SMTP_HOST', '');
