@@ -2150,13 +2150,9 @@ class InventoryController {
                         $food->user_id = $this->current_user->id;
                         $food->group_id = $food->group_id; // Keep existing group
                         
-                        if ($food->update()) {
-                            $updated_count++;
-                        } else {
-                            $error_count++;
-                        }
-                    }
-                } else if ($type === 'ingredient') {
+                        // Handle allergen checkboxes
+                        $food->contains_gluten = isset($item_data['contains_gluten']) ? 1 : 0;
+                        $food->contains_milk = isset($item_data['cont                } else if ($type === 'ingredient') {
                     $ingredient = new Ingredient($this->db);
                     $ingredient->id = $id;
                     
@@ -2171,6 +2167,12 @@ class InventoryController {
                         $ingredient->expiry_date = !empty($item_data['expiry_date']) ? $item_data['expiry_date'] : null;
                         $ingredient->user_id = $this->current_user->id;
                         $ingredient->group_id = $ingredient->group_id; // Keep existing group
+                        
+                        // Handle allergen checkboxes
+                        $ingredient->contains_gluten = isset($item_data['contains_gluten']) ? 1 : 0;
+                        $ingredient->contains_milk = isset($item_data['contains_milk']) ? 1 : 0;
+                        $ingredient->contains_soy = isset($item_data['contains_soy']) ? 1 : 0;
+                        $ingredient->contains_nuts = isset($item_data['contains_nuts']) ? 1 : 0;
                         
                         // Note: For ingredients, quantity is handled separately in ingredient_locations
                         // This bulk update focuses on the main ingredient properties
