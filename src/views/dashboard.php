@@ -88,25 +88,21 @@
                                                     <?php echo ucfirst($result['type']); ?>
                                                 </span>
                                             </div>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; opacity: 0.6;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; opacity: 0.5;">
                                                 <div>
-                                                    <span style="opacity: 0.7;">📍 Location:</span>
-                                                    <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
+                                                    📍 Location: <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
                                                 </div>
                                                 <div>
-                                                    <span style="opacity: 0.7;">📦 Quantity:</span>
-                                                    <?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?>
+                                                    📦 Quantity: <?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?>
                                                 </div>
                                                 <?php if (!empty($result['category'])): ?>
                                                 <div>
-                                                    <span style="opacity: 0.7;">🏷️ Category:</span>
-                                                    <?php echo htmlspecialchars($result['category']); ?>
+                                                    🏷️ Category: <?php echo htmlspecialchars($result['category']); ?>
                                                 </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($result['expiry_date'])): ?>
                                                 <div>
-                                                    <span style="opacity: 0.7;">📅 Expires:</span>
-                                                    <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
+                                                    📅 Expires: <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
                                                 </div>
                                                 <?php endif; ?>
                                             </div>
