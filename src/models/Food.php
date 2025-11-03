@@ -106,7 +106,7 @@ class Food {
                   LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                   LEFT JOIN groups g ON f.group_id = g.id
                   GROUP BY f.id
-                  ORDER BY f.created_at DESC";
+                  ORDER BY f.name";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
@@ -119,7 +119,7 @@ class Food {
                   LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                   WHERE f.user_id = ?
                   GROUP BY f.id
-                  ORDER BY f.created_at DESC";
+                  ORDER BY f.name";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id]);
         return $stmt;
@@ -137,7 +137,7 @@ class Food {
                   LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                   WHERE f.group_id IN ($placeholders)
                   GROUP BY f.id
-                  ORDER BY f.created_at DESC";
+                  ORDER BY f.name";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute($group_ids);
