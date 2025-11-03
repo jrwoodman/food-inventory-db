@@ -2152,7 +2152,17 @@ class InventoryController {
                         
                         // Handle allergen checkboxes
                         $food->contains_gluten = isset($item_data['contains_gluten']) ? 1 : 0;
-                        $food->contains_milk = isset($item_data['cont                } else if ($type === 'ingredient') {
+                        $food->contains_milk = isset($item_data['contains_milk']) ? 1 : 0;
+                        $food->contains_soy = isset($item_data['contains_soy']) ? 1 : 0;
+                        $food->contains_nuts = isset($item_data['contains_nuts']) ? 1 : 0;
+                        
+                        if ($food->update()) {
+                            $updated_count++;
+                        } else {
+                            $error_count++;
+                        }
+                    }
+                } else if ($type === 'ingredient') {
                     $ingredient = new Ingredient($this->db);
                     $ingredient->id = $id;
                     
