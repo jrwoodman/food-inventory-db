@@ -285,8 +285,7 @@ class Ingredient {
                   ORDER BY total_quantity ASC, i.name ASC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(1, floatval($threshold), PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute([floatval($threshold)]);
         return $stmt;
     }
     
@@ -320,15 +319,9 @@ class Ingredient {
                   HAVING total_quantity <= ?
                   ORDER BY total_quantity ASC";
         
+        $params = array_merge($group_ids, [floatval($threshold)]);
         $stmt = $this->conn->prepare($query);
-        // Bind group IDs
-        $param_index = 1;
-        foreach ($group_ids as $group_id) {
-            $stmt->bindValue($param_index++, $group_id, PDO::PARAM_INT);
-        }
-        // Bind threshold
-        $stmt->bindValue($param_index, floatval($threshold), PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt;
     }
     
