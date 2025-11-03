@@ -98,6 +98,9 @@
                 <div class="form-group">
                     <label for="name">Ingredient Name *</label>
                     <input type="text" id="name" name="name" required>
+                    <div id="duplicate-warning" style="display: none; margin-top: 0.5rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 4px; color: #92400e; font-size: 0.875rem;">
+                        <strong>⚠️ Note:</strong> <span id="duplicate-warning-text"></span>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -470,6 +473,53 @@
                 closeDuplicateModal();
             }
         }
+        
+        // Real-time duplicate checking as user types
+        let duplicateCheckTimeout;
+        const nameInput = document.querySelector('#name');
+        const groupIdInput = document.querySelector('#group_id');
+        const duplicateWarning = document.getElementById('duplicate-warning');
+        const duplicateWarningText = document.getElementById('duplicate-warning-text');
+        
+        function checkForDuplicates() {
+            const name = nameInput.value.trim();
+            const groupId = groupIdInput.value;
+            
+            if (!name || !groupId) {
+                duplicateWarning.style.display = 'none';
+                return;
+            }
+            
+            fetch(`index.php?action=check_ingredient_duplicate&name=${encodeURIComponent(name)}&group_id=${groupId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists && data.ingredient) {
+                        const ingredient = data.ingredient;
+                        let warningText = `An ingredient named "${ingredient.name}" already exists`;
+                        if (ingredient.locations) {
+                            warningText += ` at: ${ingredient.locations}`;
+                        }
+                        warningText += `. Submitting will add to existing quantities.`;
+                        duplicateWarningText.textContent = warningText;
+                        duplicateWarning.style.display = 'block';
+                    } else {
+                        duplicateWarning.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking duplicate:', error);
+                    duplicateWarning.style.display = 'none';
+                });
+        }
+        
+        nameInput.addEventListener('input', function() {
+            clearTimeout(duplicateCheckTimeout);
+            duplicateCheckTimeout = setTimeout(checkForDuplicates, 500);
+        });
+        
+        groupIdInput.addEventListener('change', function() {
+            checkForDuplicates();
+        });
         
         // Check for duplicates on single add form submit
         document.querySelector('#single-tab form').addEventListener('submit', function(e) {
