@@ -359,7 +359,6 @@
                                 <?php if ($show_all_groups): ?><th>Group</th><?php endif; ?>
                                 <th>Total Quantity</th>
                                 <th>Allergens</th>
-                                <th>Purchase Date</th>
                                 <th>Expiry Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -386,7 +385,6 @@
                                             echo !empty($allergens) ? implode('', $allergens) : '—';
                                             ?>
                                         </td>
-                                        <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
                                         <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
                                         <td class="table-actions">
                                             <a href="index.php?action=edit_food&id=<?php echo $row['id']; ?>" 
@@ -405,7 +403,7 @@
                                 <?php endwhile;
                             }
                             if ($food_count == 0): ?>
-                                <tr><td colspan="<?php echo $show_all_groups ? '8' : '7'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
+                                <tr><td colspan="<?php echo $show_all_groups ? '7' : '6'; ?>" class="no-items">No food items found. <?php if ($current_user->canEdit()): ?><a href="index.php?action=add_food">Add your first food item!</a><?php endif; ?></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
