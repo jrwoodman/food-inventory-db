@@ -292,7 +292,7 @@
                             <th>Total Quantity</th>
                             <th>Allergens</th>
                             <th>Supplier</th>
-                            <th>Purchase Date</th>
+                            <th>Expiry Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -319,7 +319,7 @@
                                         ?>
                                     </td>
                                     <td><?php echo htmlspecialchars($row['supplier'] ?? ''); ?></td>
-                                    <td><?php echo $row['purchase_date'] ? date('M j, Y', strtotime($row['purchase_date'])) : 'N/A'; ?></td>
+                                    <td><?php echo $row['expiry_date'] ? date('M j, Y', strtotime($row['expiry_date'])) : 'N/A'; ?></td>
                                     <td class="table-actions">
                                         <a href="index.php?action=edit_ingredient&id=<?php echo $row['id']; ?>" 
                                            class="btn btn-sm btn-primary" 
