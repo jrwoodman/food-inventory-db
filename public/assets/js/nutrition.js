@@ -136,9 +136,16 @@ function displayNutritionFacts(nutrition, usingDemoKey, unitSystem) {
     const gramsToOunces = (100 * 0.035274).toFixed(2);
     html += `<div class="nutrition-serving" style="font-weight: bold; margin-top: 0.5rem;">Nutrition Values Per: 100g (${gramsToOunces} oz)</div>`;
     
-    // Display serving size if available
-    if (nutrition.serving_size && nutrition.serving_unit) {
-        html += `<div class="nutrition-serving-note" style="font-size: 0.875rem; color: var(--text-muted);">Suggested Serving: ${nutrition.serving_size} ${escapeHtml(nutrition.serving_unit)}</div>`;
+    // Display serving size if available (show even if only one field is present)
+    if (nutrition.serving_size || nutrition.serving_unit) {
+        let servingText = 'Suggested Serving: ';
+        if (nutrition.serving_size) {
+            servingText += nutrition.serving_size;
+        }
+        if (nutrition.serving_unit) {
+            servingText += (nutrition.serving_size ? ' ' : '') + escapeHtml(nutrition.serving_unit);
+        }
+        html += `<div class="nutrition-serving-note" style="font-size: 0.875rem; color: var(--text-muted);">${servingText}</div>`;
     }
     
     html += '<hr class="nutrition-divider">';
