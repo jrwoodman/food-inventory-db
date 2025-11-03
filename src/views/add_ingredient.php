@@ -162,7 +162,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="purchase_date">Purchase Date</label>
-                        <input type="date" id="purchase_date" name="purchase_date">
+                        <input type="date" id="purchase_date" name="purchase_date" value="<?php echo date('Y-m-d'); ?>">
                     </div>
 
                     <div class="form-group">
