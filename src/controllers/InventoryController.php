@@ -1982,17 +1982,19 @@ class InventoryController {
                 $group_ids = $this->current_user->getGroupIds();
                 
                 foreach ($search_terms as $term) {
-                    // Search foods with location details
+                    // Search foods with location details (search name, brand, and location)
                     $query = "SELECT f.*, fl.location, fl.quantity, 'food' as type, g.name as group_name 
                               FROM foods f
                               LEFT JOIN food_locations fl ON f.id = fl.food_id
                               LEFT JOIN groups g ON f.group_id = g.id
-                              WHERE LOWER(f.name) LIKE LOWER(?)
+                              WHERE (LOWER(f.name) LIKE LOWER(?) 
+                                 OR LOWER(f.brand) LIKE LOWER(?)
+                                 OR LOWER(fl.location) LIKE LOWER(?))
                               " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
                                   "AND f.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
                               ORDER BY f.name, fl.location";
                     
-                    $params = ['%' . $term . '%'];
+                    $params = ['%' . $term . '%', '%' . $term . '%', '%' . $term . '%'];
                     if (!$this->current_user->isAdmin() && !empty($group_ids)) {
                         $params = array_merge($params, $group_ids);
                     }
@@ -2004,17 +2006,19 @@ class InventoryController {
                         $search_results[] = $row;
                     }
                     
-                    // Search ingredients with location details
+                    // Search ingredients with location details (search name, supplier, and location)
                     $query = "SELECT i.*, il.location, il.quantity, 'ingredient' as type, g.name as group_name
                               FROM ingredients i
                               LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
                               LEFT JOIN groups g ON i.group_id = g.id
-                              WHERE LOWER(i.name) LIKE LOWER(?)
+                              WHERE (LOWER(i.name) LIKE LOWER(?)
+                                 OR LOWER(i.supplier) LIKE LOWER(?)
+                                 OR LOWER(il.location) LIKE LOWER(?))
                               " . (!$this->current_user->isAdmin() && !empty($group_ids) ? 
                                   "AND i.group_id IN (" . implode(',', array_fill(0, count($group_ids), '?')) . ")" : "") . "
                               ORDER BY i.name, il.location";
                     
-                    $params = ['%' . $term . '%'];
+                    $params = ['%' . $term . '%', '%' . $term . '%', '%' . $term . '%'];
                     if (!$this->current_user->isAdmin() && !empty($group_ids)) {
                         $params = array_merge($params, $group_ids);
                     }
