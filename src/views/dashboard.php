@@ -303,7 +303,7 @@
                             while ($row = $ingredients->fetch(PDO::FETCH_ASSOC)): 
                                 $ingredient_count++;
                             ?>
-                                <tr>
+                                <tr data-brand="<?php echo htmlspecialchars($row['supplier'] ?? ''); ?>" data-category="<?php echo htmlspecialchars($row['category'] ?? ''); ?>">
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
                                     <?php if ($show_all_groups): ?><td><?php echo htmlspecialchars($row['group_name'] ?? 'No Group'); ?></td><?php endif; ?>
