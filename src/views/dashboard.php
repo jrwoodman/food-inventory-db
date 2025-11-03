@@ -90,19 +90,19 @@
                                             </div>
                                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.875rem; color: #b5bac1;">
                                                 <div>
-                                                    📍 Location: <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
+                                                    <span style="color: #9ca3af;">📍 Location:</span> <?php echo htmlspecialchars($result['location'] ?? 'N/A'); ?>
                                                 </div>
                                                 <div>
-                                                    📦 Quantity: <?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?>
+                                                    <span style="color: #9ca3af;">📦 Quantity:</span> <?php echo htmlspecialchars($result['quantity'] ?? '0'); ?> <?php echo htmlspecialchars($result['unit'] ?? ''); ?>
                                                 </div>
                                                 <?php if (!empty($result['category'])): ?>
                                                 <div>
-                                                    🏷️ Category: <?php echo htmlspecialchars($result['category']); ?>
+                                                    <span style="color: #9ca3af;">🏷️ Category:</span> <?php echo htmlspecialchars($result['category']); ?>
                                                 </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($result['expiry_date'])): ?>
                                                 <div>
-                                                    📅 Expires: <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
+                                                    <span style="color: #9ca3af;">📅 Expires:</span> <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
                                                 </div>
                                                 <?php endif; ?>
                                             </div>
