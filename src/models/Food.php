@@ -326,7 +326,7 @@ class Food {
                  FROM " . $this->table_name . " f
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  GROUP BY f.id
-                 HAVING total_quantity <= ?
+                 HAVING CAST(total_quantity AS REAL) <= CAST(? AS REAL)
                  ORDER BY total_quantity ASC, f.name ASC";
         
         $stmt = $this->conn->prepare($query);
@@ -345,7 +345,7 @@ class Food {
                  LEFT JOIN " . $this->locations_table . " fl ON f.id = fl.food_id
                  WHERE f.group_id IN ($placeholders)
                  GROUP BY f.id
-                 HAVING total_quantity <= ?
+                 HAVING CAST(total_quantity AS REAL) <= CAST(? AS REAL)
                  ORDER BY total_quantity ASC, f.name ASC";
         
         $params = array_merge($group_ids, [floatval($threshold)]);
