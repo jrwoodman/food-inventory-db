@@ -2216,7 +2216,15 @@ class InventoryController {
             exit();
         }
         
-        echo json_encode(['success' => true, 'results' => $results]);
+        // Check if using demo key or no key
+        $api_key = USDA_API_KEY;
+        $using_demo_key = ($api_key === 'DEMO_KEY' || empty($api_key));
+        
+        echo json_encode([
+            'success' => true, 
+            'results' => $results,
+            'using_demo_key' => $using_demo_key
+        ]);
         exit();
     }
     
@@ -2242,7 +2250,15 @@ class InventoryController {
         
         $formatted = $usda->formatNutritionData($food_data);
         
-        echo json_encode(['success' => true, 'nutrition' => $formatted]);
+        // Check if using demo key or no key
+        $api_key = USDA_API_KEY;
+        $using_demo_key = ($api_key === 'DEMO_KEY' || empty($api_key));
+        
+        echo json_encode([
+            'success' => true, 
+            'nutrition' => $formatted,
+            'using_demo_key' => $using_demo_key
+        ]);
         exit();
     }
 }

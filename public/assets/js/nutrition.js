@@ -30,7 +30,7 @@ function showNutritionInfo(itemName) {
                 return;
             }
             
-            displaySearchResults(data.results);
+            displaySearchResults(data.results, data.using_demo_key);
         })
         .catch(error => {
             console.error('Error fetching nutrition data:', error);
@@ -39,9 +39,22 @@ function showNutritionInfo(itemName) {
 }
 
 // Display search results for user to select
-function displaySearchResults(results) {
+function displaySearchResults(results, usingDemoKey) {
     const content = document.getElementById('nutrition-content');
-    let html = '<h3 style="margin-top: 0;">Select a matching food item:</h3><div class="nutrition-results">';
+    let html = '';
+    
+    // Show API key warning if using demo key
+    if (usingDemoKey) {
+        html += `
+            <div class="alert alert-warning" style="background: #fef3c7; border: 1px solid #fbbf24; color: #92400e; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                <strong>⚠️ Limited API Access</strong><br>
+                <span style="font-size: 0.875rem;">You're using the DEMO_KEY with limited access (30 requests/hour, 50/day).</span><br>
+                <a href="https://fdc.nal.usda.gov/api-key-signup.html" target="_blank" style="color: #92400e; text-decoration: underline;">Get your free API key</a> for 1,000 requests/hour.
+            </div>
+        `;
+    }
+    
+    html += '<h3 style="margin-top: 0;">Select a matching food item:</h3><div class="nutrition-results">';
     
     results.forEach(result => {
         const description = result.description || 'Unknown';
@@ -73,7 +86,7 @@ function loadNutritionDetails(fdcId) {
                 return;
             }
             
-            displayNutritionFacts(data.nutrition);
+            displayNutritionFacts(data.nutrition, data.using_demo_key);
         })
         .catch(error => {
             console.error('Error fetching nutrition details:', error);
@@ -82,10 +95,23 @@ function loadNutritionDetails(fdcId) {
 }
 
 // Display nutrition facts label
-function displayNutritionFacts(nutrition) {
+function displayNutritionFacts(nutrition, usingDemoKey) {
     const content = document.getElementById('nutrition-content');
     
-    let html = `
+    let html = '';
+    
+    // Show API key warning if using demo key
+    if (usingDemoKey) {
+        html += `
+            <div class="alert alert-warning" style="background: #fef3c7; border: 1px solid #fbbf24; color: #92400e; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                <strong>⚠️ Limited API Access</strong><br>
+                <span style="font-size: 0.875rem;">You're using the DEMO_KEY with limited access (30 requests/hour, 50/day).</span><br>
+                <a href="https://fdc.nal.usda.gov/api-key-signup.html" target="_blank" style="color: #92400e; text-decoration: underline;">Get your free API key</a> for 1,000 requests/hour.
+            </div>
+        `;
+    }
+    
+    html += `
         <div class="nutrition-facts">
             <h2 class="nutrition-title">Nutrition Facts</h2>
             <div class="nutrition-food-name">${escapeHtml(nutrition.name)}</div>
