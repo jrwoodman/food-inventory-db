@@ -143,6 +143,11 @@ class InventoryController {
                     $quantity = !empty($parts[1]) ? $parts[1] : $default_quantity;
                     $expiry_date = !empty($parts[2]) ? $parts[2] : null;
                     
+                    // Debug logging
+                    error_log("Bulk add - Line: $line");
+                    error_log("Bulk add - Parts: " . print_r($parts, true));
+                    error_log("Bulk add - Expiry date parsed: " . var_export($expiry_date, true));
+                    
                     if (empty($name)) continue; // Skip empty lines
                     
                     // Check if item already exists (case-insensitive) in the same group
@@ -198,6 +203,7 @@ class InventoryController {
                         $food->brand = $_POST['brand'];
                         $food->unit = $_POST['unit'];
                         $food->expiry_date = !empty($expiry_date) ? $expiry_date : null;
+                        error_log("Bulk add - Setting food->expiry_date to: " . var_export($food->expiry_date, true));
                         $food->purchase_date = !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null;
                         $food->purchase_location = $_POST['purchase_location'];
                         $food->notes = $_POST['notes'];
