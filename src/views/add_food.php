@@ -547,6 +547,35 @@
                 unitSelect.value = item.unit;
             }
             
+            // Populate location fields
+            if (item.location_data && item.location_data.length > 0) {
+                const container = document.getElementById('locations-container');
+                container.innerHTML = ''; // Clear existing location rows
+                locationIndex = 0;
+                
+                item.location_data.forEach((loc, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'location-row';
+                    row.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+                    
+                    let optionsHtml = '<option value="">Select Location</option>';
+                    locationsData.forEach(l => {
+                        const selected = l.name === loc.location ? 'selected' : '';
+                        optionsHtml += `<option value="${l.name}" ${selected}>${l.name}</option>`;
+                    });
+                    
+                    row.innerHTML = `
+                        <select name="locations[${index}][location]" style="flex: 1;" required>
+                            ${optionsHtml}
+                        </select>
+                        <input type="number" name="locations[${index}][quantity]" placeholder="Quantity" step="0.1" style="width: 120px;" value="${loc.quantity}" required>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();">✕</button>
+                    `;
+                    container.appendChild(row);
+                    locationIndex++;
+                });
+            }
+            
             duplicateWarningText.textContent = `You selected "${item.name}" which already exists. Submitting will add to existing quantities.`;
             duplicateWarning.style.display = 'block';
             searchResults.style.display = 'none';

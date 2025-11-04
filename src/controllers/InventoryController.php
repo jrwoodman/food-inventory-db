@@ -739,6 +739,14 @@ class InventoryController {
         $stmt->execute(['%' . $query . '%', $group_id]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Get structured location data for each item
+        foreach ($results as &$item) {
+            $locSql = "SELECT location, quantity, notes FROM food_locations WHERE food_id = ?";
+            $locStmt = $this->db->prepare($locSql);
+            $locStmt->execute([$item['id']]);
+            $item['location_data'] = $locStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        
         echo json_encode(['items' => $results]);
         exit();
     }
@@ -814,6 +822,14 @@ class InventoryController {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['%' . $query . '%', $group_id]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get structured location data for each item
+        foreach ($results as &$item) {
+            $locSql = "SELECT location, quantity, notes FROM ingredient_locations WHERE ingredient_id = ?";
+            $locStmt = $this->db->prepare($locSql);
+            $locStmt->execute([$item['id']]);
+            $item['location_data'] = $locStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         
         echo json_encode(['items' => $results]);
         exit();
