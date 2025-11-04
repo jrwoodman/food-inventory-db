@@ -143,10 +143,14 @@ class InventoryController {
                     $quantity = !empty($parts[1]) ? $parts[1] : $default_quantity;
                     $expiry_date = !empty($parts[2]) ? $parts[2] : null;
                     
-                    // Debug logging
-                    error_log("Bulk add - Line: $line");
-                    error_log("Bulk add - Parts: " . print_r($parts, true));
-                    error_log("Bulk add - Expiry date parsed: " . var_export($expiry_date, true));
+                    // Convert date format from MM-DD-YYYY to YYYY-MM-DD if needed
+                    if ($expiry_date && strpos($expiry_date, '-') !== false) {
+                        $date_parts = explode('-', $expiry_date);
+                        // Check if it looks like MM-DD-YYYY format
+                        if (count($date_parts) == 3 && strlen($date_parts[2]) == 4) {
+                            $expiry_date = $date_parts[2] . '-' . $date_parts[0] . '-' . $date_parts[1];
+                        }
+                    }
                     
                     if (empty($name)) continue; // Skip empty lines
                     
@@ -199,14 +203,13 @@ class InventoryController {
                         // Create new food with location
                         $food = new Food($this->db);
                         $food->name = $name;
-                        $food->category = $_POST['category'];
-                        $food->brand = $_POST['brand'];
-                        $food->unit = $_POST['unit'];
+                        $food->category = $_POST['category'] ?? '';
+                        $food->brand = $_POST['brand'] ?? '';
+                        $food->unit = $_POST['unit'] ?? 'pieces';
                         $food->expiry_date = !empty($expiry_date) ? $expiry_date : null;
-                        error_log("Bulk add - Setting food->expiry_date to: " . var_export($food->expiry_date, true));
                         $food->purchase_date = !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null;
-                        $food->purchase_location = $_POST['purchase_location'];
-                        $food->notes = $_POST['notes'];
+                        $food->purchase_location = $_POST['purchase_location'] ?? '';
+                        $food->notes = $_POST['notes'] ?? '';
                         $food->contains_gluten = isset($_POST['contains_gluten']) ? 1 : 0;
                         $food->contains_milk = isset($_POST['contains_milk']) ? 1 : 0;
                         $food->contains_soy = isset($_POST['contains_soy']) ? 1 : 0;

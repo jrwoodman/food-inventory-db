@@ -14,13 +14,13 @@ if (!defined('DB_USER')) define('DB_USER', 'root');
 if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Application Configuration
-define('APP_NAME', 'Food & Ingredient Inventory');
-define('APP_TITLE', '🍽️ Food Inventory'); // Title shown in navigation/header
-define('APP_SUBTITLE', ''); // Optional subtitle shown below title (leave empty to hide)
-define('APP_ICON', ''); // Optional 64x64 icon path (e.g., '../assets/images/logo.png')
-define('APP_FAVICON', ''); // Optional favicon path (e.g., '../assets/images/favicon.ico')
-define('APP_VERSION', '1.0.0-rc2');
-define('APP_DESCRIPTION', 'A comprehensive food and ingredient inventory management system');
+if (!defined('APP_NAME')) define('APP_NAME', 'Food & Ingredient Inventory');
+if (!defined('APP_TITLE')) define('APP_TITLE', '🍽️ Food Inventory'); // Title shown in navigation/header
+if (!defined('APP_SUBTITLE')) define('APP_SUBTITLE', ''); // Optional subtitle shown below title (leave empty to hide)
+if (!defined('APP_ICON')) define('APP_ICON', ''); // Optional 64x64 icon path (e.g., '../assets/images/logo.png')
+if (!defined('APP_FAVICON')) define('APP_FAVICON', ''); // Optional favicon path (e.g., '../assets/images/favicon.ico')
+if (!defined('APP_VERSION')) define('APP_VERSION', '1.0.0-rc2');
+if (!defined('APP_DESCRIPTION')) define('APP_DESCRIPTION', 'A comprehensive food and ingredient inventory management system');
 
 // Timezone Configuration
 date_default_timezone_set('America/New_York');
