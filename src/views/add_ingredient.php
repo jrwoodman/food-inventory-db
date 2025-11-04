@@ -538,6 +538,7 @@
         }
         
         function selectExistingIngredient(name, id) {
+            nameInput.value = name;
             duplicateWarningText.textContent = `You selected "${name}" which already exists. Submitting will add to existing quantities.`;
             duplicateWarning.style.display = 'block';
             searchResults.style.display = 'none';
