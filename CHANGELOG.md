@@ -5,6 +5,84 @@ All notable changes to the Food & Ingredient Inventory Management System will be
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-rc3] - 2025-11-04
+
+### Added
+- **Fuzzy Search with Auto-Population**
+  - Real-time fuzzy search in add food/ingredient forms (4+ character minimum)
+  - Dropdown shows similar existing items as you type
+  - Displays item details: category, brand/unit, quantities, locations
+  - Auto-populates all fields when selecting from search results
+  - Auto-loads existing location data with quantities
+  - 300ms debounce for optimal performance
+  - Warning message when selecting existing items
+
+- **USDA FoodData Central Integration**
+  - Nutrition lookup for foods and ingredients
+  - Search modal with FoodData Central database
+  - Nutrition facts display with per-100g values
+  - Configurable metric/imperial unit conversion
+  - Support for Foundation Foods, SR Legacy, and Branded Foods
+  - Brand and category context sent for better search results
+  - API rate limit detection and user warnings
+  - Demo key warning banner
+  - Configurable display mode (icon or clickable name)
+
+- **Enhanced Search & Navigation**
+  - Quick search widget now searches brands, suppliers, locations
+  - Category search added to quick search
+  - Real-time duplicate name warnings in add forms
+  - Foods sorted alphabetically by name (matching ingredients)
+  - Brand column added to foods dashboard table
+
+### Changed
+- **Dashboard Improvements**
+  - All dashboard widget items now clickable links to edit pages
+  - Ingredients table shows expiry date instead of purchase date
+  - Cost/Unit column removed from ingredients dashboard
+  - Brand column added to foods table
+  - Purchase date removed from foods dashboard table
+
+- **UI/UX Refinements**
+  - Improved search result styling with lighter text colors
+  - Nutrition link styling updated for better visibility
+  - Username link in nav bar matches other nav items
+  - Gravatar size increased to 40px for better visibility
+  - Edit links styled as primary buttons in search results
+  - Search results label updated to "item(s) found"
+
+### Fixed
+- **Data Quality & Validation**
+  - Expiration widget excludes zero-quantity items
+  - Invalid/null expiry dates not displayed (prevents 12-31-1969)
+  - MM-DD-YYYY dates converted to YYYY-MM-DD in bulk add
+  - Undefined POST keys prevented in bulk operations
+  - Purchase date defaults to today in single add forms
+
+- **Database & Model Issues**
+  - Apostrophe and special character encoding fixed in all models
+  - Ingredient location updates save correctly when only locations change
+  - Unit column explicitly selected in food search queries
+  - Low stock threshold filtering uses explicit REAL casting
+  - Expiry date comparison fixed for SQLite date functions
+
+- **Form & Configuration**
+  - Application settings constants can be overridden in local.php
+  - Constant redefinition warnings prevented
+  - Missing "Contains Nuts" checkbox added to bulk add forms
+  - Bulk add supplier field properly included
+  - Decimal threshold values supported (e.g., 0.2)
+  - Syntax errors in controller methods fixed
+  - Success/error messages display correctly in single-add mode
+
+### Technical Improvements
+- New API endpoints: `search_foods`, `search_ingredients`
+- USDAService class for nutrition API integration
+- Structured location data returned in search responses
+- Enhanced JavaScript for form auto-population
+- Improved error handling and propagation
+- Better date handling across bulk operations
+
 ## [1.0.0-rc2] - 2025-11-01
 
 ### Added
@@ -128,6 +206,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Version History
+
+- **1.0.0-rc3** (2025-11-04) - Release Candidate 3
+  - Fuzzy search with auto-population
+  - USDA nutrition integration
+  - Enhanced search capabilities
+  - Numerous bug fixes and UI improvements
 
 - **1.0.0-rc2** (2025-11-01) - Release Candidate 2
   - Multi-location tracking fixes

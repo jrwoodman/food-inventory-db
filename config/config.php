@@ -19,7 +19,7 @@ if (!defined('APP_TITLE')) define('APP_TITLE', '🍽️ Food Inventory'); // Tit
 if (!defined('APP_SUBTITLE')) define('APP_SUBTITLE', ''); // Optional subtitle shown below title (leave empty to hide)
 if (!defined('APP_ICON')) define('APP_ICON', ''); // Optional 64x64 icon path (e.g., '../assets/images/logo.png')
 if (!defined('APP_FAVICON')) define('APP_FAVICON', ''); // Optional favicon path (e.g., '../assets/images/favicon.ico')
-if (!defined('APP_VERSION')) define('APP_VERSION', '1.0.0-rc2');
+if (!defined('APP_VERSION')) define('APP_VERSION', '1.0.0-rc3');
 if (!defined('APP_DESCRIPTION')) define('APP_DESCRIPTION', 'A comprehensive food and ingredient inventory management system');
 
 // Timezone Configuration
