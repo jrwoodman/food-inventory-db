@@ -707,6 +707,42 @@ class InventoryController {
         exit();
     }
     
+    public function searchFoods() {
+        header('Content-Type: application/json');
+        
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+        
+        $query = $_GET['q'] ?? '';
+        $group_id = $_GET['group_id'] ?? null;
+        
+        if (strlen($query) < 4) {
+            echo json_encode(['items' => []]);
+            exit();
+        }
+        
+        // Fuzzy search for foods matching the query
+        $sql = "SELECT f.id, f.name, f.category, f.brand, f.unit,
+                COALESCE(SUM(fl.quantity), 0) as total_quantity,
+                GROUP_CONCAT(fl.location || ' (' || fl.quantity || ')') as locations
+                FROM foods f
+                LEFT JOIN food_locations fl ON f.id = fl.food_id
+                WHERE LOWER(f.name) LIKE LOWER(?) AND f.group_id = ?
+                GROUP BY f.id
+                ORDER BY f.name
+                LIMIT 10";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['%' . $query . '%', $group_id]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['items' => $results]);
+        exit();
+    }
+    
     public function checkFoodDuplicate() {
         header('Content-Type: application/json');
         
@@ -744,6 +780,42 @@ class InventoryController {
         } else {
             echo json_encode(['exists' => false]);
         }
+        exit();
+    }
+    
+    public function searchIngredients() {
+        header('Content-Type: application/json');
+        
+        // Check if user can edit
+        if (!$this->current_user->canEdit()) {
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+        
+        $query = $_GET['q'] ?? '';
+        $group_id = $_GET['group_id'] ?? null;
+        
+        if (strlen($query) < 4) {
+            echo json_encode(['items' => []]);
+            exit();
+        }
+        
+        // Fuzzy search for ingredients matching the query
+        $sql = "SELECT i.id, i.name, i.category, i.unit,
+                COALESCE(SUM(il.quantity), 0) as total_quantity,
+                GROUP_CONCAT(il.location || ' (' || il.quantity || ')') as locations
+                FROM ingredients i
+                LEFT JOIN ingredient_locations il ON i.id = il.ingredient_id
+                WHERE LOWER(i.name) LIKE LOWER(?) AND i.group_id = ?
+                GROUP BY i.id
+                ORDER BY i.name
+                LIMIT 10";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['%' . $query . '%', $group_id]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['items' => $results]);
         exit();
     }
     

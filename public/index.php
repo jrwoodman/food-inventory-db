@@ -120,6 +120,12 @@ switch ($action) {
     case 'api_ingredient_locations':
         $controller->getIngredientLocationsJson();
         break;
+    case 'search_foods':
+        $controller->searchFoods();
+        break;
+    case 'search_ingredients':
+        $controller->searchIngredients();
+        break;
     case 'check_food_duplicate':
         $controller->checkFoodDuplicate();
         break;

@@ -95,9 +95,12 @@
         <div id="single-tab" class="tab-content active">
             <div class="form-container">
             <form method="POST" class="add-form">
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label for="name">Food Name *</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" required autocomplete="off">
+                    <div id="search-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; margin-top: 0.25rem; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        <!-- Search results will be populated here -->
+                    </div>
                     <div id="duplicate-warning" style="display: none; margin-top: 0.5rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 4px; color: #92400e; font-size: 0.875rem;">
                         <strong>⚠️ Note:</strong> <span id="duplicate-warning-text"></span>
                     </div>
@@ -463,51 +466,87 @@
             }
         }
         
-        // Real-time duplicate checking as user types
-        let duplicateCheckTimeout;
+        // Fuzzy search for existing items
+        let searchTimeout;
         const nameInput = document.querySelector('#name');
         const groupIdInput = document.querySelector('#group_id');
+        const searchResults = document.getElementById('search-results');
         const duplicateWarning = document.getElementById('duplicate-warning');
         const duplicateWarningText = document.getElementById('duplicate-warning-text');
         
-        function checkForDuplicates() {
-            const name = nameInput.value.trim();
+        function searchExistingFoods() {
+            const query = nameInput.value.trim();
             const groupId = groupIdInput.value;
             
-            if (!name || !groupId) {
+            if (query.length < 4 || !groupId) {
+                searchResults.style.display = 'none';
                 duplicateWarning.style.display = 'none';
                 return;
             }
             
-            fetch(`index.php?action=check_food_duplicate&name=${encodeURIComponent(name)}&group_id=${groupId}`)
+            fetch(`index.php?action=search_foods&q=${encodeURIComponent(query)}&group_id=${groupId}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.exists && data.food) {
-                        const food = data.food;
-                        let warningText = `A food item named "${food.name}" already exists`;
-                        if (food.locations) {
-                            warningText += ` at: ${food.locations}`;
-                        }
-                        warningText += `. Submitting will add to existing quantities.`;
-                        duplicateWarningText.textContent = warningText;
-                        duplicateWarning.style.display = 'block';
+                    if (data.items && data.items.length > 0) {
+                        displaySearchResults(data.items);
                     } else {
-                        duplicateWarning.style.display = 'none';
+                        searchResults.style.display = 'none';
                     }
                 })
                 .catch(error => {
-                    console.error('Error checking duplicate:', error);
-                    duplicateWarning.style.display = 'none';
+                    console.error('Error searching foods:', error);
+                    searchResults.style.display = 'none';
                 });
         }
         
+        function displaySearchResults(items) {
+            let html = '<div style="padding: 0.5rem; font-weight: bold; color: var(--text-muted); font-size: 0.875rem; border-bottom: 1px solid var(--border-color);">Similar items found:</div>';
+            
+            items.forEach(item => {
+                html += `<div class="search-result-item" style="padding: 0.75rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s;" 
+                         onmouseover="this.style.background='var(--bg-hover)'" 
+                         onmouseout="this.style.background='transparent'" 
+                         onclick="selectExistingFood('${escapeHtml(item.name)}', ${item.id})">
+                    <div style="font-weight: 500; margin-bottom: 0.25rem;">${escapeHtml(item.name)}</div>
+                    <div style="font-size: 0.875rem; color: var(--text-muted);">
+                        ${item.category ? escapeHtml(item.category) : 'No category'} | 
+                        ${item.brand ? escapeHtml(item.brand) : 'No brand'} | 
+                        Qty: ${item.total_quantity} ${item.unit || ''}
+                    </div>
+                    ${item.locations ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">📍 ${escapeHtml(item.locations)}</div>` : ''}
+                </div>`;
+            });
+            
+            searchResults.innerHTML = html;
+            searchResults.style.display = 'block';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function selectExistingFood(name, id) {
+            duplicateWarningText.textContent = `You selected "${name}" which already exists. Submitting will add to existing quantities.`;
+            duplicateWarning.style.display = 'block';
+            searchResults.style.display = 'none';
+        }
+        
         nameInput.addEventListener('input', function() {
-            clearTimeout(duplicateCheckTimeout);
-            duplicateCheckTimeout = setTimeout(checkForDuplicates, 500);
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchExistingFoods, 300);
         });
         
         groupIdInput.addEventListener('change', function() {
-            checkForDuplicates();
+            searchExistingFoods();
+        });
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!nameInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
         });
         
         // Check for duplicates on single add form submit
