@@ -73,7 +73,7 @@
                 <?php if (isset($search_results)): ?>
                     <?php if (!empty($search_results)): ?>
                     <div style="background: var(--card-bg); padding: 1rem; border-radius: 4px; border: 1px solid var(--border-color);">
-                        <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> locations found)</h4>
+                        <h4 style="margin-top: 0;">Search Results (<?php echo count($search_results); ?> item<?php echo count($search_results) == 1 ? '' : 's'; ?> found)</h4>
                         <div style="display: grid; gap: 0.75rem;">
                             <?php foreach ($search_results as $result): ?>
                                 <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px; border-left: 3px solid <?php echo $result['type'] === 'food' ? '#4CAF50' : '#FF9800'; ?>;">
