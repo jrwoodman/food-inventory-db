@@ -100,7 +100,7 @@
                                                     <span style="color: #CACACA;">🏷️ Category:</span> <?php echo htmlspecialchars($result['category']); ?>
                                                 </div>
                                                 <?php endif; ?>
-                                                <?php if (!empty($result['expiry_date'])): ?>
+                                                <?php if (!empty($result['expiry_date']) && strtotime($result['expiry_date']) !== false && strtotime($result['expiry_date']) > 0): ?>
                                                 <div>
                                                     <span style="color: #CACACA;">📅 Expires:</span> <?php echo date('M j, Y', strtotime($result['expiry_date'])); ?>
                                                 </div>
