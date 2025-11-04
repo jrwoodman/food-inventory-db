@@ -267,6 +267,7 @@ class Food {
                  WHERE f.expiry_date IS NOT NULL
                  AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
+                 HAVING CAST(total_quantity AS REAL) > 0
                  ORDER BY f.expiry_date ASC";
         
         $stmt = $this->conn->prepare($query);
@@ -288,6 +289,7 @@ class Food {
                  AND f.expiry_date IS NOT NULL
                  AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
+                 HAVING CAST(total_quantity AS REAL) > 0
                  ORDER BY f.expiry_date ASC";
         
         $stmt = $this->conn->prepare($query);
@@ -313,6 +315,7 @@ class Food {
                  AND f.expiry_date IS NOT NULL
                  AND date(f.expiry_date) <= date('now', '+' || CAST(? AS TEXT) || ' days')
                  GROUP BY f.id
+                 HAVING CAST(total_quantity AS REAL) > 0
                  ORDER BY f.expiry_date ASC";
         
         $params = array_merge($group_ids, [$days]);
