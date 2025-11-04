@@ -503,10 +503,11 @@
             let html = '<div style="padding: 0.5rem; font-weight: bold; color: var(--text-muted); font-size: 0.875rem; border-bottom: 1px solid var(--border-color);">Similar items found:</div>';
             
             items.forEach(item => {
+                const itemData = JSON.stringify(item).replace(/"/g, '&quot;');
                 html += `<div class="search-result-item" style="padding: 0.75rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s;" 
                          onmouseover="this.style.background='var(--bg-hover)'" 
                          onmouseout="this.style.background='transparent'" 
-                         onclick="selectExistingFood('${escapeHtml(item.name)}', ${item.id})">
+                         onclick='selectExistingFood(${itemData})'>
                     <div style="font-weight: 500; margin-bottom: 0.25rem;">${escapeHtml(item.name)}</div>
                     <div style="font-size: 0.875rem; color: var(--text-muted);">
                         ${item.category ? escapeHtml(item.category) : 'No category'} | 
@@ -527,9 +528,26 @@
             return div.innerHTML;
         }
         
-        function selectExistingFood(name, id) {
-            nameInput.value = name;
-            duplicateWarningText.textContent = `You selected "${name}" which already exists. Submitting will add to existing quantities.`;
+        function selectExistingFood(item) {
+            // Populate form fields
+            nameInput.value = item.name || '';
+            
+            const categorySelect = document.getElementById('category');
+            if (categorySelect && item.category) {
+                categorySelect.value = item.category;
+            }
+            
+            const brandInput = document.getElementById('brand');
+            if (brandInput && item.brand) {
+                brandInput.value = item.brand;
+            }
+            
+            const unitSelect = document.getElementById('unit');
+            if (unitSelect && item.unit) {
+                unitSelect.value = item.unit;
+            }
+            
+            duplicateWarningText.textContent = `You selected "${item.name}" which already exists. Submitting will add to existing quantities.`;
             duplicateWarning.style.display = 'block';
             searchResults.style.display = 'none';
         }
